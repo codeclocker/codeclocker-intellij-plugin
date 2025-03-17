@@ -1,0 +1,47 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+  <id>com.codeclocker</id>
+  <name>CodeClocker</name>
+  <vendor>andrewpasika</vendor>
+
+  <depends>com.intellij.modules.platform</depends>
+  <depends>com.intellij.java</depends>
+
+  <resource-bundle>messages.Bundle</resource-bundle>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <errorHandler implementation="com.intellij.diagnostic.JetBrainsMarketplaceErrorReportSubmitter"/>
+
+    <applicationService
+      serviceImplementation="com.codeclocker.plugin.intellij.services.ActivityTracker"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.apikey.CheckApiKeyStateHttpClient"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.reporting.ActivitySampleHttpClient"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.apikey.ApiKeyLifecycle"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.config.ConfigProvider"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.config.PluginConfigClient"/>
+    <applicationService
+      serviceImplementation="com.codeclocker.plugin.intellij.apikey.ApiKeyActivationCheckerTask"/>
+
+    <postStartupActivity implementation="com.codeclocker.plugin.intellij.ListenerRegistrator"/>
+
+    <notificationGroup id="CodeClocker" displayType="STICKY_BALLOON"/>
+  </extensions>
+
+  <applicationListeners>
+    <listener class="com.codeclocker.plugin.intellij.listeners.AppFrameFocusLostListener"
+      topic="com.intellij.openapi.application.ApplicationActivationListener"/>
+
+    <listener
+      class="com.codeclocker.plugin.intellij.listeners.FileChangeBulkFileListener"
+      topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
+  </applicationListeners>
+
+  <actions>
+    <action id="com.codeclocker.plugin.intellij.apikey.EnterApiKeyAction"
+      class="com.codeclocker.plugin.intellij.apikey.EnterApiKeyAction"
+      text="CodeClocker API Key"
+      description="Enter CodeClocker API Key">
+      <add-to-group group-id="ToolsMenu" anchor="first"/>
+    </action>
+  </actions>
+</idea-plugin>
