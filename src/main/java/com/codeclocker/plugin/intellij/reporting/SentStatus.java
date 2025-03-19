@@ -1,6 +1,6 @@
 package com.codeclocker.plugin.intellij.reporting;
 
-public enum ActivitySampleSendStatus {
+public enum SentStatus {
   OK,
   ERROR
 }

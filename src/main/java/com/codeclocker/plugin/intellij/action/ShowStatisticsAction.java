@@ -1,15 +1,10 @@
 package com.codeclocker.plugin.intellij.action;
 
-import com.codeclocker.plugin.intellij.Bundle;
-import com.codeclocker.plugin.intellij.services.ActivityTracker;
-import com.codeclocker.plugin.intellij.services.TimeSpentPerFileLogger;
-import com.google.gson.Gson;
+import com.codeclocker.plugin.intellij.services.TimeSpentActivityTracker;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
-import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 
 public class ShowStatisticsAction extends AnAction {
@@ -21,14 +16,14 @@ public class ShowStatisticsAction extends AnAction {
       return;
     }
 
-    ActivityTracker activityTracker =
-        ApplicationManager.getApplication().getService(ActivityTracker.class);
+    TimeSpentActivityTracker activityTracker =
+        ApplicationManager.getApplication().getService(TimeSpentActivityTracker.class);
     StringBuilder stats = new StringBuilder();
 
-    Map<String, Map<String, TimeSpentPerFileLogger>> raw =
-        activityTracker.getFileByModuleByProject();
-    String json = new Gson().toJson(raw);
-
+    //    Map<String, Map<String, TimeSpentPerFileLogger>> raw =
+    //        activityTracker.getFileByModuleByProject();
+    //    String json = new Gson().toJson(raw);
+    //
     //    stats.append(MyBundle.message("timeSpentPerProject")).append("\n");
     //    activityTracker.getTimeSpentPerProject().forEach((name, time) -> {
     //      stats.append(name).append(": ")
@@ -54,7 +49,7 @@ public class ShowStatisticsAction extends AnAction {
     //    });
 
     // Show statistics in a dialog
-    Messages.showMessageDialog(
-        project, json, Bundle.message("statisticPopupTitle"), Messages.getInformationIcon());
+    //    Messages.showMessageDialog(
+    //        project, json, Bundle.message("statisticPopupTitle"), Messages.getInformationIcon());
   }
 }

@@ -36,7 +36,7 @@ public class HttpResponseReader {
 
       return responseString;
     } catch (IOException e) {
-      LOG.debug("Error reading response body: {}", e.getMessage());
+      LOG.error("Error reading response body: {}", e.getMessage());
       return null;
     }
   }

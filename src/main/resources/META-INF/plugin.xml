@@ -13,7 +13,9 @@
     <errorHandler implementation="com.intellij.diagnostic.JetBrainsMarketplaceErrorReportSubmitter"/>
 
     <applicationService
-      serviceImplementation="com.codeclocker.plugin.intellij.services.ActivityTracker"/>
+      serviceImplementation="com.codeclocker.plugin.intellij.services.TimeSpentActivityTracker"/>
+    <applicationService
+      serviceImplementation="com.codeclocker.plugin.intellij.services.ChangesActivityTracker"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.apikey.CheckApiKeyStateHttpClient"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.reporting.ActivitySampleHttpClient"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.apikey.ApiKeyLifecycle"/>

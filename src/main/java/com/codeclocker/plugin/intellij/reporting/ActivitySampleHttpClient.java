@@ -4,8 +4,8 @@ import static com.codeclocker.plugin.intellij.HubHost.HUB_API_HOST;
 import static com.codeclocker.plugin.intellij.Timeouts.CONNECT_TIMEOUT;
 import static com.codeclocker.plugin.intellij.Timeouts.READ_TIMEOUT;
 import static com.codeclocker.plugin.intellij.http.HttpResponseReader.readResponse;
-import static com.codeclocker.plugin.intellij.reporting.ActivitySampleSendStatus.ERROR;
-import static com.codeclocker.plugin.intellij.reporting.ActivitySampleSendStatus.OK;
+import static com.codeclocker.plugin.intellij.reporting.SentStatus.ERROR;
+import static com.codeclocker.plugin.intellij.reporting.SentStatus.OK;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.codeclocker.plugin.intellij.apikey.ApiKeyLifecycle;
@@ -26,13 +26,19 @@ public class ActivitySampleHttpClient {
     this.apiKeyLifecycle = ApplicationManager.getApplication().getService(ApiKeyLifecycle.class);
   }
 
-  public ActivitySampleSendStatus send(String apiKey, String jsonData) {
+  public SentStatus sendTimeSpentSample(String apiKey, String jsonData) {
+    return send("/api/v1/samples/time-spent", apiKey, jsonData);
+  }
+
+  public SentStatus sendChangesSample(String apiKey, String jsonData) {
+    return send("/api/v1/samples/changes", apiKey, jsonData);
+  }
+
+  private SentStatus send(String path, String apiKey, String jsonData) {
     try {
       LOG.debug("Posting data: {}", jsonData);
       HttpURLConnection connection =
-          (HttpURLConnection)
-              HttpConfigurable.getInstance()
-                  .openConnection(HUB_API_HOST + "/api/v1/activity-samples/files");
+          (HttpURLConnection) HttpConfigurable.getInstance().openConnection(HUB_API_HOST + path);
       connection.setConnectTimeout(CONNECT_TIMEOUT);
       connection.setReadTimeout(READ_TIMEOUT);
       connection.setRequestMethod("POST");
@@ -55,7 +61,7 @@ public class ActivitySampleHttpClient {
 
       return OK;
     } catch (IOException ex) {
-      LOG.debug("Error sending activity sample: {}", ex.getMessage());
+      LOG.error("Error sending activity sample: {}", ex.getMessage());
     }
 
     return ERROR;
@@ -66,7 +72,7 @@ public class ActivitySampleHttpClient {
       String response = readResponse(connection);
       apiKeyLifecycle.processHubErrorResponse(response);
     } catch (Exception ex) {
-      LOG.debug("Failed to process response: {}", ex.getMessage());
+      LOG.error("Failed to process response: {}", ex.getMessage());
     }
   }
 }

@@ -59,7 +59,7 @@ public class ConfigProvider {
       String apiKey = ApiKeyLifecycle.getActiveApiKey();
       PluginConfigDto config = pluginConfigClient.getConfig(apiKey);
       if (config == null) {
-        LOG.debug("Failed to load plugin config");
+        LOG.error("Failed to load plugin config");
         return;
       }
 
@@ -77,7 +77,7 @@ public class ConfigProvider {
       propertiesComponent.setValue(
           NEXT_CONFIG_LOAD_TIMESTAMP, String.valueOf(nextConfigLoadTimestamp.toMillis()));
     } catch (Exception e) {
-      LOG.debug("Error loading config from hub: {}", e.getMessage());
+      LOG.error("Error loading config from hub: {}", e.getMessage());
     }
   }
 }

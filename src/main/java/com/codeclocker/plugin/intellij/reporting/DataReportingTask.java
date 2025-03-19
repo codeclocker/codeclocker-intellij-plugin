@@ -3,17 +3,18 @@ package com.codeclocker.plugin.intellij.reporting;
 import static com.codeclocker.plugin.intellij.JsonMapper.OBJECT_MAPPER;
 import static com.codeclocker.plugin.intellij.ScheduledExecutor.EXECUTOR;
 import static com.codeclocker.plugin.intellij.apikey.ApiKeyLifecycle.isActivityDataStoppedBeingCollected;
-import static com.codeclocker.plugin.intellij.reporting.ActivitySampleSendStatus.ERROR;
-import static com.codeclocker.plugin.intellij.reporting.ActivitySampleSendStatus.OK;
+import static com.codeclocker.plugin.intellij.reporting.SentStatus.ERROR;
+import static com.codeclocker.plugin.intellij.reporting.SentStatus.OK;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import com.codeclocker.plugin.intellij.apikey.ApiKeyLifecycle;
 import com.codeclocker.plugin.intellij.apikey.CheckApiKeyStateHttpClient;
 import com.codeclocker.plugin.intellij.config.ConfigProvider;
-import com.codeclocker.plugin.intellij.services.ActivityTracker;
-import com.codeclocker.plugin.intellij.services.TimeSpentPerFileLogger;
-import com.codeclocker.plugin.intellij.services.TimeSpentPerFileSample;
+import com.codeclocker.plugin.intellij.services.ChangesActivityTracker;
+import com.codeclocker.plugin.intellij.services.ChangesSample;
+import com.codeclocker.plugin.intellij.services.TimeSpentActivityTracker;
+import com.codeclocker.plugin.intellij.services.TimeSpentPerProjectSample;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
@@ -30,12 +31,17 @@ public final class DataReportingTask implements Disposable {
   private static final Logger LOG = Logger.getInstance(CheckApiKeyStateHttpClient.class);
 
   private final int flushToServerFrequencySeconds;
-  private final ActivityTracker activityTracker;
+  private final TimeSpentActivityTracker timeSpentActivityTracker;
+  private final ChangesActivityTracker changesActivityTracker;
   private final ActivitySampleHttpClient activitySampleHttpClient;
-  private final Queue<String> unpublishedSamples = new ArrayDeque<>();
+  private final Queue<String> unpublishedTimeSpentSamples = new ArrayDeque<>();
+  private final Queue<String> unpublishedChangesSamples = new ArrayDeque<>();
 
   public DataReportingTask() {
-    this.activityTracker = ApplicationManager.getApplication().getService(ActivityTracker.class);
+    this.changesActivityTracker =
+        ApplicationManager.getApplication().getService(ChangesActivityTracker.class);
+    this.timeSpentActivityTracker =
+        ApplicationManager.getApplication().getService(TimeSpentActivityTracker.class);
     this.activitySampleHttpClient =
         ApplicationManager.getApplication().getService(ActivitySampleHttpClient.class);
     ConfigProvider configProvider =
@@ -58,43 +64,74 @@ public final class DataReportingTask implements Disposable {
         return;
       }
 
-      ActivitySampleSendStatus unpublishedSamplesPublishStatus = publishUnpublishedSamples(apiKey);
+      SentStatus unpublishedSamplesPublishStatus = publishUnpublishedSamples(apiKey);
       if (unpublishedSamplesPublishStatus == ERROR) {
+        LOG.error("Failed to publish unpublished samples");
         return;
       }
 
-      Map<String, Map<String, TimeSpentPerFileLogger>> sample =
-          activityTracker.drainActivitySample();
-      if (sample.isEmpty()) {
-        LOG.debug("Activity sample is empty. Doing nothing");
-        return;
-      }
-
-      Map<String, Map<String, Map<String, TimeSpentSampleDto>>> dto = toDto(sample);
-      String json = toJson(dto);
-
-      ActivitySampleSendStatus status = activitySampleHttpClient.send(apiKey, json);
-      if (status == ERROR) {
-        LOG.debug("Error sending activity sample. Caching it for future retries");
-        unpublishedSamples.add(json);
-      }
+      publishTimeSpentSample(apiKey);
+      publishChangesSample(apiKey);
     } catch (Exception ex) {
-      LOG.debug("Error sending activity sample: {}", ex.getMessage());
+      LOG.error("Error sending activity sample: {}", ex.getMessage());
     }
   }
 
-  private ActivitySampleSendStatus publishUnpublishedSamples(String apiKey) throws Exception {
-    if (unpublishedSamples.isEmpty()) {
+  private void publishTimeSpentSample(String apiKey) {
+    Map<String, TimeSpentPerProjectSample> sample = timeSpentActivityTracker.drain();
+    if (sample.isEmpty()) {
+      LOG.debug("Activity sample is empty. Doing nothing");
+      return;
+    }
+
+    Map<String, TimeSpentSampleDto> dto = toTimeSpentDto(sample);
+    String json = toJson(dto);
+
+    SentStatus status = activitySampleHttpClient.sendTimeSpentSample(apiKey, json);
+    if (status == ERROR) {
+      LOG.error("Error sending time spent sample. Caching it for future retries");
+      unpublishedTimeSpentSamples.add(json);
+    }
+  }
+
+  private void publishChangesSample(String apiKey) {
+    Map<String, Map<String, ChangesSample>> sample = changesActivityTracker.drain();
+    if (sample.isEmpty()) {
+      LOG.debug("Changes sample is empty. Doing nothing");
+      return;
+    }
+
+    Map<String, Map<String, ChangesSampleDto>> dto = toChangesDto(sample);
+    String json = toJson(dto);
+
+    SentStatus status = activitySampleHttpClient.sendChangesSample(apiKey, json);
+    if (status == ERROR) {
+      LOG.error("Error sending changes sample. Caching it for future retries");
+      unpublishedChangesSamples.add(json);
+    }
+  }
+
+  private SentStatus publishUnpublishedSamples(String apiKey) {
+    if (unpublishedTimeSpentSamples.isEmpty() && unpublishedChangesSamples.isEmpty()) {
       return OK;
     }
 
-    for (int i = 0; i < unpublishedSamples.size(); i++) {
-      String sample = unpublishedSamples.peek();
-      ActivitySampleSendStatus status = activitySampleHttpClient.send(apiKey, sample);
+    for (int i = 0; i < unpublishedTimeSpentSamples.size(); i++) {
+      String sample = unpublishedTimeSpentSamples.peek();
+      SentStatus status = activitySampleHttpClient.sendTimeSpentSample(apiKey, sample);
       if (status == ERROR) {
         return ERROR;
       }
-      unpublishedSamples.remove();
+      unpublishedTimeSpentSamples.remove();
+    }
+
+    for (int i = 0; i < unpublishedChangesSamples.size(); i++) {
+      String sample = unpublishedChangesSamples.peek();
+      SentStatus status = activitySampleHttpClient.sendChangesSample(apiKey, sample);
+      if (status == ERROR) {
+        return ERROR;
+      }
+      unpublishedChangesSamples.remove();
     }
 
     return OK;
@@ -104,40 +141,46 @@ public final class DataReportingTask implements Disposable {
     return isBlank(apiKey) || isActivityDataStoppedBeingCollected();
   }
 
-  private static Map<String, Map<String, Map<String, TimeSpentSampleDto>>> toDto(
-      Map<String, Map<String, TimeSpentPerFileLogger>> activity) {
-    Map<String, Map<String, Map<String, TimeSpentSampleDto>>> moduleByProjectDto = new HashMap<>();
+  private static Map<String, Map<String, ChangesSampleDto>> toChangesDto(
+      Map<String, Map<String, ChangesSample>> activity) {
+    Map<String, Map<String, ChangesSampleDto>> sampleByProjectDto = new HashMap<>();
 
-    for (Map.Entry<String, Map<String, TimeSpentPerFileLogger>> moduleByProject :
-        activity.entrySet()) {
-      Map<String, Map<String, TimeSpentSampleDto>> fileByModuleDto = new HashMap<>();
+    for (Entry<String, Map<String, ChangesSample>> sampleByProject : activity.entrySet()) {
+      Map<String, ChangesSampleDto> sampleByFileDto = new HashMap<>();
 
-      for (Map.Entry<String, TimeSpentPerFileLogger> fileByModule :
-          moduleByProject.getValue().entrySet()) {
-        Map<String, TimeSpentSampleDto> convertedThirdMap = new HashMap<>();
+      for (Entry<String, ChangesSample> sampleByFile : sampleByProject.getValue().entrySet()) {
+        ChangesSample sample = sampleByFile.getValue();
+        ChangesSampleDto dto =
+            new ChangesSampleDto(
+                sample.samplingStartedAt(),
+                sample.additions().get(),
+                sample.removals().get(),
+                sample.metadata());
 
-        for (Entry<String, TimeSpentPerFileSample> sampleByFile :
-            fileByModule.getValue().getTimingByElement().entrySet()) {
-          convertedThirdMap.put(
-              sampleByFile.getKey(), toTimeSpentSampleDto(sampleByFile.getValue()));
-        }
-
-        fileByModuleDto.put(fileByModule.getKey(), convertedThirdMap);
+        sampleByFileDto.put(sampleByFile.getKey(), dto);
       }
 
-      moduleByProjectDto.put(moduleByProject.getKey(), fileByModuleDto);
+      sampleByProjectDto.put(sampleByProject.getKey(), sampleByFileDto);
     }
 
-    return moduleByProjectDto;
+    return sampleByProjectDto;
   }
 
-  private static TimeSpentSampleDto toTimeSpentSampleDto(TimeSpentPerFileSample sample) {
-    return new TimeSpentSampleDto(
-        sample.samplingStartedAt(),
-        Duration.ofNanos(sample.timeSpent().get().getNanoTime()).toSeconds(),
-        sample.additions().get(),
-        sample.removals().get(),
-        sample.metadata());
+  private static Map<String, TimeSpentSampleDto> toTimeSpentDto(
+      Map<String, TimeSpentPerProjectSample> activity) {
+    Map<String, TimeSpentSampleDto> sampleByProjectName = new HashMap<>();
+
+    for (Entry<String, TimeSpentPerProjectSample> entry : activity.entrySet()) {
+      TimeSpentPerProjectSample sample = entry.getValue();
+      TimeSpentSampleDto dto =
+          new TimeSpentSampleDto(
+              sample.samplingStartedAt(),
+              Duration.ofNanos(sample.timeSpent().get().getNanoTime()).toSeconds());
+
+      sampleByProjectName.put(entry.getKey(), dto);
+    }
+
+    return sampleByProjectName;
   }
 
   private <T> String toJson(T report) {

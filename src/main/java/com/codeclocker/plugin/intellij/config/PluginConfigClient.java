@@ -35,7 +35,7 @@ public class PluginConfigClient {
         return OBJECT_MAPPER.readValue(response, PluginConfigDto.class);
       }
     } catch (Exception ex) {
-      LOG.debug("Error getting plugin config: {}", ex.getMessage());
+      LOG.error("Error getting plugin config: {}", ex.getMessage());
     }
 
     return null;

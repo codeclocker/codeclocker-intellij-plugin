@@ -31,7 +31,7 @@ public class CheckApiKeyStateHttpClient {
       LOG.debug("HTTP Response Code: " + connection.getResponseCode());
       return readResponse(connection);
     } catch (Exception ex) {
-      LOG.debug("Error checking subscription state: {}", ex.getMessage());
+      LOG.error("Error checking subscription state: {}", ex.getMessage());
       return null;
     }
   }

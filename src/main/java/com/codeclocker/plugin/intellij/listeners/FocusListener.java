@@ -1,64 +1,73 @@
 package com.codeclocker.plugin.intellij.listeners;
 
-import com.codeclocker.plugin.intellij.services.ActivityTracker;
+import com.codeclocker.plugin.intellij.services.TimeSpentActivityTracker;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.vfs.VirtualFile;
 import java.awt.AWTEvent;
+import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.FocusEvent;
+import javax.swing.JComponent;
+import org.jetbrains.annotations.Nullable;
 
 public class FocusListener implements AWTEventListener, Disposable {
 
   private static final Logger LOG = Logger.getInstance(FocusListener.class);
-  private final ActivityTracker activityTracker;
+  private final TimeSpentActivityTracker tracker;
   private final DataManager dataManager;
 
   public FocusListener() {
     this.dataManager = DataManager.getInstance();
-    this.activityTracker = ApplicationManager.getApplication().getService(ActivityTracker.class);
+    this.tracker = ApplicationManager.getApplication().getService(TimeSpentActivityTracker.class);
   }
 
   @Override
   public void eventDispatched(AWTEvent event) {
-    if (!(event instanceof FocusEvent)) {
+    if (!(event instanceof FocusEvent focusEvent)) {
       return;
     }
 
-    DataContext dataContext = dataManager.getDataContext(((FocusEvent) event).getComponent());
-    Project project = dataContext.getData(CommonDataKeys.PROJECT);
+    if (focusEvent.getID() != FocusEvent.FOCUS_GAINED) {
+      return;
+    }
+
+    Component component = focusEvent.getComponent();
+    if (component == null) {
+      return;
+    }
+
+    Project project = getProject(component);
     if (project == null) {
-      LOG.debug("Project is null. Doing nothing");
+      LOG.error("Project is null. Doing nothing");
       return;
     }
 
-    VirtualFile file = dataContext.getData(CommonDataKeys.VIRTUAL_FILE);
-    if (file == null) {
-      return;
+    ApplicationManager.getApplication()
+        .executeOnPooledThread(() -> tracker.logTime(project.getName()));
+  }
+
+  @Nullable
+  private Project getProject(Component component) {
+    Project project = null;
+
+    if (component instanceof JComponent jComponent) {
+      project = (Project) jComponent.getClientProperty(CommonDataKeys.PROJECT.getName());
     }
 
-    ProjectFileIndex projectFileIndex = ProjectFileIndex.getInstance(project);
+    if (project == null) {
+      project = CommonDataKeys.PROJECT.getData(dataManager.getDataContext(component));
+    }
 
-    Application application = ApplicationManager.getApplication();
-    application.executeOnPooledThread(
-        () -> {
-          application.runReadAction(
-              () -> {
-                Module module = projectFileIndex.getModuleForFile(file);
-                if (module != null) {
-                  activityTracker.logTime(project, module, file);
-                }
-              });
-        });
+    if (component instanceof JComponent jComponent) {
+      jComponent.putClientProperty(CommonDataKeys.PROJECT.getName(), project);
+    }
+
+    return project;
   }
 
   @Override

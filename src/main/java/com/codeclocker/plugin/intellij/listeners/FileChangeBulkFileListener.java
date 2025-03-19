@@ -1,12 +1,9 @@
 package com.codeclocker.plugin.intellij.listeners;
 
-import com.codeclocker.plugin.intellij.services.ActivityTracker;
+import com.codeclocker.plugin.intellij.services.ChangesActivityTracker;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.project.ProjectLocator;
 import com.intellij.openapi.vcs.changes.ChangeListManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.newvfs.BulkFileListener;
@@ -17,10 +14,10 @@ import org.jetbrains.annotations.NotNull;
 
 public class FileChangeBulkFileListener implements BulkFileListener {
 
-  private final ActivityTracker activityTracker;
+  private final ChangesActivityTracker tracker;
 
   public FileChangeBulkFileListener() {
-    this.activityTracker = ApplicationManager.getApplication().getService(ActivityTracker.class);
+    this.tracker = ApplicationManager.getApplication().getService(ChangesActivityTracker.class);
   }
 
   @Override
@@ -31,7 +28,7 @@ public class FileChangeBulkFileListener implements BulkFileListener {
       }
       VirtualFile file = event.getFile();
 
-      Project project = getProjectForFile(file);
+      Project project = ProjectLocator.getInstance().guessProjectForFile(file);
       if (project == null) {
         return;
       }
@@ -40,28 +37,31 @@ public class FileChangeBulkFileListener implements BulkFileListener {
         return;
       }
 
-      Module module = ProjectFileIndex.getInstance(project).getModuleForFile(file);
-      if (module == null) {
-        return;
-      }
-
+      String filePath = getRelativePath(project, file);
       long change = event.getNewLength() - event.getOldLength();
       if (change > 0) {
-        activityTracker.logAdditions(project, module, file, change);
+        tracker.incrementAdditions(project.getName(), filePath, file.getExtension(), change);
       }
       if (change < 0) {
-        activityTracker.logRemovals(project, module, file, Math.abs(change));
+        tracker.incrementRemovals(
+            project.getName(), filePath, file.getExtension(), Math.abs(change));
       }
     }
   }
 
-  public static Project getProjectForFile(VirtualFile file) {
-    for (Project project : ProjectManager.getInstance().getOpenProjects()) {
-      if (ProjectRootManager.getInstance(project).getFileIndex().isInContent(file)) {
-        return project;
-      }
+  public static String getRelativePath(Project project, VirtualFile file) {
+    String projectBasePath = project.getBasePath();
+    String filePath = file.getPath();
+
+    if (projectBasePath == null) {
+      return filePath;
     }
-    return null;
+
+    if (filePath.startsWith(projectBasePath)) {
+      return filePath.substring(projectBasePath.length());
+    }
+
+    return filePath;
   }
 
   public boolean isGitIgnored(Project project, VirtualFile file) {
