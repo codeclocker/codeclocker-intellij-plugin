@@ -4,9 +4,11 @@ import static java.awt.AWTEvent.FOCUS_EVENT_MASK;
 
 import com.codeclocker.plugin.intellij.apikey.ApiKeyActivationCheckerTask;
 import com.codeclocker.plugin.intellij.apikey.ApiKeyPromptStartupActivity;
+import com.codeclocker.plugin.intellij.listeners.CodeTrackingListener;
 import com.codeclocker.plugin.intellij.listeners.FocusListener;
 import com.codeclocker.plugin.intellij.reporting.DataReportingTask;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.ProjectActivity;
 import java.awt.Toolkit;
@@ -33,11 +35,19 @@ public class ListenerRegistrator implements ProjectActivity {
           registerFocusListener();
           startDataReportingTask();
           startCheckingApiKeyStatus();
+          registerChangesListener();
           ApiKeyPromptStartupActivity.showApiKeyDialog();
+
           return true;
         });
 
     return null;
+  }
+
+  private static void registerChangesListener() {
+    EditorFactory.getInstance()
+        .getEventMulticaster()
+        .addDocumentListener(new CodeTrackingListener(), ApplicationManager.getApplication());
   }
 
   private static void registerFocusListener() {

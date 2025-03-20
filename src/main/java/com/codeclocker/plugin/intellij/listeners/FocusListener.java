@@ -47,8 +47,7 @@ public class FocusListener implements AWTEventListener, Disposable {
       return;
     }
 
-    ApplicationManager.getApplication()
-        .executeOnPooledThread(() -> tracker.logTime(project.getName()));
+    tracker.logTime(project.getName());
   }
 
   @Nullable
