@@ -1,0 +1,60 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+  <id>com.codeclocker</id>
+  <name>CodeClocker</name>
+  <vendor>AndrewPasika</vendor>
+
+  <description>
+    <![CDATA[
+      CodeClocker - coding activity tracking plugin.
+      <br/>
+      Features:
+      <ul>
+        <li>Project Time Tracking – Keep track of how much time you spend on each project.</li>
+        <li>Code Changes Monitoring - See how many lines of code you’ve added or removed.</li>
+        <li><a href="https://hub.codeclocker.com" target="_blank">Web Hub for Data Visualization</a> - View your activity statistics in an interactive web dashboard</li>
+      </ul>
+    ]]>
+  </description>
+
+  <depends>com.intellij.modules.platform</depends>
+  <depends>com.intellij.java</depends>
+
+  <resource-bundle>messages.Bundle</resource-bundle>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <errorHandler implementation="com.intellij.diagnostic.JetBrainsMarketplaceErrorReportSubmitter"/>
+
+    <applicationService
+      serviceImplementation="com.codeclocker.plugin.intellij.services.TimeSpentActivityTracker"/>
+    <applicationService
+      serviceImplementation="com.codeclocker.plugin.intellij.services.ChangesActivityTracker"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.apikey.CheckApiKeyStateHttpClient"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.reporting.ActivitySampleHttpClient"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.apikey.ApiKeyLifecycle"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.config.ConfigProvider"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.config.PluginConfigClient"/>
+    <applicationService
+      serviceImplementation="com.codeclocker.plugin.intellij.apikey.ApiKeyActivationCheckerTask"/>
+
+    <postStartupActivity implementation="com.codeclocker.plugin.intellij.ListenerRegistrator"/>
+
+    <notificationGroup id="CodeClocker" displayType="STICKY_BALLOON"/>
+
+    <checkinHandlerFactory implementation="com.codeclocker.plugin.intellij.git.GitCommitStatsListener"/>
+  </extensions>
+
+  <applicationListeners>
+    <listener class="com.codeclocker.plugin.intellij.listeners.AppFrameFocusLostListener"
+      topic="com.intellij.openapi.application.ApplicationActivationListener"/>
+  </applicationListeners>
+
+  <actions>
+    <action id="com.codeclocker.plugin.intellij.apikey.EnterApiKeyAction"
+      class="com.codeclocker.plugin.intellij.apikey.EnterApiKeyAction"
+      text="CodeClocker API Key"
+      description="Enter CodeClocker API Key">
+      <add-to-group group-id="ToolsMenu" anchor="first"/>
+    </action>
+  </actions>
+</idea-plugin>
