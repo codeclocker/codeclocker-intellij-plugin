@@ -4,21 +4,7 @@
   <name>CodeClocker</name>
   <vendor>AndrewPasika</vendor>
 
-  <description>
-    <![CDATA[
-      CodeClocker - coding activity tracking plugin.
-      <br/>
-      Features:
-      <ul>
-        <li>Project Time Tracking – Keep track of how much time you spend on each project.</li>
-        <li>Code Changes Monitoring - See how many lines of code you’ve added or removed.</li>
-        <li><a href="https://hub.codeclocker.com" target="_blank">Web Hub for Data Visualization</a> - View your activity statistics in an interactive web dashboard</li>
-      </ul>
-    ]]>
-  </description>
-
   <depends>com.intellij.modules.platform</depends>
-  <depends>com.intellij.java</depends>
 
   <resource-bundle>messages.Bundle</resource-bundle>
 
