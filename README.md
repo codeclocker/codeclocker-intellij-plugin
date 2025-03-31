@@ -10,7 +10,7 @@
 
 CodeClocker automatically tracks developer coding activity and visualizes it on web dashboard.
 
-![Demo](https://raw.githubusercontent.com/codeclocker/codeclocker-intellij-plugin/docs/new-demo-gif/docs/img/demo2.gif)
+![Demo](https://raw.githubusercontent.com/codeclocker/codeclocker-intellij-plugin/docs/new-demo-gif/docs/img/demo3.gif)
 
 ### Features
 
