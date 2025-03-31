@@ -8,16 +8,15 @@
 
 ## What's CodeClocker
 
-CodeClocker automatically tracks developer coding activity and visualizes it on web dashboard.
+CodeClocker automatically tracks coding activity and visualizes it on web dashboard.
 
 ![Demo](https://raw.githubusercontent.com/codeclocker/codeclocker-intellij-plugin/main/docs/img/demo.gif)
 
 ### Features
 
 * **Coding Time Tracking** – Automatically records time spent on each project.
-* **VCS Added & Removed Lines** – Tracks the number of added and removed lines in VCS commits during your work.
-* **Activity Web Dashboard** – Visualises your coding activity on interactive web dashboard on [CodeClocker Hub](https://hub.codeclocker.com/).
-* **Charts &amp; Analytics** – Visualize your productivity with dynamic charts on [CodeClocker Hub](https://hub.codeclocker.com/).
+* **VCS Added & Removed Lines** – Tracks the number of added and removed lines in VCS.
+* **Activity Web Dashboard** – Visualises coding activity on web dashboard on [CodeClocker Hub](https://hub.codeclocker.com/).
 
 <!-- Plugin description end -->
 
