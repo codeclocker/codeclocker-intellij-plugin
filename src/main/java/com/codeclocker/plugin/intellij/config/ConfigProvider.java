@@ -21,11 +21,11 @@ public class ConfigProvider {
   private static final String NEXT_CONFIG_LOAD_TIMESTAMP =
       "com.codeclocker.config.next-config-load-timestamp";
 
-  private final PluginConfigClient pluginConfigClient;
+  private final PluginConfigHttpClient pluginConfigHttpClient;
 
   public ConfigProvider() {
-    this.pluginConfigClient =
-        ApplicationManager.getApplication().getService(PluginConfigClient.class);
+    this.pluginConfigHttpClient =
+        ApplicationManager.getApplication().getService(PluginConfigHttpClient.class);
     long nextConfigLoadTimestamp =
         PropertiesComponent.getInstance().getLong(NEXT_CONFIG_LOAD_TIMESTAMP, -1);
     long now = System.currentTimeMillis();
@@ -57,9 +57,9 @@ public class ConfigProvider {
   private void loadConfig() {
     try {
       String apiKey = ApiKeyLifecycle.getActiveApiKey();
-      PluginConfigDto config = pluginConfigClient.getConfig(apiKey);
+      PluginConfigDto config = pluginConfigHttpClient.getConfig(apiKey);
       if (config == null) {
-        LOG.error("Failed to load plugin config");
+        LOG.debug("Failed to load plugin config");
         return;
       }
 
@@ -77,7 +77,7 @@ public class ConfigProvider {
       propertiesComponent.setValue(
           NEXT_CONFIG_LOAD_TIMESTAMP, String.valueOf(nextConfigLoadTimestamp.toMillis()));
     } catch (Exception e) {
-      LOG.error("Error loading config from hub: {}", e.getMessage());
+      LOG.debug("Error loading config from hub: {}", e.getMessage());
     }
   }
 }

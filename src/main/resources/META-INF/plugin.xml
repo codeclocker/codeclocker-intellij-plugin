@@ -19,7 +19,7 @@
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.reporting.ActivitySampleHttpClient"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.apikey.ApiKeyLifecycle"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.config.ConfigProvider"/>
-    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.config.PluginConfigClient"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.config.PluginConfigHttpClient"/>
     <applicationService
       serviceImplementation="com.codeclocker.plugin.intellij.apikey.ApiKeyActivationCheckerTask"/>
 
