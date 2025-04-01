@@ -43,7 +43,7 @@ public class FocusListener implements AWTEventListener, Disposable {
 
     Project project = getProject(component);
     if (project == null) {
-      LOG.error("Project is null. Doing nothing");
+      LOG.debug("Project is null. Doing nothing");
       return;
     }
 

@@ -55,7 +55,7 @@ public class ApiKeyActivationCheckerTask implements Disposable {
         cancelTask();
       }
     } catch (Exception ex) {
-      LOG.error("Failed to check API key state: {}", ex.getMessage());
+      LOG.debug("Failed to check API key state: {}", ex.getMessage());
     }
   }
 

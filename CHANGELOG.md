@@ -2,6 +2,6 @@
 
 # CodeClocker Changelog
 
-## [Unreleased]
+## 1.0.2
 ### Added
-- Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
+- Support IntelliJ Platform 2024.3.5

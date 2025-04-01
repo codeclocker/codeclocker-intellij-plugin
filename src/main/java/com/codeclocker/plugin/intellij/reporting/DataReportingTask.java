@@ -66,14 +66,14 @@ public final class DataReportingTask implements Disposable {
 
       SentStatus unpublishedSamplesPublishStatus = publishUnpublishedSamples(apiKey);
       if (unpublishedSamplesPublishStatus == ERROR) {
-        LOG.error("Failed to publish unpublished samples");
+        LOG.debug("Failed to publish unpublished samples");
         return;
       }
 
       publishTimeSpentSample(apiKey);
       publishChangesSample(apiKey);
     } catch (Exception ex) {
-      LOG.error("Error sending activity sample: {}", ex.getMessage());
+      LOG.debug("Error sending activity sample: {}", ex.getMessage());
     }
   }
 
@@ -89,7 +89,7 @@ public final class DataReportingTask implements Disposable {
 
     SentStatus status = activitySampleHttpClient.sendTimeSpentSample(apiKey, json);
     if (status == ERROR) {
-      LOG.error("Error sending time spent sample. Caching it for future retries");
+      LOG.debug("Error sending time spent sample. Caching it for future retries");
       unpublishedTimeSpentSamples.add(json);
     }
   }
@@ -106,7 +106,7 @@ public final class DataReportingTask implements Disposable {
 
     SentStatus status = activitySampleHttpClient.sendChangesSample(apiKey, json);
     if (status == ERROR) {
-      LOG.error("Error sending changes sample. Caching it for future retries");
+      LOG.debug("Error sending changes sample. Caching it for future retries");
       unpublishedChangesSamples.add(json);
     }
   }
