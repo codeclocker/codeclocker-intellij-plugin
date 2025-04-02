@@ -2,10 +2,10 @@ package com.codeclocker.plugin.intellij;
 
 import static java.awt.AWTEvent.FOCUS_EVENT_MASK;
 
-import com.codeclocker.plugin.intellij.apikey.ApiKeyActivationCheckerTask;
 import com.codeclocker.plugin.intellij.apikey.ApiKeyPromptStartupActivity;
 import com.codeclocker.plugin.intellij.listeners.FocusListener;
 import com.codeclocker.plugin.intellij.reporting.DataReportingTask;
+import com.codeclocker.plugin.intellij.subscription.SubscriptionStateCheckerTask;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.ProjectActivity;
@@ -51,6 +51,6 @@ public class ListenerRegistrator implements ProjectActivity {
   }
 
   private static void startCheckingApiKeyStatus() {
-    ApplicationManager.getApplication().getService(ApiKeyActivationCheckerTask.class).schedule();
+    ApplicationManager.getApplication().getService(SubscriptionStateCheckerTask.class).schedule();
   }
 }

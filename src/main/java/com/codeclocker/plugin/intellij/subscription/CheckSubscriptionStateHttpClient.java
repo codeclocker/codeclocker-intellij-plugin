@@ -1,4 +1,4 @@
-package com.codeclocker.plugin.intellij.apikey;
+package com.codeclocker.plugin.intellij.subscription;
 
 import static com.codeclocker.plugin.intellij.HubHost.HUB_API_HOST;
 import static com.codeclocker.plugin.intellij.Timeouts.CONNECT_TIMEOUT;
@@ -8,9 +8,9 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.util.io.HttpRequests;
 import org.jetbrains.annotations.Nullable;
 
-public class CheckApiKeyStateHttpClient {
+public class CheckSubscriptionStateHttpClient {
 
-  private static final Logger LOG = Logger.getInstance(CheckApiKeyStateHttpClient.class);
+  private static final Logger LOG = Logger.getInstance(CheckSubscriptionStateHttpClient.class);
 
   @Nullable
   public String check(String apiKey) {

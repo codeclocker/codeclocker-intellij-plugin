@@ -8,7 +8,7 @@
 
 ## What's CodeClocker
 
-CodeClocker automatically tracks coding activity and visualizes it on web dashboard.
+CodeClocker automatically tracks coding activity and visualizes it on [web dashboard on CodeClocker Hub](https://hub.codeclocker.com/).
 
 ![Demo](https://raw.githubusercontent.com/codeclocker/codeclocker-intellij-plugin/main/docs/img/demo.gif)
 

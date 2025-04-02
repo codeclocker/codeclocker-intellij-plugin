@@ -9,12 +9,12 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import com.codeclocker.plugin.intellij.apikey.ApiKeyLifecycle;
-import com.codeclocker.plugin.intellij.apikey.CheckApiKeyStateHttpClient;
 import com.codeclocker.plugin.intellij.config.ConfigProvider;
 import com.codeclocker.plugin.intellij.services.ChangesActivityTracker;
 import com.codeclocker.plugin.intellij.services.ChangesSample;
 import com.codeclocker.plugin.intellij.services.TimeSpentActivityTracker;
 import com.codeclocker.plugin.intellij.services.TimeSpentPerProjectSample;
+import com.codeclocker.plugin.intellij.subscription.CheckSubscriptionStateHttpClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
@@ -28,7 +28,7 @@ import java.util.Queue;
 
 public final class DataReportingTask implements Disposable {
 
-  private static final Logger LOG = Logger.getInstance(CheckApiKeyStateHttpClient.class);
+  private static final Logger LOG = Logger.getInstance(CheckSubscriptionStateHttpClient.class);
 
   private final int flushToServerFrequencySeconds;
   private final TimeSpentActivityTracker timeSpentActivityTracker;
