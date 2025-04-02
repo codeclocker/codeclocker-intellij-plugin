@@ -15,13 +15,13 @@
       serviceImplementation="com.codeclocker.plugin.intellij.services.TimeSpentActivityTracker"/>
     <applicationService
       serviceImplementation="com.codeclocker.plugin.intellij.services.ChangesActivityTracker"/>
-    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.apikey.CheckApiKeyStateHttpClient"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.subscription.CheckSubscriptionStateHttpClient"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.reporting.ActivitySampleHttpClient"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.apikey.ApiKeyLifecycle"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.config.ConfigProvider"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.config.PluginConfigHttpClient"/>
     <applicationService
-      serviceImplementation="com.codeclocker.plugin.intellij.apikey.ApiKeyActivationCheckerTask"/>
+      serviceImplementation="com.codeclocker.plugin.intellij.subscription.SubscriptionStateCheckerTask"/>
 
     <postStartupActivity implementation="com.codeclocker.plugin.intellij.ListenerRegistrator"/>
 

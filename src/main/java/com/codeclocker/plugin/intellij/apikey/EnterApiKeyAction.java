@@ -3,6 +3,7 @@ package com.codeclocker.plugin.intellij.apikey;
 import static com.codeclocker.plugin.intellij.HubHost.HUB_UI_HOST;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import com.codeclocker.plugin.intellij.subscription.SubscriptionStateCheckerTask;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -23,14 +24,14 @@ public class EnterApiKeyAction extends AnAction {
         Messages.showYesNoCancelDialog(
             text,
             "Enter CodeClocker API Key",
-            "I Have API Key",
             "Get API Key",
+            "I Have API Key",
             "Cancel",
             Messages.getInformationIcon());
 
-    if (result == Messages.YES) {
+    if (result == Messages.NO) {
       showApiKeyInputDialog();
-    } else if (result == Messages.NO) {
+    } else if (result == Messages.YES) {
       BrowserUtil.browse(HUB_UI_HOST + "/api-key");
       showApiKeyInputDialog();
     }
@@ -53,8 +54,12 @@ public class EnterApiKeyAction extends AnAction {
   private static void showApiKeyInputDialog() {
     String apiKey =
         Messages.showInputDialog(
-            "Enter your API key:", "Activate CodeClocker", Messages.getInformationIcon());
+            "Enter your API key\n\nCopy from: hub.codeclocker.com/api-key",
+            "Activate CodeClocker",
+            Messages.getInformationIcon(),
+            null,
+            new ApiKeyInputValidator());
     ApiKeyPersistence.persistApiKey(apiKey);
-    ApplicationManager.getApplication().getService(ApiKeyActivationCheckerTask.class).schedule();
+    ApplicationManager.getApplication().getService(SubscriptionStateCheckerTask.class).schedule();
   }
 }
