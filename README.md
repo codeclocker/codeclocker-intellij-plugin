@@ -38,3 +38,18 @@ CodeClocker automatically tracks coding activity and visualizes it on [web dashb
 
   Download the [latest release](https://github.com/codeclocker/codeclocker-intellij-plugin/releases/latest) and install it manually using
   <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+
+## API Key Activation
+
+1. After [installation](#installation), a dialog will prompt you to enter your CodeClocker API key. 
+  Click "Get API Key" to be redirected to the [API Key page on CodeClocker Hub](https://hub.codeclocker.com/api-key). 
+  Copy your API key from this page.
+2. Return to your running IntelliJ IDE, paste the copied API key into the dialog window, and click "OK".
+
+Once set up, CodeClocker will automatically track your coding activity and report it to [CodeClocker Hub](https://hub.codeclocker.com). 
+If your API key status initially shows "Inactive: No received data yet," don’t worry—it may take up to a minute for activity tracking to start. 
+Once active, it will update to "Active: Receiving data".
+
+If you need to open the API Key dialog window in your IntelliJ IDE (for example, you accidentally closed it during initial plugin installation), then go to **Tools > CodeClocker API Key** at the top of the dropdown list.
+
+![API key menu](docs/img/api-key-menu.jpg)
