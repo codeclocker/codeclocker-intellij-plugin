@@ -2,6 +2,10 @@
 
 # CodeClocker Changelog
 
+## 1.0.5 - 2025-04-04
+### Added
+- Add plugin icon
+
 ## 1.0.4 - 2025-04-03
 ### Added
 - Validate API key input
