@@ -21,17 +21,13 @@ public class EnterApiKeyAction extends AnAction {
   public static void showAction() {
     String text = getText();
     int result =
-        Messages.showYesNoCancelDialog(
+        Messages.showOkCancelDialog(
             text,
             "Enter CodeClocker API Key",
             "Get API Key",
-            "I Have API Key",
             "Cancel",
             Messages.getInformationIcon());
-
-    if (result == Messages.NO) {
-      showApiKeyInputDialog();
-    } else if (result == Messages.YES) {
+    if (result == Messages.YES) {
       BrowserUtil.browse(HUB_UI_HOST + "/api-key");
       showApiKeyInputDialog();
     }
@@ -41,20 +37,20 @@ public class EnterApiKeyAction extends AnAction {
     String apiKey = ApiKeyPersistence.getApiKey();
     if (isBlank(apiKey)) {
       return """
-          Need an API key? Click 'Get API Key' to get one.""";
+          Enter your CodeClocker API Key to start tracking your coding activity.""";
     }
 
     return """
         Your current API key: %s
 
-        Need an API key? Click 'Get API Key' to get one."""
+        Enter your CodeClocker API Key to start tracking your coding activity."""
         .formatted(apiKey);
   }
 
   private static void showApiKeyInputDialog() {
     String apiKey =
         Messages.showInputDialog(
-            "Enter your API key\n\nCopy from: hub.codeclocker.com/api-key",
+            "Enter your API key\n\nCopy it from: hub.codeclocker.com/api-key",
             "Activate CodeClocker",
             Messages.getInformationIcon(),
             null,

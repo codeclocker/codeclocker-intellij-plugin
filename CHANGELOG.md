@@ -2,6 +2,14 @@
 
 # CodeClocker Changelog
 
+## 1.0.7 - 2025-04-16
+### Added
+- 
+
+## 1.0.6 - 2025-04-08
+### Added
+- Improve onboarding UX
+
 ## 1.0.5 - 2025-04-04
 ### Added
 - Add plugin icon
