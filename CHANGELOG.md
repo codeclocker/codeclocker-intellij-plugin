@@ -4,7 +4,7 @@
 
 ## 1.0.7 - 2025-04-16
 ### Added
-- 
+- Show subscription expiration notification on every IDE restart
 
 ## 1.0.6 - 2025-04-08
 ### Added
