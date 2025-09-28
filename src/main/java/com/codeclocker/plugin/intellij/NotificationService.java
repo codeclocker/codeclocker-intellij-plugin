@@ -5,26 +5,22 @@ import static com.intellij.notification.NotificationType.WARNING;
 
 import com.intellij.ide.BrowserUtil;
 import com.intellij.ide.DataManager;
-import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationAction;
 import com.intellij.notification.NotificationGroupManager;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-public class Notifications {
+public class NotificationService {
 
-  private static final Logger LOG = Logger.getInstance(Notifications.class);
+  public static final AtomicBoolean SUBSCRIPTION_WILL_EXPIRE_SOON_NOTIFICATION_SHOWN =
+      new AtomicBoolean();
+  public static final AtomicBoolean SUBSCRIPTION_EXPIRED_NOTIFICATION_SHOWN = new AtomicBoolean();
 
-  public static final String SUBSCRIPTION_WILL_EXPIRE_SOON_NOTIFICATION_SHOWN =
-      "com.codeclocker.subscription-will-expire-soon-notification-shown";
-  public static final String SUBSCRIPTION_EXPIRED_NOTIFICATION_SHOWN =
-      "com.codeclocker.subscription-expired-notification-shown";
-
-  public static void showInvalidApiKeyNotification() {
+  public void showInvalidApiKeyNotification() {
     Notification notification =
         NotificationGroupManager.getInstance()
             .getNotificationGroup("CodeClocker")
@@ -37,8 +33,8 @@ public class Notifications {
     ApplicationManager.getApplication().invokeLater(() -> notification.notify(getCurrentProject()));
   }
 
-  public static void showSubscriptionWillExpireSoonNotification() { // todo: decide how to reset
-    if (checkAndSet(SUBSCRIPTION_WILL_EXPIRE_SOON_NOTIFICATION_SHOWN)) {
+  public void showSubscriptionWillExpireSoonNotification() {
+    if (SUBSCRIPTION_WILL_EXPIRE_SOON_NOTIFICATION_SHOWN.getAndSet(true)) {
       return;
     }
 
@@ -47,17 +43,17 @@ public class Notifications {
             .getNotificationGroup("CodeClocker")
             .createNotification(
                 "CodeClocker subscription will expire soon",
-                "Your CodeClocker subscription will expire soon. Renew now to continue tracking activity without interruptions.",
+                "Your CodeClocker subscription will expire soon. Renew it now to keep tracking activity.",
                 WARNING)
             .addAction(
                 NotificationAction.createSimpleExpiring(
-                    "Renew now", () -> BrowserUtil.browse(HUB_UI_HOST + "/api-key")));
+                    "Renew now", () -> BrowserUtil.browse(HUB_UI_HOST + "/payment")));
 
     ApplicationManager.getApplication().invokeLater(() -> notification.notify(getCurrentProject()));
   }
 
-  public static void showPaymentExpiredNotification() {
-    if (checkAndSet(SUBSCRIPTION_EXPIRED_NOTIFICATION_SHOWN)) {
+  public void showSubscriptionExpiredNotification() {
+    if (SUBSCRIPTION_EXPIRED_NOTIFICATION_SHOWN.getAndSet(true)) {
       return;
     }
 
@@ -66,11 +62,11 @@ public class Notifications {
             .getNotificationGroup("CodeClocker")
             .createNotification(
                 "CodeClocker subscription expired",
-                "Your CodeClocker subscription expired. Renew now to keep tracking activity.",
+                "Your CodeClocker subscription expired. Renew it now to keep tracking activity.",
                 WARNING)
             .addAction(
                 NotificationAction.createSimpleExpiring(
-                    "Renew now", () -> BrowserUtil.browse(HUB_UI_HOST + "/api-key")));
+                    "Renew now", () -> BrowserUtil.browse(HUB_UI_HOST + "/payment")));
 
     ApplicationManager.getApplication().invokeLater(() -> notification.notify(getCurrentProject()));
   }
@@ -78,16 +74,5 @@ public class Notifications {
   private static Project getCurrentProject() {
     DataContext dataContext = DataManager.getInstance().getDataContext(null);
     return dataContext.getData(CommonDataKeys.PROJECT);
-  }
-
-  private static boolean checkAndSet(String property) {
-    PropertiesComponent properties = PropertiesComponent.getInstance();
-    boolean shown = properties.getBoolean(property, false);
-    LOG.debug("Shown [{}] by property [{}]", shown, property);
-    if (!shown) {
-      properties.setValue(property, true);
-    }
-
-    return shown;
   }
 }
