@@ -4,6 +4,9 @@
 .idea
 /build/
 
+# Local gradle properties (may contain secrets like publish tokens)
+gradle-local.properties
+
 # Ignore Gradle GUI config
 gradle-app.setting
 
