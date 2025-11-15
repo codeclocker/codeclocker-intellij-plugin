@@ -23,6 +23,15 @@
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.config.PluginConfigHttpClient"/>
     <applicationService
       serviceImplementation="com.codeclocker.plugin.intellij.subscription.SubscriptionStateCheckerTask"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.reporting.DailyTimeHttpClient"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.services.TimeSpentPerProjectLogger"/>
+
+    <projectService serviceImplementation="com.codeclocker.plugin.intellij.services.TimeTrackerWidgetService"/>
+
+    <statusBarWidgetFactory
+      id="com.codeclocker.TimeTrackerWidget"
+      implementation="com.codeclocker.plugin.intellij.widget.TimeTrackerWidgetFactory"
+      order="before memoryUsageWidget"/>
 
     <postStartupActivity implementation="com.codeclocker.plugin.intellij.ListenerRegistrator"/>
 

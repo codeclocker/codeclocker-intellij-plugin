@@ -36,7 +36,7 @@ public class SubscriptionStateCheckerTask implements Disposable {
 
     this.task =
         EXECUTOR.scheduleWithFixedDelay(
-            this::checkApiKeyState, 10, checkApiKeyStatusFrequencySeconds, SECONDS);
+            this::checkApiKeyState, 60, checkApiKeyStatusFrequencySeconds, SECONDS);
   }
 
   private void checkApiKeyState() {

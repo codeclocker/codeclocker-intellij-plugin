@@ -4,6 +4,7 @@ import static com.codeclocker.plugin.intellij.HubHost.HUB_UI_HOST;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import com.codeclocker.plugin.intellij.subscription.SubscriptionStateCheckerTask;
+import com.codeclocker.plugin.intellij.widget.TimeTrackerInitializer;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -55,7 +56,13 @@ public class EnterApiKeyAction extends AnAction {
             Messages.getInformationIcon(),
             null,
             new ApiKeyInputValidator());
-    ApiKeyPersistence.persistApiKey(apiKey);
-    ApplicationManager.getApplication().getService(SubscriptionStateCheckerTask.class).schedule();
+
+    if (apiKey != null) {
+      TimeTrackerInitializer.markApiKeyAsChanged();
+      ApiKeyPersistence.persistApiKey(apiKey);
+      ApplicationManager.getApplication().getService(SubscriptionStateCheckerTask.class).schedule();
+
+      TimeTrackerInitializer.reinitializeTimerWidgetsRefetchingDataFromHub();
+    }
   }
 }
