@@ -1,35 +1,24 @@
 package com.codeclocker.plugin.intellij.services;
 
-import java.util.concurrent.atomic.AtomicReference;
-import org.apache.commons.lang3.time.StopWatch;
+import com.codeclocker.plugin.intellij.stopwatch.SafeStopWatch;
 
-public record TimeSpentPerProjectSample(
-    long samplingStartedAt, AtomicReference<StopWatch> timeSpent) {
+public record TimeSpentPerProjectSample(long samplingStartedAt, SafeStopWatch timeSpent) {
 
   public static TimeSpentPerProjectSample create() {
-    return new TimeSpentPerProjectSample(
-        System.currentTimeMillis(), new AtomicReference<>(StopWatch.createStarted()));
+    return new TimeSpentPerProjectSample(System.currentTimeMillis(), SafeStopWatch.createStarted());
   }
 
   public TimeSpentPerProjectSample resumeSpendingTime() {
-    timeSpent.updateAndGet(
-        time -> {
-          if (time.isSuspended()) {
-            time.resume();
-          }
-          return time;
-        });
+    timeSpent.resume();
 
     return this;
   }
 
-  public void pauseSpendingTime() {
-    timeSpent.updateAndGet(
-        time -> {
-          if (!time.isSuspended()) {
-            time.suspend();
-          }
-          return time;
-        });
+  public void pause() {
+    timeSpent.pause();
+  }
+
+  public boolean isRunning() {
+    return timeSpent.isRunning();
   }
 }

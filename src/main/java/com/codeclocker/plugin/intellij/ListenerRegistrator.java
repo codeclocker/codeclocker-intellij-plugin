@@ -1,5 +1,6 @@
 package com.codeclocker.plugin.intellij;
 
+import static com.codeclocker.plugin.intellij.widget.TimeTrackerInitializer.initializeTimerWidgets;
 import static java.awt.AWTEvent.FOCUS_EVENT_MASK;
 
 import com.codeclocker.plugin.intellij.apikey.ApiKeyPromptStartupActivity;
@@ -34,6 +35,7 @@ public class ListenerRegistrator implements ProjectActivity {
           startDataReportingTask();
           startCheckingApiKeyStatus();
           ApiKeyPromptStartupActivity.showApiKeyDialog();
+          initializeTimerWidgets();
 
           return true;
         });

@@ -4,29 +4,27 @@ import static com.codeclocker.plugin.intellij.ScheduledExecutor.EXECUTOR;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.Project;
 import java.time.Duration;
-import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class TimeSpentActivityTracker implements Disposable {
 
-  private final TimeSpentPerProjectLogger timeSpentPerProjectLogger =
-      new TimeSpentPerProjectLogger();
-  private final long pauseActivityAfterInactivityMillis = Duration.ofSeconds(30).toMillis();
+  private final TimeSpentPerProjectLogger timeSpentPerProjectLogger;
+  private final long pauseActivityAfterInactivityMillis = Duration.ofMinutes(2).toMillis();
   private final AtomicReference<ScheduledFuture<?>> scheduledTask;
   private final AtomicLong lastRescheduledAt = new AtomicLong();
 
   public TimeSpentActivityTracker() {
     this.scheduledTask = new AtomicReference<>(schedule());
+    this.timeSpentPerProjectLogger =
+        ApplicationManager.getApplication().getService(TimeSpentPerProjectLogger.class);
   }
 
-  public Map<String, TimeSpentPerProjectSample> drain() {
-    return timeSpentPerProjectLogger.drain();
-  }
-
-  public void logTime(String project) {
+  public void logTime(Project project) {
     rescheduleInactivityTask();
     timeSpentPerProjectLogger.log(project);
   }
@@ -56,7 +54,9 @@ public class TimeSpentActivityTracker implements Disposable {
 
   @Override
   public void dispose() {
-    scheduledTask.get().cancel(false);
-    EXECUTOR.shutdown();
+    ScheduledFuture<?> task = scheduledTask.get();
+    if (task != null) {
+      task.cancel(false);
+    }
   }
 }
