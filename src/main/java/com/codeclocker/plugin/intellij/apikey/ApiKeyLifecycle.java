@@ -63,10 +63,10 @@ public class ApiKeyLifecycle {
       return null;
     }
 
-    boolean activitiDataStoppedBeingCollected =
+    boolean activityDataStoppedBeingCollected =
         PropertiesComponent.getInstance()
             .getBoolean(ACTIVITY_DATA_STOPPED_BEING_COLLECTED_PROPERTY, false);
-    if (activitiDataStoppedBeingCollected) {
+    if (activityDataStoppedBeingCollected) {
       LOG.warn("Activity data stopped being collected");
       return null;
     }
