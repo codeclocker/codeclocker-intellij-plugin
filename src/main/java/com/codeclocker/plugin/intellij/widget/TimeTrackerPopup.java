@@ -36,7 +36,7 @@ public class TimeTrackerPopup {
     }
 
     BaseListPopupStep<String> step =
-        new BaseListPopupStep<>("Coding Time Today", items) {
+        new BaseListPopupStep<>("Coding Activity Today", items) {
           @Override
           public boolean isSelectable(String value) {
             return OPEN_DETAILED_VIEW.equals(value) || ADD_API_KEY.equals(value);

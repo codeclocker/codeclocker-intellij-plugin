@@ -1,5 +1,7 @@
 package com.codeclocker.plugin.intellij.widget;
 
+import static com.codeclocker.plugin.intellij.services.ChangesActivityTracker.GLOBAL_ADDITIONS;
+import static com.codeclocker.plugin.intellij.services.ChangesActivityTracker.GLOBAL_REMOVALS;
 import static com.codeclocker.plugin.intellij.services.TimeSpentPerProjectLogger.GLOBAL_STOP_WATCH;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -66,9 +68,9 @@ public class TimeTrackerInitializer {
         return;
       }
 
-      Map<String, Long> projectTimes = response.getProjects();
-      LOG.info("Fetched daily time for project count: " + projectTimes.size());
-      initializeAllProjectWidgets(projectTimes, false);
+      Map<String, DailyTimeHttpClient.ProjectStats> projectStats = response.getProjects();
+      LOG.info("Fetched daily time for project count: " + projectStats.size());
+      initializeAllProjectWidgets(projectStats, false);
     } catch (Exception e) {
       LOG.error("Error initializing timer widgets", e);
       initializeAllProjectWidgets(Map.of(), false);
@@ -76,17 +78,36 @@ public class TimeTrackerInitializer {
   }
 
   private static void initializeAllProjectWidgets(
-      Map<String, Long> projectTimes, boolean subscriptionExpired) {
-    long totalTime = projectTimes.values().stream().mapToLong(Long::longValue).sum();
-    LOG.debug("Total time across all projects: {}s", totalTime);
+      Map<String, DailyTimeHttpClient.ProjectStats> projectStats, boolean subscriptionExpired) {
+    long totalTime =
+        projectStats.values().stream()
+            .mapToLong(DailyTimeHttpClient.ProjectStats::timeSpentSeconds)
+            .sum();
+    long totalAdditions =
+        projectStats.values().stream().mapToLong(DailyTimeHttpClient.ProjectStats::additions).sum();
+    long totalRemovals =
+        projectStats.values().stream().mapToLong(DailyTimeHttpClient.ProjectStats::removals).sum();
+
+    LOG.debug(
+        "Total time across all projects: {}s, additions: {}, removals: {}",
+        totalTime,
+        totalAdditions,
+        totalRemovals);
 
     // Reset the global stopwatch since the backend total already includes all accumulated time
     GLOBAL_STOP_WATCH.reset();
 
+    // Initialize global VCS counters with data from backend
+    GLOBAL_ADDITIONS.set(totalAdditions);
+    GLOBAL_REMOVALS.set(totalRemovals);
+    LOG.debug(
+        "Initialized GLOBAL_ADDITIONS: {}, GLOBAL_REMOVALS: {}", totalAdditions, totalRemovals);
+
     Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
     for (Project project : openProjects) {
       String projectName = project.getName();
-      long initialSeconds = projectTimes.getOrDefault(projectName, 0L);
+      DailyTimeHttpClient.ProjectStats stats = projectStats.get(projectName);
+      long initialSeconds = stats != null ? stats.timeSpentSeconds() : 0L;
 
       TimeTrackerWidgetService service = project.getService(TimeTrackerWidgetService.class);
       if (service != null) {
