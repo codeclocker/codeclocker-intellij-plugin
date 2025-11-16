@@ -26,8 +26,9 @@ public class TimeTrackerWidget
 
   private final Project project;
   private final TimeTrackerWidgetService service;
+
   private StatusBar statusBar;
-  private JBPopup popup; // keep a single instance
+  private JBPopup popup;
 
   private static Icon loadScaledIcon() {
     Icon icon = IconLoader.getIcon("/META-INF/statusBarWidgetIcon.svg", TimeTrackerWidget.class);

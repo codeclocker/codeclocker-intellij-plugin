@@ -1,6 +1,8 @@
 package com.codeclocker.plugin.intellij.widget;
 
 import static com.codeclocker.plugin.intellij.HubHost.HUB_UI_HOST;
+import static com.codeclocker.plugin.intellij.services.ChangesActivityTracker.GLOBAL_ADDITIONS;
+import static com.codeclocker.plugin.intellij.services.ChangesActivityTracker.GLOBAL_REMOVALS;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import com.codeclocker.plugin.intellij.apikey.ApiKeyPersistence;
@@ -25,6 +27,7 @@ public class TimeTrackerPopup {
     List<String> items = new ArrayList<>();
     items.add("Total: " + totalTime);
     items.add(project.getName() + ": " + projectTime);
+    items.add("Committed Lines: " + getFormattedVcsChanges());
     items.add(OPEN_DETAILED_VIEW);
 
     boolean hasApiKey = isNotBlank(ApiKeyPersistence.getApiKey());
@@ -61,5 +64,9 @@ public class TimeTrackerPopup {
         };
 
     return JBPopupFactory.getInstance().createListPopup(step);
+  }
+
+  public static String getFormattedVcsChanges() {
+    return String.format("+%d / -%d", GLOBAL_ADDITIONS.get(), GLOBAL_REMOVALS.get());
   }
 }

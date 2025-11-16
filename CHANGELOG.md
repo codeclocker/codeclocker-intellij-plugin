@@ -2,7 +2,9 @@
 
 # CodeClocker Changelog
 
-## [Unreleased]
+## [1.0.9] - 2025-11-16
+
+- Add status bar widget with daily coding activity
 
 ## [1.0.8] - 2025-10-29
 
