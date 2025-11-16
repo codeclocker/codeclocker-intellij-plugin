@@ -63,21 +63,23 @@ public class DailyTimeHttpClient {
     }
   }
 
-  private record DailyTimePerProjectDto(Map<String, Long> projects) {}
+  private record DailyTimePerProjectDto(Map<String, ProjectStats> projects) {}
+
+  public record ProjectStats(long timeSpentSeconds, long additions, long removals) {}
 
   public static class DailyTimeResponse {
-    private final Map<String, Long> projects;
+    private final Map<String, ProjectStats> projects;
     private final boolean subscriptionExpired;
     private final boolean error;
 
     private DailyTimeResponse(
-        Map<String, Long> projects, boolean subscriptionExpired, boolean error) {
+        Map<String, ProjectStats> projects, boolean subscriptionExpired, boolean error) {
       this.projects = projects;
       this.subscriptionExpired = subscriptionExpired;
       this.error = error;
     }
 
-    public static DailyTimeResponse success(Map<String, Long> projects) {
+    public static DailyTimeResponse success(Map<String, ProjectStats> projects) {
       return new DailyTimeResponse(projects, false, false);
     }
 
@@ -89,7 +91,7 @@ public class DailyTimeHttpClient {
       return new DailyTimeResponse(Collections.emptyMap(), false, true);
     }
 
-    public Map<String, Long> getProjects() {
+    public Map<String, ProjectStats> getProjects() {
       return projects;
     }
 

@@ -14,6 +14,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class EnterApiKeyAction extends AnAction {
 
+  private static final String ENTER_API_KEY = "Paste your API Key to connect to CodeClocker Hub.";
+
   @Override
   public void actionPerformed(@NotNull AnActionEvent e) {
     showAction();
@@ -37,14 +39,14 @@ public class EnterApiKeyAction extends AnAction {
   private static String getText() {
     String apiKey = ApiKeyPersistence.getApiKey();
     if (isBlank(apiKey)) {
-      return """
-          Enter your CodeClocker API Key to start tracking your coding activity.""";
+      return ENTER_API_KEY;
     }
 
-    return """
-        Your current API key: %s
+    return ("""
+        Current key: %s
 
-        Enter your CodeClocker API Key to start tracking your coding activity."""
+        """
+            + ENTER_API_KEY)
         .formatted(apiKey);
   }
 

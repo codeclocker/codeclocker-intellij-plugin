@@ -1,5 +1,7 @@
 package com.codeclocker.plugin.intellij.services;
 
+import static com.codeclocker.plugin.intellij.services.ChangesActivityTracker.GLOBAL_ADDITIONS;
+import static com.codeclocker.plugin.intellij.services.ChangesActivityTracker.GLOBAL_REMOVALS;
 import static com.codeclocker.plugin.intellij.services.TimeSpentPerProjectLogger.GLOBAL_STOP_WATCH;
 
 import com.codeclocker.plugin.intellij.stopwatch.SafeStopWatch;
@@ -25,8 +27,9 @@ public class TimeTrackerWidgetService implements Disposable {
   private final TimeTrackerWidget widget;
   private final AtomicLong initProjectTime = new AtomicLong(0);
   private final AtomicLong initTotalTime = new AtomicLong(0);
-  private LocalDate lastDate = LocalDate.now();
   private final SafeStopWatch projectStopWatch = SafeStopWatch.createStopped();
+
+  private LocalDate lastDate = LocalDate.now();
   private ScheduledFuture<?> ticker;
 
   public TimeTrackerWidgetService(Project project) {
@@ -106,7 +109,10 @@ public class TimeTrackerWidgetService implements Disposable {
       initProjectTime.set(0);
       initTotalTime.set(0);
       projectStopWatch.reset();
+      GLOBAL_ADDITIONS.set(0);
+      GLOBAL_REMOVALS.set(0);
       GLOBAL_STOP_WATCH.reset();
+
       lastDate = currentDate;
     }
   }
