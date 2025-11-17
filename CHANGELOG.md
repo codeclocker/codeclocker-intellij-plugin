@@ -2,6 +2,8 @@
 
 # CodeClocker Changelog
 
+## [Unreleased]
+
 ## [1.0.9] - 2025-11-16
 
 - Add status bar widget with daily coding activity
@@ -43,7 +45,8 @@
 
 - Support IntelliJ Platform 2024.3.5
 
-[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.0.8...HEAD
+[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.0.9...HEAD
+[1.0.9]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.0.8...v1.0.9
 [1.0.8]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.0.7...v1.0.8
 [1.0.7]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.0.5...v1.0.6
