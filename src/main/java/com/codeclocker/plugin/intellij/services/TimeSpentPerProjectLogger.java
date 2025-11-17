@@ -100,6 +100,32 @@ public class TimeSpentPerProjectLogger {
         });
   }
 
+  public void pauseProject(Project project) {
+    Lock lock = readWriteLock.readLock();
+    try {
+      lock.lock();
+      timingByProject.computeIfPresent(
+          project.getName(),
+          (name, sample) -> {
+            sample.pause();
+            LOG.debug("Paused time tracking for closing project: " + name);
+            return sample;
+          });
+
+      clearCurrentProject(project);
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  private void clearCurrentProject(Project project) {
+    currentProject.updateAndGet(
+        current ->
+            current != null && Objects.equals(current.getName(), project.getName())
+                ? null
+                : current);
+  }
+
   public Map<String, TimeSpentPerProjectSample> drain() {
     Lock lock = readWriteLock.writeLock();
     try {
