@@ -40,4 +40,16 @@ public final class Config {
   public static boolean isValidateTimersEnabled() {
     return Boolean.parseBoolean(CONFIG.getProperty("feature.validateTimers.enabled", "false"));
   }
+
+  /**
+   * Gets the retry interval in seconds for API fetch operations. When fetching daily time data from
+   * the API fails, the system will retry at this interval until successful.
+   *
+   * <p>Default: 30 seconds
+   *
+   * @return the retry interval in seconds
+   */
+  public static int getApiFetchRetryIntervalSeconds() {
+    return Integer.parseInt(CONFIG.getProperty("api.fetch.retry.interval.seconds", "30"));
+  }
 }

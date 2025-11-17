@@ -3,23 +3,32 @@ package com.codeclocker.plugin.intellij.widget;
 import static com.codeclocker.plugin.intellij.services.ChangesActivityTracker.GLOBAL_ADDITIONS;
 import static com.codeclocker.plugin.intellij.services.ChangesActivityTracker.GLOBAL_REMOVALS;
 import static com.codeclocker.plugin.intellij.services.TimeSpentPerProjectLogger.GLOBAL_STOP_WATCH;
+import static org.apache.commons.collections.MapUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import com.codeclocker.plugin.intellij.apikey.ApiKeyLifecycle;
+import com.codeclocker.plugin.intellij.config.Config;
 import com.codeclocker.plugin.intellij.reporting.DailyTimeHttpClient;
+import com.codeclocker.plugin.intellij.reporting.DailyTimeHttpClient.DailyTimeResponse;
 import com.codeclocker.plugin.intellij.services.TimeTrackerWidgetService;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
+import com.intellij.util.concurrency.AppExecutorUtil;
 import java.time.ZoneId;
 import java.util.Map;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class TimeTrackerInitializer {
 
   private static final Logger LOG = Logger.getInstance(TimeTrackerInitializer.class);
 
+  private static final AtomicReference<ScheduledFuture<?>> retryTask = new AtomicReference<>(null);
   private static volatile boolean refetchedAfterApiKeyIsSet = false;
+  private static volatile boolean initialized;
 
   public static void initializeTimerWidgets() {
     ApplicationManager.getApplication()
@@ -47,38 +56,60 @@ public class TimeTrackerInitializer {
       String apiKey = ApiKeyLifecycle.getActiveApiKey();
       if (isBlank(apiKey)) {
         LOG.debug("No active API key");
+        cancelRetryTask();
         initializeAllProjectWidgets(Map.of(), false);
         return;
       }
 
       DailyTimeHttpClient httpClient =
           ApplicationManager.getApplication().getService(DailyTimeHttpClient.class);
-      DailyTimeHttpClient.DailyTimeResponse response =
-          httpClient.fetchDailyTimePerProject(apiKey, ZoneId.systemDefault());
-
+      DailyTimeResponse response = getDailyTimeFromHub(httpClient, apiKey);
       if (response.isError()) {
-        LOG.warn("Failed to fetch daily time, initializing widgets with 0");
+        LOG.warn("Failed to fetch daily time, initializing widgets with 0 and starting retry task");
         initializeAllProjectWidgets(Map.of(), false);
+        startRetryTask();
         return;
       }
 
       if (response.isSubscriptionExpired()) {
         LOG.info("Subscription expired, showing exclamation mark in widgets");
+        cancelRetryTask();
         initializeAllProjectWidgets(Map.of(), true);
         return;
       }
 
       Map<String, DailyTimeHttpClient.ProjectStats> projectStats = response.getProjects();
       LOG.info("Fetched daily time for project count: " + projectStats.size());
+      cancelRetryTask();
       initializeAllProjectWidgets(projectStats, false);
     } catch (Exception e) {
       LOG.error("Error initializing timer widgets", e);
       initializeAllProjectWidgets(Map.of(), false);
+      startRetryTask();
     }
+  }
+
+  private static DailyTimeHttpClient.DailyTimeResponse getDailyTimeFromHub(
+      DailyTimeHttpClient httpClient, String apiKey) {
+    DailyTimeResponse response =
+        httpClient.fetchDailyTimePerProject(apiKey, ZoneId.systemDefault());
+
+    if (response.isError()) {
+      LOG.warn("Failed to fetch daily time, retrying");
+      return httpClient.fetchDailyTimePerProject(apiKey, ZoneId.systemDefault());
+    }
+
+    return response;
   }
 
   private static void initializeAllProjectWidgets(
       Map<String, DailyTimeHttpClient.ProjectStats> projectStats, boolean subscriptionExpired) {
+    if (isEmpty(projectStats) && initialized) {
+      LOG.debug(
+          "Skipping reinitializing timers with empty project stats since they are already initialized");
+      return;
+    }
+
     long totalTime =
         projectStats.values().stream()
             .mapToLong(DailyTimeHttpClient.ProjectStats::timeSpentSeconds)
@@ -118,6 +149,41 @@ public class TimeTrackerInitializer {
             initialSeconds,
             totalTime);
       }
+    }
+
+    initialized = true;
+  }
+
+  private static synchronized void startRetryTask() {
+    if (retryTask.get() != null && !retryTask.get().isDone()) {
+      LOG.debug("Retry task already running, skipping");
+      return;
+    }
+
+    int retryIntervalSeconds = Config.getApiFetchRetryIntervalSeconds();
+    LOG.info("Starting retry task with interval: " + retryIntervalSeconds + "s");
+
+    retryTask.set(
+        AppExecutorUtil.getAppScheduledExecutorService()
+            .scheduleWithFixedDelay(
+                () -> {
+                  try {
+                    LOG.debug("Retry task executing - attempting to fetch data from API");
+                    fetchTimeAndInitialize();
+                  } catch (Exception e) {
+                    LOG.error("Error in retry task", e);
+                  }
+                },
+                retryIntervalSeconds,
+                retryIntervalSeconds,
+                TimeUnit.SECONDS));
+  }
+
+  private static synchronized void cancelRetryTask() {
+    if (retryTask.get() != null && !retryTask.get().isDone()) {
+      LOG.info("Cancelling retry task - data successfully fetched");
+      retryTask.get().cancel(false);
+      retryTask.set(null);
     }
   }
 }

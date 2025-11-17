@@ -43,6 +43,8 @@
   <applicationListeners>
     <listener class="com.codeclocker.plugin.intellij.listeners.AppFrameFocusLostListener"
       topic="com.intellij.openapi.application.ApplicationActivationListener"/>
+    <listener class="com.codeclocker.plugin.intellij.listeners.PauseProjectOnProjectClosing"
+      topic="com.intellij.openapi.project.ProjectManagerListener"/>
   </applicationListeners>
 
   <actions>

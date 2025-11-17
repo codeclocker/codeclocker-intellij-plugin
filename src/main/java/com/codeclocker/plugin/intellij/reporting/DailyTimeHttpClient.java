@@ -31,9 +31,7 @@ public class DailyTimeHttpClient {
 
   public DailyTimeResponse fetchDailyTimePerProject(String apiKey, ZoneId timeZone) {
     try {
-      // Calculate start of today in the given timezone
-      Instant startOfToday =
-          ZonedDateTime.of(LocalDate.now(timeZone).atStartOfDay(), timeZone).toInstant();
+      Instant startOfToday = getStartOfToday(timeZone);
 
       String fromParam = URLEncoder.encode(startOfToday.toString(), StandardCharsets.UTF_8);
       String url = HUB_API_HOST + "/api/v1/plugin/daily-time-per-project?from=" + fromParam;
@@ -61,6 +59,10 @@ public class DailyTimeHttpClient {
       LOG.warn("Error fetching daily time: " + ex.getMessage(), ex);
       return DailyTimeResponse.error();
     }
+  }
+
+  private static Instant getStartOfToday(ZoneId timeZone) {
+    return ZonedDateTime.of(LocalDate.now(timeZone).atStartOfDay(), timeZone).toInstant();
   }
 
   private record DailyTimePerProjectDto(Map<String, ProjectStats> projects) {}
