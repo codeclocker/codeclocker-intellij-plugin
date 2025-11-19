@@ -133,13 +133,6 @@ public class TimeSpentPerProjectLogger {
 
       Map<String, TimeSpentPerProjectSample> drain = new HashMap<>(timingByProject);
       timingByProject.clear();
-      drain.forEach(
-          (name, sample) -> {
-            if (sample.isRunning()) {
-              sample.pause();
-              timingByProject.put(name, TimeSpentPerProjectSample.create());
-            }
-          });
 
       return drain;
     } finally {
