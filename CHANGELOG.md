@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [1.2.0] - 2025-11-26
+
+- Skip showing "Enter CodeClocker API Key" dialog on every IDE start
+
 ## [1.1.0] - 2025-11-22
 
 - Show VCS changes in IDE popup
@@ -58,7 +62,8 @@
 
 - Support IntelliJ Platform 2024.3.5
 
-[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.0.11...v1.1.0
 [1.0.11]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.0.10...v1.0.11
 [1.0.10]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.0.9...v1.0.10
