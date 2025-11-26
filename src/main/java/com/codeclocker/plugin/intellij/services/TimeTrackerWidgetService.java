@@ -1,8 +1,8 @@
 package com.codeclocker.plugin.intellij.services;
 
-import static com.codeclocker.plugin.intellij.services.ChangesActivityTracker.GLOBAL_ADDITIONS;
-import static com.codeclocker.plugin.intellij.services.ChangesActivityTracker.GLOBAL_REMOVALS;
 import static com.codeclocker.plugin.intellij.services.TimeSpentPerProjectLogger.GLOBAL_STOP_WATCH;
+import static com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker.GLOBAL_ADDITIONS;
+import static com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker.GLOBAL_REMOVALS;
 
 import com.codeclocker.plugin.intellij.stopwatch.SafeStopWatch;
 import com.codeclocker.plugin.intellij.widget.TimeTrackerWidget;

@@ -14,7 +14,7 @@
     <applicationService
       serviceImplementation="com.codeclocker.plugin.intellij.services.TimeSpentActivityTracker"/>
     <applicationService
-      serviceImplementation="com.codeclocker.plugin.intellij.services.ChangesActivityTracker"/>
+      serviceImplementation="com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.subscription.CheckSubscriptionStateHttpClient"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.reporting.ActivitySampleHttpClient"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.apikey.ApiKeyLifecycle"/>

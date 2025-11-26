@@ -1,7 +1,7 @@
 package com.codeclocker.plugin.intellij.git;
 
 import com.codeclocker.plugin.intellij.git.LineDifferenceCalculator.LineDifferenceResult;
-import com.codeclocker.plugin.intellij.services.ChangesActivityTracker;
+import com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.CheckinProjectPanel;
