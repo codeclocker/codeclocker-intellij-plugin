@@ -80,6 +80,7 @@ public class TimeTrackerWidget
   public String getTooltipText() {
     String totalTime = service.getFormattedTotalTime();
     String projectTime = service.getFormattedProjectTime();
+
     return "Total coding time today: "
         + totalTime
         + ". Time on "

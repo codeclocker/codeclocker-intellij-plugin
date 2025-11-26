@@ -1,6 +1,6 @@
 package com.codeclocker.plugin.intellij.git;
 
-import com.codeclocker.plugin.intellij.services.ChangesActivityTracker;
+import com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.vcs.CheckinProjectPanel;
 import com.intellij.openapi.vcs.changes.CommitContext;

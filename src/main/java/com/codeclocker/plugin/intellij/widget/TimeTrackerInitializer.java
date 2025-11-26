@@ -1,8 +1,8 @@
 package com.codeclocker.plugin.intellij.widget;
 
-import static com.codeclocker.plugin.intellij.services.ChangesActivityTracker.GLOBAL_ADDITIONS;
-import static com.codeclocker.plugin.intellij.services.ChangesActivityTracker.GLOBAL_REMOVALS;
 import static com.codeclocker.plugin.intellij.services.TimeSpentPerProjectLogger.GLOBAL_STOP_WATCH;
+import static com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker.GLOBAL_ADDITIONS;
+import static com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker.GLOBAL_REMOVALS;
 import static org.apache.commons.collections.MapUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -10,7 +10,9 @@ import com.codeclocker.plugin.intellij.apikey.ApiKeyLifecycle;
 import com.codeclocker.plugin.intellij.config.Config;
 import com.codeclocker.plugin.intellij.reporting.DailyTimeHttpClient;
 import com.codeclocker.plugin.intellij.reporting.DailyTimeHttpClient.DailyTimeResponse;
+import com.codeclocker.plugin.intellij.reporting.DailyTimeHttpClient.ProjectStats;
 import com.codeclocker.plugin.intellij.services.TimeTrackerWidgetService;
+import com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -134,10 +136,17 @@ public class TimeTrackerInitializer {
     LOG.debug(
         "Initialized GLOBAL_ADDITIONS: {}, GLOBAL_REMOVALS: {}", totalAdditions, totalRemovals);
 
+    initializeVcsChanges(projectStats);
+    initializeCodingTime(projectStats, totalTime);
+
+    initialized = true;
+  }
+
+  private static void initializeCodingTime(Map<String, ProjectStats> projectStats, long totalTime) {
     Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
     for (Project project : openProjects) {
       String projectName = project.getName();
-      DailyTimeHttpClient.ProjectStats stats = projectStats.get(projectName);
+      ProjectStats stats = projectStats.get(projectName);
       long initialSeconds = stats != null ? stats.timeSpentSeconds() : 0L;
 
       TimeTrackerWidgetService service = project.getService(TimeTrackerWidgetService.class);
@@ -150,8 +159,18 @@ public class TimeTrackerInitializer {
             totalTime);
       }
     }
+  }
 
-    initialized = true;
+  private static void initializeVcsChanges(Map<String, ProjectStats> projectStats) {
+    ChangesActivityTracker changesTracker =
+        ApplicationManager.getApplication().getService(ChangesActivityTracker.class);
+    changesTracker.clearAllProjectChanges();
+
+    for (Map.Entry<String, ProjectStats> entry : projectStats.entrySet()) {
+      String projectName = entry.getKey();
+      ProjectStats stats = entry.getValue();
+      changesTracker.initializeProjectChanges(projectName, stats.additions(), stats.removals());
+    }
   }
 
   private static synchronized void startRetryTask() {

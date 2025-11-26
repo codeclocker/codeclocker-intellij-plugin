@@ -1,13 +1,16 @@
 package com.codeclocker.plugin.intellij.widget;
 
 import static com.codeclocker.plugin.intellij.HubHost.HUB_UI_HOST;
-import static com.codeclocker.plugin.intellij.services.ChangesActivityTracker.GLOBAL_ADDITIONS;
-import static com.codeclocker.plugin.intellij.services.ChangesActivityTracker.GLOBAL_REMOVALS;
+import static com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker.GLOBAL_ADDITIONS;
+import static com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker.GLOBAL_REMOVALS;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import com.codeclocker.plugin.intellij.apikey.ApiKeyPersistence;
 import com.codeclocker.plugin.intellij.apikey.EnterApiKeyAction;
+import com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker;
+import com.codeclocker.plugin.intellij.services.vcs.ProjectChangesCounters;
 import com.intellij.ide.BrowserUtil;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
@@ -24,10 +27,15 @@ public class TimeTrackerPopup {
   private static final String ADD_API_KEY = "Add API Key";
 
   public static ListPopup create(Project project, String totalTime, String projectTime) {
+    ChangesActivityTracker tracker =
+        ApplicationManager.getApplication().getService(ChangesActivityTracker.class);
+    ProjectChangesCounters projectChanges = tracker.getProjectChanges(project.getName());
+
     List<String> items = new ArrayList<>();
     items.add("Total: " + totalTime);
     items.add(project.getName() + ": " + projectTime);
-    items.add("Committed Lines: " + getFormattedVcsChanges());
+    items.add("Total: " + getFormattedVcsChanges());
+    items.add(project.getName() + ": " + formatProjectVcsChanges(projectChanges));
     items.add(OPEN_DETAILED_VIEW);
 
     boolean hasApiKey = isNotBlank(ApiKeyPersistence.getApiKey());
@@ -36,7 +44,7 @@ public class TimeTrackerPopup {
     }
 
     BaseListPopupStep<String> step =
-        new BaseListPopupStep<>("Coding Activity Today", items) {
+        new BaseListPopupStep<>("Activity Today", items) {
           @Override
           public boolean isSelectable(String value) {
             return OPEN_DETAILED_VIEW.equals(value) || ADD_API_KEY.equals(value);
@@ -59,7 +67,19 @@ public class TimeTrackerPopup {
 
           @Override
           public @Nullable ListSeparator getSeparatorAbove(String value) {
-            return OPEN_DETAILED_VIEW.equals(value) ? new ListSeparator() : null;
+            if (OPEN_DETAILED_VIEW.equals(value)) {
+              return new ListSeparator();
+            }
+
+            if (value.contains("Total: ") && value.contains("/")) {
+              return new ListSeparator("Committed Lines");
+            }
+
+            if (value.contains("Total: ") && !value.contains("/")) {
+              return new ListSeparator("Coding Time");
+            }
+
+            return null;
           }
         };
 
@@ -68,5 +88,9 @@ public class TimeTrackerPopup {
 
   public static String getFormattedVcsChanges() {
     return String.format("+%d / -%d", GLOBAL_ADDITIONS.get(), GLOBAL_REMOVALS.get());
+  }
+
+  private static String formatProjectVcsChanges(ProjectChangesCounters changes) {
+    return String.format("+%d / -%d", changes.additions().get(), changes.removals().get());
   }
 }
