@@ -17,7 +17,12 @@ CodeClocker automatically tracks coding activity and visualizes it in the IDE st
 * **Coding Time Tracking** – Automatically records time spent on each project.
 * **VCS Added & Removed Lines** – Tracks the number of added and removed lines in VCS.
 * **IDE Status Bar Widget** – Displays current coding activity directly in IDE status bar for quick at-a-glance monitoring.
-* **Activity Web Dashboard** – Visualises coding activity on web dashboard on [CodeClocker Hub](https://hub.codeclocker.com/).
+* **Personal Activity Web Dashboard** – Visualises coding activity on web dashboard on [CodeClocker Hub](https://hub.codeclocker.com/).
+* **Team Dashboard** – Create and manage teams on [CodeClocker Hub](https://hub.codeclocker.com/) to monitor collective coding activity:
+  * **Team Statistics** – View aggregated metrics including total time and daily average.
+  * **Contributors Overview** – See individual contributor stats with hours coded.
+  * **Project Activity Charts** – Visualize team activity per project with stacked bar charts showing each contributor's participation.
+  * **Time Period Filtering** – Analyze team performance over different time ranges (e.g., Last 7 Days).
 
 <!-- Plugin description end -->
 

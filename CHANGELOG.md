@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [1.2.2] - 2025-11-28
+
+- Team support
+
+## [1.2.1] - 2025-11-26
+
+- Update plugin name
+
 ## [1.2.0] - 2025-11-26
 
 - Skip showing "Enter CodeClocker API Key" dialog on every IDE start
@@ -62,7 +70,9 @@
 
 - Support IntelliJ Platform 2024.3.5
 
-[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.2.2...HEAD
+[1.2.2]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.2.1...v1.2.2
+[1.2.1]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.0.11...v1.1.0
 [1.0.11]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.0.10...v1.0.11
