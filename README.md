@@ -6,11 +6,11 @@
 
 <!-- Plugin description -->
 
-## What's CodeClocker
+## CodeClocker Time Tracker
 
-CodeClocker automatically tracks coding activity and visualizes it in the IDE status bar and on [web dashboard on CodeClocker Hub](https://hub.codeclocker.com/).
+CodeClocker automatically tracks your coding time and activity, displaying it in the IDE status bar and on the [CodeClocker Hub](https://hub.codeclocker.com/).
 
-![Demo](https://raw.githubusercontent.com/codeclocker/codeclocker-intellij-plugin/main/docs/img/demo.gif)
+[![Demo](https://raw.githubusercontent.com/codeclocker/codeclocker-intellij-plugin/main/docs/media/demo.mp4)
 
 ### Features
 
@@ -58,4 +58,4 @@ Once active, it will update to "Active: Receiving data".
 
 If you need to open the API Key dialog window in your IntelliJ IDE (for example, you accidentally closed it during initial plugin installation), then go to **Tools > CodeClocker API Key** at the top of the dropdown list.
 
-![API key menu](docs/img/api-key-menu.jpg)
+![API key menu](docs/media/api-key-menu.jpg)

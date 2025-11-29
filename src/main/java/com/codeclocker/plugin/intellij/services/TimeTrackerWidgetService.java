@@ -4,6 +4,7 @@ import static com.codeclocker.plugin.intellij.services.TimeSpentPerProjectLogger
 import static com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker.GLOBAL_ADDITIONS;
 import static com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker.GLOBAL_REMOVALS;
 
+import com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker;
 import com.codeclocker.plugin.intellij.stopwatch.SafeStopWatch;
 import com.codeclocker.plugin.intellij.widget.TimeTrackerWidget;
 import com.intellij.openapi.Disposable;
@@ -112,6 +113,13 @@ public class TimeTrackerWidgetService implements Disposable {
       GLOBAL_ADDITIONS.set(0);
       GLOBAL_REMOVALS.set(0);
       GLOBAL_STOP_WATCH.reset();
+
+      // Reset per-project VCS changes counters
+      ChangesActivityTracker changesTracker =
+          ApplicationManager.getApplication().getService(ChangesActivityTracker.class);
+      if (changesTracker != null) {
+        changesTracker.clearAllProjectChanges();
+      }
 
       lastDate = currentDate;
     }

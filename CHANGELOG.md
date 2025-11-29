@@ -2,7 +2,9 @@
 
 # CodeClocker Changelog
 
-## [Unreleased]
+## [1.2.3] - 2025-11-29
+
+- Reset VCS changes at midnight in IDE status bar
 
 ## [1.2.2] - 2025-11-28
 
