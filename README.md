@@ -6,11 +6,11 @@
 
 <!-- Plugin description -->
 
-## What's CodeClocker
+## CodeClocker Time Tracker
 
-CodeClocker automatically tracks coding activity and visualizes it in the IDE status bar and on [web dashboard on CodeClocker Hub](https://hub.codeclocker.com/).
+CodeClocker automatically tracks your coding time and activity, displaying it in the IDE status bar and on the [CodeClocker Hub](https://hub.codeclocker.com/).
 
-![Demo](https://raw.githubusercontent.com/codeclocker/codeclocker-intellij-plugin/main/docs/img/demo.gif)
+[![Demo](https://raw.githubusercontent.com/codeclocker/codeclocker-intellij-plugin/main/docs/img/demo.mp4)
 
 ### Features
 
