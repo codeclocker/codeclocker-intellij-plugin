@@ -10,19 +10,17 @@
 
 CodeClocker automatically tracks your coding time and activity, displaying it in the IDE status bar and on the [CodeClocker Hub](https://hub.codeclocker.com/).
 
-[![Demo](https://raw.githubusercontent.com/codeclocker/codeclocker-intellij-plugin/main/docs/media/demo.mp4)
-
 ### Features
 
 * **Coding Time Tracking** – Automatically records time spent on each project.
-* **VCS Added & Removed Lines** – Tracks the number of added and removed lines in VCS.
-* **IDE Status Bar Widget** – Displays current coding activity directly in IDE status bar for quick at-a-glance monitoring.
-* **Personal Activity Web Dashboard** – Visualises coding activity on web dashboard on [CodeClocker Hub](https://hub.codeclocker.com/).
-* **Team Dashboard** – Create and manage teams on [CodeClocker Hub](https://hub.codeclocker.com/) to monitor collective coding activity:
-  * **Team Statistics** – View aggregated metrics including total time and daily average.
-  * **Contributors Overview** – See individual contributor stats with hours coded.
-  * **Project Activity Charts** – Visualize team activity per project with stacked bar charts showing each contributor's participation.
-  * **Time Period Filtering** – Analyze team performance over different time ranges (e.g., Last 7 Days).
+* **VCS Added & Removed Lines** – Tracks added and removed lines in your version control system.
+* **IDE Status Bar Widget** – Displays your current coding activity directly in the IDE status bar for quick, at-a-glance monitoring.
+* **Personal Activity Web Dashboard** – Visualizes your coding activity in a web dashboard on [CodeClocker Hub](https://hub.codeclocker.com/).
+* **Team Dashboard** – Provides team management and monitoring on [CodeClocker Hub](https://hub.codeclocker.com/) for collective coding activity:
+  * **Team Statistics** – Presents aggregated metrics, including total time and daily averages.
+  * **Contributors Overview** – Displays individual contributor statistics, including hours coded.
+  * **Project Activity Charts** – Renders project-level activity with stacked bar charts showing each contributor’s participation.
+  * **Time Period Filtering** – Supports analysis of team performance across different time ranges (e.g., last 7 days).
 
 <!-- Plugin description end -->
 
