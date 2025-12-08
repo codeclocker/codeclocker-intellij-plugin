@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -17,6 +18,7 @@ public class TimeSpentPerProjectLogger {
   private static final Logger LOG = Logger.getInstance(TimeSpentPerProjectLogger.class);
 
   public static final SafeStopWatch GLOBAL_STOP_WATCH = SafeStopWatch.createStopped();
+  public static final AtomicLong GLOBAL_INIT_SECONDS = new AtomicLong();
 
   private final Map<String, TimeSpentPerProjectSample> timingByProject = new ConcurrentHashMap<>();
   private final AtomicReference<Project> currentProject = new AtomicReference<>();
@@ -36,12 +38,15 @@ public class TimeSpentPerProjectLogger {
       timingByProject.compute(
           project.getName(),
           (name, sample) -> {
+            if (project.isDisposed()) {
+              return sample;
+            }
             TimeTrackerWidgetService service = project.getService(TimeTrackerWidgetService.class);
             service.resume();
             if (sample == null) {
-              return TimeSpentPerProjectSample.create();
+              return TimeSpentPerProjectSample.createStarted();
             }
-            return sample.resumeSpendingTime();
+            return sample.resume();
           });
     } finally {
       lock.unlock();
@@ -55,6 +60,12 @@ public class TimeSpentPerProjectLogger {
       timingByProject.compute(
           prevProject.getName(),
           (name, sample) -> {
+            if (prevProject.isDisposed()) {
+              if (sample != null) {
+                sample.pause();
+              }
+              return sample;
+            }
             TimeTrackerWidgetService service =
                 prevProject.getService(TimeTrackerWidgetService.class);
             service.pause();
@@ -84,6 +95,12 @@ public class TimeSpentPerProjectLogger {
             timingByProject.compute(
                 currentProject.getName(),
                 (name, sample) -> {
+                  if (currentProject.isDisposed()) {
+                    if (sample != null) {
+                      sample.pause();
+                    }
+                    return sample;
+                  }
                   TimeTrackerWidgetService service =
                       currentProject.getService(TimeTrackerWidgetService.class);
                   service.pause();

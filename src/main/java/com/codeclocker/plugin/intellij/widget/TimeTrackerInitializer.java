@@ -1,5 +1,6 @@
 package com.codeclocker.plugin.intellij.widget;
 
+import static com.codeclocker.plugin.intellij.services.TimeSpentPerProjectLogger.GLOBAL_INIT_SECONDS;
 import static com.codeclocker.plugin.intellij.services.TimeSpentPerProjectLogger.GLOBAL_STOP_WATCH;
 import static com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker.GLOBAL_ADDITIONS;
 import static com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker.GLOBAL_REMOVALS;
@@ -8,6 +9,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import com.codeclocker.plugin.intellij.apikey.ApiKeyLifecycle;
 import com.codeclocker.plugin.intellij.config.Config;
+import com.codeclocker.plugin.intellij.local.LocalStateRepository;
+import com.codeclocker.plugin.intellij.local.ProjectActivitySnapshot;
 import com.codeclocker.plugin.intellij.reporting.DailyTimeHttpClient;
 import com.codeclocker.plugin.intellij.reporting.DailyTimeHttpClient.DailyTimeResponse;
 import com.codeclocker.plugin.intellij.reporting.DailyTimeHttpClient.ProjectStats;
@@ -18,7 +21,10 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.util.concurrency.AppExecutorUtil;
+import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -57,9 +63,9 @@ public class TimeTrackerInitializer {
     try {
       String apiKey = ApiKeyLifecycle.getActiveApiKey();
       if (isBlank(apiKey)) {
-        LOG.debug("No active API key");
+        LOG.debug("No active API key, initializing from local state");
         cancelRetryTask();
-        initializeAllProjectWidgets(Map.of(), false);
+        initializeFromLocalState();
         return;
       }
 
@@ -112,7 +118,7 @@ public class TimeTrackerInitializer {
       return;
     }
 
-    long totalTime =
+    long totalGlobalSeconds =
         projectStats.values().stream()
             .mapToLong(DailyTimeHttpClient.ProjectStats::timeSpentSeconds)
             .sum();
@@ -123,12 +129,13 @@ public class TimeTrackerInitializer {
 
     LOG.debug(
         "Total time across all projects: {}s, additions: {}, removals: {}",
-        totalTime,
+        totalGlobalSeconds,
         totalAdditions,
         totalRemovals);
 
     // Reset the global stopwatch since the backend total already includes all accumulated time
     GLOBAL_STOP_WATCH.reset();
+    GLOBAL_INIT_SECONDS.set(totalGlobalSeconds);
 
     // Initialize global VCS counters with data from backend
     GLOBAL_ADDITIONS.set(totalAdditions);
@@ -137,27 +144,29 @@ public class TimeTrackerInitializer {
         "Initialized GLOBAL_ADDITIONS: {}, GLOBAL_REMOVALS: {}", totalAdditions, totalRemovals);
 
     initializeVcsChanges(projectStats);
-    initializeCodingTime(projectStats, totalTime);
+    initializeCodingTime(projectStats);
 
     initialized = true;
   }
 
-  private static void initializeCodingTime(Map<String, ProjectStats> projectStats, long totalTime) {
+  private static void initializeCodingTime(Map<String, ProjectStats> projectStats) {
     Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
     for (Project project : openProjects) {
       String projectName = project.getName();
       ProjectStats stats = projectStats.get(projectName);
       long initialSeconds = stats != null ? stats.timeSpentSeconds() : 0L;
 
-      TimeTrackerWidgetService service = project.getService(TimeTrackerWidgetService.class);
-      if (service != null) {
-        service.initialize(initialSeconds, totalTime);
-        LOG.debug(
-            "Initialized timer widget for project {} with {}s (total: {}s)",
-            projectName,
-            initialSeconds,
-            totalTime);
-      }
+      initializeTimeTrackerWidget(
+          project, initialSeconds, "Initialized timer widget for project {} with {}s", projectName);
+    }
+  }
+
+  private static void initializeTimeTrackerWidget(
+      Project project, long initialProjectSeconds, String message, String projectName) {
+    TimeTrackerWidgetService service = project.getService(TimeTrackerWidgetService.class);
+    if (service != null) {
+      service.initialize(initialProjectSeconds);
+      LOG.debug(message, projectName, initialProjectSeconds);
     }
   }
 
@@ -203,6 +212,103 @@ public class TimeTrackerInitializer {
       LOG.info("Cancelling retry task - data successfully fetched");
       retryTask.get().cancel(false);
       retryTask.set(null);
+    }
+  }
+
+  private static void initializeFromLocalState() {
+    LocalStateRepository localState =
+        ApplicationManager.getApplication().getService(LocalStateRepository.class);
+    Map<String, ProjectActivitySnapshot> todayStats = aggregateTodayStats(localState);
+
+    if (todayStats.isEmpty() && initialized) {
+      LOG.debug("No local state data for today and already initialized, skipping");
+      return;
+    }
+
+    long totalTime =
+        todayStats.values().stream().mapToLong(ProjectActivitySnapshot::getCodedTimeSeconds).sum();
+    long totalAdditions =
+        todayStats.values().stream().mapToLong(ProjectActivitySnapshot::getAdditions).sum();
+    long totalRemovals =
+        todayStats.values().stream().mapToLong(ProjectActivitySnapshot::getRemovals).sum();
+
+    LOG.info(
+        "Initializing from local state - total time: "
+            + totalTime
+            + "s, additions: "
+            + totalAdditions
+            + ", removals: "
+            + totalRemovals);
+
+    GLOBAL_STOP_WATCH.reset();
+    GLOBAL_INIT_SECONDS.set(totalTime);
+    GLOBAL_ADDITIONS.set(totalAdditions);
+    GLOBAL_REMOVALS.set(totalRemovals);
+
+    initializeVcsChangesFromLocalState(todayStats);
+    initializeCodingTimeFromLocalState(todayStats);
+
+    initialized = true;
+  }
+
+  private static Map<String, ProjectActivitySnapshot> aggregateTodayStats(
+      LocalStateRepository localState) {
+    String todayPrefix = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    Map<String, ProjectActivitySnapshot> aggregated = new HashMap<>();
+
+    for (Map.Entry<String, Map<String, ProjectActivitySnapshot>> hourEntry :
+        localState.getAllData().entrySet()) {
+      if (!hourEntry.getKey().startsWith(todayPrefix)) {
+        continue;
+      }
+
+      for (Map.Entry<String, ProjectActivitySnapshot> projectEntry :
+          hourEntry.getValue().entrySet()) {
+        String projectName = projectEntry.getKey();
+        ProjectActivitySnapshot snapshot = projectEntry.getValue();
+
+        aggregated.merge(
+            projectName,
+            snapshot,
+            (existing, incoming) ->
+                new ProjectActivitySnapshot(
+                    existing.getCodedTimeSeconds() + incoming.getCodedTimeSeconds(),
+                    existing.getAdditions() + incoming.getAdditions(),
+                    existing.getRemovals() + incoming.getRemovals(),
+                    existing.isReported()));
+      }
+    }
+
+    return aggregated;
+  }
+
+  private static void initializeCodingTimeFromLocalState(
+      Map<String, ProjectActivitySnapshot> projectStats) {
+    Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
+    for (Project project : openProjects) {
+      String projectName = project.getName();
+      ProjectActivitySnapshot stats = projectStats.get(projectName);
+      long initialSeconds = stats != null ? stats.getCodedTimeSeconds() : 0L;
+
+      initializeTimeTrackerWidget(
+          project,
+          initialSeconds,
+          "Initialized timer widget from local state for project {} with {}s (total: {}s)",
+          projectName);
+    }
+  }
+
+  private static void initializeVcsChangesFromLocalState(
+      Map<String, ProjectActivitySnapshot> projectStats) {
+    ChangesActivityTracker changesTracker =
+        ApplicationManager.getApplication().getService(ChangesActivityTracker.class);
+    changesTracker.clearAllProjectChanges();
+
+    for (Map.Entry<String, ProjectActivitySnapshot> entry : projectStats.entrySet()) {
+      String projectName = entry.getKey();
+      ProjectActivitySnapshot stats = entry.getValue();
+      changesTracker.initializeProjectChanges(
+          projectName, stats.getAdditions(), stats.getRemovals());
     }
   }
 }

@@ -81,12 +81,7 @@ public class TimeTrackerWidget
     String totalTime = service.getFormattedTotalTime();
     String projectTime = service.getFormattedProjectTime();
 
-    return "Total coding time today: "
-        + totalTime
-        + ". Time on "
-        + project.getName()
-        + ": "
-        + projectTime;
+    return "Total today: " + totalTime + ". Time on " + project.getName() + ": " + projectTime;
   }
 
   @Nullable

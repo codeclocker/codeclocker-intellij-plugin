@@ -1,5 +1,6 @@
 package com.codeclocker.plugin.intellij.services;
 
+import static com.codeclocker.plugin.intellij.services.TimeSpentPerProjectLogger.GLOBAL_INIT_SECONDS;
 import static com.codeclocker.plugin.intellij.services.TimeSpentPerProjectLogger.GLOBAL_STOP_WATCH;
 import static com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker.GLOBAL_ADDITIONS;
 import static com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker.GLOBAL_REMOVALS;
@@ -27,7 +28,6 @@ public class TimeTrackerWidgetService implements Disposable {
   private final Project project;
   private final TimeTrackerWidget widget;
   private final AtomicLong initProjectTime = new AtomicLong(0);
-  private final AtomicLong initTotalTime = new AtomicLong(0);
   private final SafeStopWatch projectStopWatch = SafeStopWatch.createStopped();
 
   private LocalDate lastDate = LocalDate.now();
@@ -39,9 +39,8 @@ public class TimeTrackerWidgetService implements Disposable {
     startTicker();
   }
 
-  public void initialize(long initialSeconds, long totalSeconds) {
+  public void initialize(long initialSeconds) {
     this.initProjectTime.set(initialSeconds);
-    this.initTotalTime.set(totalSeconds);
     repaintWidget();
   }
 
@@ -54,10 +53,10 @@ public class TimeTrackerWidgetService implements Disposable {
   }
 
   public long getTotalSeconds() {
-    return initTotalTime.get() + GLOBAL_STOP_WATCH.getSeconds();
+    return GLOBAL_INIT_SECONDS.get() + GLOBAL_STOP_WATCH.getSeconds();
   }
 
-  private long getProjectSeconds() {
+  public long getProjectSeconds() {
     return initProjectTime.get() + projectStopWatch.getSeconds();
   }
 
@@ -108,7 +107,7 @@ public class TimeTrackerWidgetService implements Disposable {
       LOG.info("Midnight detected for project: " + project.getName());
 
       initProjectTime.set(0);
-      initTotalTime.set(0);
+      GLOBAL_INIT_SECONDS.set(0);
       projectStopWatch.reset();
       GLOBAL_ADDITIONS.set(0);
       GLOBAL_REMOVALS.set(0);

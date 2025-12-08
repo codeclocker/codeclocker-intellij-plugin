@@ -2,7 +2,10 @@ package com.codeclocker.plugin.intellij.apikey;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import com.codeclocker.plugin.intellij.reporting.DataReportingTask;
+import com.codeclocker.plugin.intellij.reporting.TimeComparisonFetchTask;
 import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,9 +25,30 @@ public class ApiKeyPersistence {
 
   public static void persistApiKey(String apiKey) {
     if (isBlank(apiKey)) {
-      PropertiesComponent.getInstance().setValue(CODE_CLOCKER_API_KEY_PROPERTY, null);
+      unsetApiKey();
     } else {
       PropertiesComponent.getInstance().setValue(CODE_CLOCKER_API_KEY_PROPERTY, apiKey);
+      // Sync any locally stored data to the server now that we have an API key
+      syncLocalDataToServer(apiKey);
+    }
+  }
+
+  private static void syncLocalDataToServer(String apiKey) {
+    try {
+      DataReportingTask dataReportingTask =
+          ApplicationManager.getApplication().getService(DataReportingTask.class);
+      if (dataReportingTask != null) {
+        dataReportingTask.syncLocalDataToServer(apiKey);
+      }
+
+      // Refetch trends data now that local data has been synced
+      TimeComparisonFetchTask timeComparisonFetchTask =
+          ApplicationManager.getApplication().getService(TimeComparisonFetchTask.class);
+      if (timeComparisonFetchTask != null) {
+        timeComparisonFetchTask.refetch();
+      }
+    } catch (Exception e) {
+      LOG.warn("Failed to sync local data after API key was set", e);
     }
   }
 
