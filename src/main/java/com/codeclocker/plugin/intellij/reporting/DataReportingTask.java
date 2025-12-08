@@ -83,12 +83,18 @@ public final class DataReportingTask implements Disposable {
       // Cleanup old local data periodically
       localStateRepository.rotate();
 
-      // Always save to local storage first
-      saveToLocalStorage();
+      Map<String, TimeSpentPerProjectSample> timeSamples = timeSpentPerProjectLogger.drain();
+      Map<String, Map<String, ChangesSample>> changesSamples = changesActivityTracker.drain();
+      if (timeSamples.isEmpty() && changesSamples.isEmpty()) {
+        LOG.debug("No activity data to save locally");
+        return;
+      }
+
+      saveToLocalStorage(timeSamples, changesSamples);
 
       // If API key is available, try to sync to server
       if (!isBlank(apiKey)) {
-        sendActivitySampleToServer(apiKey);
+        sendActivitySampleToServer(apiKey, timeSamples, changesSamples);
       }
     } catch (Exception ex) {
       LOG.debug("Error flushing activity data: {}", ex.getMessage());
@@ -98,18 +104,19 @@ public final class DataReportingTask implements Disposable {
   public void saveToLocalStorageIfApiKeyIsEmpty() { // todo: store in any case
     String apiKey = ApiKeyLifecycle.getActiveApiKey();
     if (isBlank(apiKey)) {
-      saveToLocalStorage();
+      Map<String, TimeSpentPerProjectSample> timeSamples = timeSpentPerProjectLogger.drain();
+      Map<String, Map<String, ChangesSample>> changesSamples = changesActivityTracker.drain();
+      if (timeSamples.isEmpty() && changesSamples.isEmpty()) {
+        LOG.debug("No activity data to save locally");
+        return;
+      }
+
+      saveToLocalStorage(timeSamples, changesSamples);
     }
   }
 
-  public void saveToLocalStorage() {
-    Map<String, TimeSpentPerProjectSample> timeSamples = timeSpentPerProjectLogger.drain();
-    Map<String, Map<String, ChangesSample>> changesSamples = changesActivityTracker.drain();
-
-    if (timeSamples.isEmpty() && changesSamples.isEmpty()) {
-      LOG.debug("No activity data to save locally");
-      return;
-    }
+  public void saveToLocalStorage(Map<String, TimeSpentPerProjectSample> timeSamples,
+      Map<String, Map<String, ChangesSample>> changesSamples) {
 
     // Aggregate VCS changes per project
     Map<String, Long> projectAdditions = new HashMap<>();
@@ -156,7 +163,9 @@ public final class DataReportingTask implements Disposable {
     LOG.debug("Saved activity data to local storage for " + timeSamples.size() + " projects");
   }
 
-  private void sendActivitySampleToServer(String apiKey) {
+  private void sendActivitySampleToServer(String apiKey,
+      Map<String, TimeSpentPerProjectSample> timeSamples,
+      Map<String, Map<String, ChangesSample>> changesSamples) {
     // Validate timers before flushing to detect inconsistencies
     validateTimersBeforeFlush();
 
@@ -169,8 +178,8 @@ public final class DataReportingTask implements Disposable {
       return;
     }
 
-    publishTimeSpentSample(apiKey);
-    publishChangesSample(apiKey);
+    publishTimeSpentSample(apiKey, timeSamples);
+    publishChangesSample(apiKey, changesSamples);
   }
 
   public void syncLocalDataToServer(String apiKey) {
@@ -291,13 +300,8 @@ public final class DataReportingTask implements Disposable {
     }
   }
 
-  private void publishTimeSpentSample(String apiKey) {
-    Map<String, TimeSpentPerProjectSample> sample = timeSpentPerProjectLogger.drain();
-    if (sample.isEmpty()) {
-      LOG.debug("Activity sample is empty. Doing nothing");
-      return;
-    }
-
+  private void publishTimeSpentSample(String apiKey,
+      Map<String, TimeSpentPerProjectSample> sample) {
     Map<String, TimeSpentSampleDto> dto = toTimeSpentDto(sample);
     String json = toJson(dto);
 
@@ -308,13 +312,7 @@ public final class DataReportingTask implements Disposable {
     }
   }
 
-  private void publishChangesSample(String apiKey) {
-    Map<String, Map<String, ChangesSample>> sample = changesActivityTracker.drain();
-    if (sample.isEmpty()) {
-      LOG.debug("Changes sample is empty. Doing nothing");
-      return;
-    }
-
+  private void publishChangesSample(String apiKey, Map<String, Map<String, ChangesSample>> sample) {
     Map<String, Map<String, ChangesSampleDto>> dto = toChangesDto(sample);
     String json = toJson(dto);
 
