@@ -43,7 +43,7 @@ public class LocalTrackerState {
                       existing.getCodedTimeSeconds() + incoming.getCodedTimeSeconds(),
                       existing.getAdditions() + incoming.getAdditions(),
                       existing.getRemovals() + incoming.getRemovals(),
-                      false));
+                      existing.isReported()));
           return projects;
         });
   }

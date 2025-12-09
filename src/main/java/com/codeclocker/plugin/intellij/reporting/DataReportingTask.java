@@ -115,7 +115,8 @@ public final class DataReportingTask implements Disposable {
     }
   }
 
-  public void saveToLocalStorage(Map<String, TimeSpentPerProjectSample> timeSamples,
+  public void saveToLocalStorage(
+      Map<String, TimeSpentPerProjectSample> timeSamples,
       Map<String, Map<String, ChangesSample>> changesSamples) {
 
     // Aggregate VCS changes per project
@@ -163,7 +164,8 @@ public final class DataReportingTask implements Disposable {
     LOG.debug("Saved activity data to local storage for " + timeSamples.size() + " projects");
   }
 
-  private void sendActivitySampleToServer(String apiKey,
+  private void sendActivitySampleToServer(
+      String apiKey,
       Map<String, TimeSpentPerProjectSample> timeSamples,
       Map<String, Map<String, ChangesSample>> changesSamples) {
     // Validate timers before flushing to detect inconsistencies
@@ -300,8 +302,8 @@ public final class DataReportingTask implements Disposable {
     }
   }
 
-  private void publishTimeSpentSample(String apiKey,
-      Map<String, TimeSpentPerProjectSample> sample) {
+  private void publishTimeSpentSample(
+      String apiKey, Map<String, TimeSpentPerProjectSample> sample) {
     Map<String, TimeSpentSampleDto> dto = toTimeSpentDto(sample);
     String json = toJson(dto);
 
