@@ -25,8 +25,16 @@
       serviceImplementation="com.codeclocker.plugin.intellij.subscription.SubscriptionStateCheckerTask"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.reporting.DailyTimeHttpClient"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.services.TimeSpentPerProjectLogger"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.local.LocalStateRepository"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.reporting.DataReportingTask"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.reporting.TimeComparisonFetchTask"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.analytics.AnalyticsHttpClient"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.analytics.AnalyticsReportingTask"/>
 
     <projectService serviceImplementation="com.codeclocker.plugin.intellij.services.TimeTrackerWidgetService"/>
+
+<!--    <statusBarWidgetFactory-->
+<!--      implementation="com.codeclocker.plugin.intellij.widget.SparklineStatusBarWidgetFactory"/>-->
 
     <statusBarWidgetFactory
       id="com.codeclocker.TimeTrackerWidget"

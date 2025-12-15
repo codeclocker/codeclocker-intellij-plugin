@@ -4,11 +4,11 @@ import com.codeclocker.plugin.intellij.stopwatch.SafeStopWatch;
 
 public record TimeSpentPerProjectSample(long samplingStartedAt, SafeStopWatch timeSpent) {
 
-  public static TimeSpentPerProjectSample create() {
+  public static TimeSpentPerProjectSample createStarted() {
     return new TimeSpentPerProjectSample(System.currentTimeMillis(), SafeStopWatch.createStarted());
   }
 
-  public TimeSpentPerProjectSample resumeSpendingTime() {
+  public TimeSpentPerProjectSample resume() {
     timeSpent.resume();
 
     return this;

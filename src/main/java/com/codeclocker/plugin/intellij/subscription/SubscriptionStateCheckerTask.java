@@ -66,6 +66,5 @@ public class SubscriptionStateCheckerTask implements Disposable {
   @Override
   public void dispose() {
     cancelTask();
-    EXECUTOR.shutdown();
   }
 }
