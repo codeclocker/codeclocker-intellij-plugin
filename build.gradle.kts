@@ -96,7 +96,7 @@ intellijPlatform {
     }
 
     publishing {
-        token = "perm-0JDQvdC00YDRltC5X9Cf0LDRgdGW0LrQsA==.OTItMTM4NzE=.Xme3uK2M9eeFGgW3yON701EE6rnU9P"
+        token = providers.gradleProperty("token")
         // The pluginVersion is based on the SemVer (https://semver.org) and supports pre-release labels, like 2.1.7-alpha.3
         // Specify pre-release label to publish the plugin in a custom Release Channel automatically. Read more:
         // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
