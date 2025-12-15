@@ -28,6 +28,8 @@
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.local.LocalStateRepository"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.reporting.DataReportingTask"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.reporting.TimeComparisonFetchTask"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.analytics.AnalyticsHttpClient"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.analytics.AnalyticsReportingTask"/>
 
     <projectService serviceImplementation="com.codeclocker.plugin.intellij.services.TimeTrackerWidgetService"/>
 

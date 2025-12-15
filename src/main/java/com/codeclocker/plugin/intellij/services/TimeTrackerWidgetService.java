@@ -41,6 +41,7 @@ public class TimeTrackerWidgetService implements Disposable {
 
   public void initialize(long initialSeconds) {
     this.initProjectTime.set(initialSeconds);
+    this.projectStopWatch.reset();
     repaintWidget();
   }
 

@@ -5,6 +5,8 @@ import static com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracke
 import static com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker.GLOBAL_REMOVALS;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+import com.codeclocker.plugin.intellij.analytics.Analytics;
+import com.codeclocker.plugin.intellij.analytics.AnalyticsEventType;
 import com.codeclocker.plugin.intellij.apikey.ApiKeyLifecycle;
 import com.codeclocker.plugin.intellij.apikey.ApiKeyPersistence;
 import com.codeclocker.plugin.intellij.apikey.EnterApiKeyAction;
@@ -22,6 +24,7 @@ import com.intellij.openapi.ui.popup.PopupStep;
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.jetbrains.annotations.Nullable;
 
 public class TimeTrackerPopup {
@@ -66,10 +69,16 @@ public class TimeTrackerPopup {
           @Override
           public PopupStep<?> onChosen(String selectedValue, boolean finalChoice) {
             if (WEB_DASHBOARD.equals(selectedValue)) {
+              Analytics.track(
+                  AnalyticsEventType.WIDGET_POPUP_ACTION, Map.of("action", "web_dashboard"));
               BrowserUtil.browse(HUB_UI_HOST);
             } else if (SAVE_HISTORY.equals(selectedValue)) {
+              Analytics.track(
+                  AnalyticsEventType.WIDGET_POPUP_ACTION, Map.of("action", "save_history"));
               EnterApiKeyAction.showAction();
             } else if (RENEW_SUBSCRIPTION.equals(selectedValue)) {
+              Analytics.track(
+                  AnalyticsEventType.WIDGET_POPUP_ACTION, Map.of("action", "renew_subscription"));
               BrowserUtil.browse(HUB_UI_HOST + "/payment");
             }
             return FINAL_CHOICE;

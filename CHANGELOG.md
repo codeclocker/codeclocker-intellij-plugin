@@ -2,9 +2,9 @@
 
 # CodeClocker Changelog
 
-## [1.3.0] - 2025-12-09
+## [1.3.0] - 2025-12-15
 
-- Use local storage for coding activity data
+- Save activity data to local storage to survive IDE restarts
 
 ## [1.2.3] - 2025-11-29
 

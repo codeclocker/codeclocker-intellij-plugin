@@ -1,5 +1,7 @@
 package com.codeclocker.plugin.intellij.widget;
 
+import com.codeclocker.plugin.intellij.analytics.Analytics;
+import com.codeclocker.plugin.intellij.analytics.AnalyticsEventType;
 import com.codeclocker.plugin.intellij.services.TimeTrackerWidgetService;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -87,6 +89,8 @@ public class TimeTrackerWidget
   @Nullable
   @Override
   public ListPopup getPopup() {
+    Analytics.track(AnalyticsEventType.STATUS_BAR_WIDGET_CLICK);
+
     String totalTime = service.getFormattedTotalTime();
     String projectTime = service.getFormattedProjectTime();
 
