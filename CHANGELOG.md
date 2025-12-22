@@ -2,6 +2,10 @@
 
 # CodeClocker Changelog
 
+## [1.3.1] - 2025-12-22
+
+- Support latest IDE version
+
 ## [1.3.0] - 2025-12-15
 
 - Save activity data to local storage to survive IDE restarts
@@ -76,7 +80,8 @@
 
 - Support IntelliJ Platform 2024.3.5
 
-[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.2.3...HEAD
+[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.2.3...v1.3.0
 [1.2.3]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.2.2...v1.2.3
 [1.2.2]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.2.0...v1.2.1
