@@ -10,6 +10,9 @@ import com.codeclocker.plugin.intellij.analytics.AnalyticsEventType;
 import com.codeclocker.plugin.intellij.apikey.ApiKeyLifecycle;
 import com.codeclocker.plugin.intellij.apikey.ApiKeyPersistence;
 import com.codeclocker.plugin.intellij.apikey.EnterApiKeyAction;
+import com.codeclocker.plugin.intellij.goal.GoalProgress;
+import com.codeclocker.plugin.intellij.goal.GoalService;
+import com.codeclocker.plugin.intellij.goal.GoalSettingsDialog;
 import com.codeclocker.plugin.intellij.reporting.TimeComparisonFetchTask;
 import com.codeclocker.plugin.intellij.reporting.TimeComparisonHttpClient.TimePeriodComparisonDto;
 import com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker;
@@ -29,9 +32,10 @@ import org.jetbrains.annotations.Nullable;
 
 public class TimeTrackerPopup {
 
-  private static final String WEB_DASHBOARD = "Web Dashboard →";
+  private static final String WEB_DASHBOARD = "My Dashboard →";
   private static final String SAVE_HISTORY = "Save my history & unlock trends →";
-  private static final String RENEW_SUBSCRIPTION = "Renew subscription for trends →";
+  private static final String RENEW_SUBSCRIPTION = "Renew subscription to keep my history →";
+  private static final String SET_GOALS = "Set Goals...";
 
   public static ListPopup create(Project project, String totalTime, String projectTime) {
     ChangesActivityTracker tracker =
@@ -39,14 +43,30 @@ public class TimeTrackerPopup {
     ProjectChangesCounters projectChanges = tracker.getProjectChanges(project.getName());
 
     TimeComparisonFetchTask comparisonTask = TimeComparisonFetchTask.getInstance();
+    GoalService goalService = ApplicationManager.getApplication().getService(GoalService.class);
 
     List<String> items = new ArrayList<>();
+
+    // Goal progress at the top (always shown)
+    if (goalService != null) {
+      items.add(formatGoalProgress("Daily", goalService.getDailyProgress()));
+      items.add(formatGoalProgress("Weekly", goalService.getWeeklyProgress()));
+    }
+
+    // Coding time
     items.add("Total: " + totalTime);
     items.add(project.getName() + ": " + projectTime);
+
+    // VCS changes
     items.add("Total: " + getFormattedVcsChanges());
     items.add(project.getName() + ": " + formatProjectVcsChanges(projectChanges));
+
+    // Trends
     items.add(formatTodayVsYesterday(comparisonTask.getTodayVsYesterday()));
     items.add(formatThisWeekVsLastWeek(comparisonTask.getThisWeekVsLastWeek()));
+
+    // Add Set Goals action
+    items.add(SET_GOALS);
 
     boolean hasApiKey = isNotBlank(ApiKeyPersistence.getApiKey());
     if (ApiKeyLifecycle.isActivityDataStoppedBeingCollected()) {
@@ -63,7 +83,8 @@ public class TimeTrackerPopup {
           public boolean isSelectable(String value) {
             return WEB_DASHBOARD.equals(value)
                 || SAVE_HISTORY.equals(value)
-                || RENEW_SUBSCRIPTION.equals(value);
+                || RENEW_SUBSCRIPTION.equals(value)
+                || SET_GOALS.equals(value);
           }
 
           @Override
@@ -80,6 +101,10 @@ public class TimeTrackerPopup {
               Analytics.track(
                   AnalyticsEventType.WIDGET_POPUP_ACTION, Map.of("action", "renew_subscription"));
               BrowserUtil.browse(HUB_UI_HOST + "/payment");
+            } else if (SET_GOALS.equals(selectedValue)) {
+              Analytics.track(
+                  AnalyticsEventType.WIDGET_POPUP_ACTION, Map.of("action", "set_goals"));
+              GoalSettingsDialog.showDialog();
             }
             return FINAL_CHOICE;
           }
@@ -97,14 +122,26 @@ public class TimeTrackerPopup {
               return new ListSeparator();
             }
 
-            if (value.contains("Total: ") && value.contains("/")) {
-              return new ListSeparator("Committed Lines Today");
+            if (SET_GOALS.equals(value)) {
+              return new ListSeparator();
             }
 
+            // Goals section (first item is Daily goal)
+            if (value.startsWith("Daily:") && value.contains("%")) {
+              return new ListSeparator("Goals");
+            }
+
+            // Coding Time section (after goals)
             if (value.contains("Total: ") && !value.contains("/")) {
               return new ListSeparator("Coding Time Today");
             }
 
+            // Committed Lines section
+            if (value.contains("Total: ") && value.contains("/")) {
+              return new ListSeparator("Committed Lines Today");
+            }
+
+            // Trends section
             if (value.contains("Today vs. Yesterday:")) {
               return new ListSeparator("Coding Time Trends");
             }
@@ -161,5 +198,16 @@ public class TimeTrackerPopup {
       return String.format("↗%d%%", percentage);
     }
     return String.format("↘%d%%", Math.abs(percentage));
+  }
+
+  private static String formatGoalProgress(String label, GoalProgress progress) {
+    // Add extra padding for "Daily" to match visual width of "Weekly" in proportional font
+    String paddedLabel = label.equals("Daily") ? "Daily:     " : "Weekly: ";
+    return String.format(
+        "%s%s %s (%s)",
+        paddedLabel,
+        progress.renderProgressBar(15),
+        progress.formatPercentage(),
+        progress.formatProgress());
   }
 }
