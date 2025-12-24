@@ -2,7 +2,10 @@ package com.codeclocker.plugin.intellij.widget;
 
 import com.codeclocker.plugin.intellij.analytics.Analytics;
 import com.codeclocker.plugin.intellij.analytics.AnalyticsEventType;
+import com.codeclocker.plugin.intellij.goal.GoalPersistence;
+import com.codeclocker.plugin.intellij.goal.GoalService;
 import com.codeclocker.plugin.intellij.services.TimeTrackerWidgetService;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopup;
@@ -70,6 +73,13 @@ public class TimeTrackerWidget
   public String getSelectedValue() {
     String totalTime = service.getFormattedTotalTime();
     String projectTime = service.getFormattedProjectTime();
+
+    if (GoalPersistence.isGoalsEnabled()) {
+      GoalService goalService = ApplicationManager.getApplication().getService(GoalService.class);
+      String goalPercentage =
+          goalService != null ? goalService.getDailyProgress().formatPercentage() : "0%";
+      return "Total: " + totalTime + " (" + goalPercentage + ") | Project: " + projectTime + " ↗";
+    }
     return "Total: " + totalTime + " | Project: " + projectTime + " ↗";
   }
 

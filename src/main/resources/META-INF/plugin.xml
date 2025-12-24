@@ -30,6 +30,8 @@
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.reporting.TimeComparisonFetchTask"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.analytics.AnalyticsHttpClient"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.analytics.AnalyticsReportingTask"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.goal.GoalService"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.goal.GoalNotificationService"/>
 
     <projectService serviceImplementation="com.codeclocker.plugin.intellij.services.TimeTrackerWidgetService"/>
 

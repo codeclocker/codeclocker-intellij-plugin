@@ -13,8 +13,9 @@ CodeClocker automatically tracks your coding time and activity, displaying it in
 ### Features
 
 * **Coding Time Tracking** – Automatically records time spent on each project.
+* **Daily & Weekly Goals** – Set personalized coding time goals and track your progress. Get notified when you reach your targets.
 * **VCS Added & Removed Lines** – Tracks added and removed lines in your version control system.
-* **IDE Status Bar Widget** – Displays your current coding activity directly in the IDE status bar for quick, at-a-glance monitoring.
+* **IDE Status Bar Widget** – Displays your current coding activity and goal progress directly in the IDE status bar for quick, at-a-glance monitoring.
 * **Personal Activity Web Dashboard** – Visualizes your coding activity in a web dashboard on [CodeClocker Hub](https://hub.codeclocker.com/).
 * **Team Dashboard** – Provides team management and monitoring on [CodeClocker Hub](https://hub.codeclocker.com/) for collective coding activity:
   * **Team Statistics** – Presents aggregated metrics, including total time and daily averages.

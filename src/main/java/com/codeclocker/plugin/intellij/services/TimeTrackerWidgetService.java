@@ -5,6 +5,7 @@ import static com.codeclocker.plugin.intellij.services.TimeSpentPerProjectLogger
 import static com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker.GLOBAL_ADDITIONS;
 import static com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker.GLOBAL_REMOVALS;
 
+import com.codeclocker.plugin.intellij.goal.GoalNotificationService;
 import com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker;
 import com.codeclocker.plugin.intellij.stopwatch.SafeStopWatch;
 import com.codeclocker.plugin.intellij.widget.TimeTrackerWidget;
@@ -99,7 +100,16 @@ public class TimeTrackerWidgetService implements Disposable {
 
   private void tick() {
     checkMidnightReset();
+    checkGoalNotifications();
     repaintWidget();
+  }
+
+  private void checkGoalNotifications() {
+    GoalNotificationService notificationService =
+        ApplicationManager.getApplication().getService(GoalNotificationService.class);
+    if (notificationService != null) {
+      notificationService.checkAndNotify();
+    }
   }
 
   private void checkMidnightReset() {
