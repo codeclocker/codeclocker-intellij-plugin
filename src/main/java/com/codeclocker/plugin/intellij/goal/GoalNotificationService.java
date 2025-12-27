@@ -16,8 +16,11 @@ import java.time.LocalDate;
 @Service(Service.Level.APP)
 public final class GoalNotificationService {
 
+  private final Object lock = new Object();
   private LocalDate dailyGoalReachedDate;
   private LocalDate weeklyGoalReachedWeekStart;
+  private int lastNotifiedDailyGoalMinutes;
+  private int lastNotifiedWeeklyGoalMinutes;
 
   /**
    * Check goal progress and show notifications if goals are reached. Should be called periodically
@@ -42,23 +45,38 @@ public final class GoalNotificationService {
       return;
     }
 
-    LocalDate today = LocalDate.now();
-
-    // Reset flag if it's a new day
-    if (dailyGoalReachedDate != null && !dailyGoalReachedDate.equals(today)) {
-      dailyGoalReachedDate = null;
-    }
-
-    // Already notified today
-    if (dailyGoalReachedDate != null) {
+    GoalProgress progress = goalService.getDailyProgress();
+    if (!progress.isComplete()) {
       return;
     }
 
-    GoalProgress progress = goalService.getDailyProgress();
-    if (progress.isComplete()) {
+    int currentGoalMinutes = GoalPersistence.getDailyGoalMinutes();
+
+    // Synchronize to prevent multiple notifications from concurrent project tickers
+    synchronized (lock) {
+      LocalDate today = LocalDate.now();
+
+      // Reset flag if it's a new day
+      if (dailyGoalReachedDate != null && !dailyGoalReachedDate.equals(today)) {
+        dailyGoalReachedDate = null;
+        lastNotifiedDailyGoalMinutes = 0;
+      }
+
+      // Reset flag if goal was increased since last notification
+      if (dailyGoalReachedDate != null && currentGoalMinutes > lastNotifiedDailyGoalMinutes) {
+        dailyGoalReachedDate = null;
+      }
+
+      // Already notified today for this goal
+      if (dailyGoalReachedDate != null) {
+        return;
+      }
+
       dailyGoalReachedDate = today;
-      showDailyGoalNotification(progress);
+      lastNotifiedDailyGoalMinutes = currentGoalMinutes;
     }
+
+    showDailyGoalNotification(progress);
   }
 
   private void checkWeeklyGoal(GoalService goalService) {
@@ -66,25 +84,41 @@ public final class GoalNotificationService {
       return;
     }
 
-    LocalDate today = LocalDate.now();
-    LocalDate currentWeekStart = today.with(DayOfWeek.MONDAY);
-
-    // Reset flag if it's a new week
-    if (weeklyGoalReachedWeekStart != null
-        && !weeklyGoalReachedWeekStart.equals(currentWeekStart)) {
-      weeklyGoalReachedWeekStart = null;
-    }
-
-    // Already notified this week
-    if (weeklyGoalReachedWeekStart != null) {
+    GoalProgress progress = goalService.getWeeklyProgress();
+    if (!progress.isComplete()) {
       return;
     }
 
-    GoalProgress progress = goalService.getWeeklyProgress();
-    if (progress.isComplete()) {
+    int currentGoalMinutes = GoalPersistence.getWeeklyGoalMinutes();
+
+    // Synchronize to prevent multiple notifications from concurrent project tickers
+    synchronized (lock) {
+      LocalDate today = LocalDate.now();
+      LocalDate currentWeekStart = today.with(DayOfWeek.MONDAY);
+
+      // Reset flag if it's a new week
+      if (weeklyGoalReachedWeekStart != null
+          && !weeklyGoalReachedWeekStart.equals(currentWeekStart)) {
+        weeklyGoalReachedWeekStart = null;
+        lastNotifiedWeeklyGoalMinutes = 0;
+      }
+
+      // Reset flag if goal was increased since last notification
+      if (weeklyGoalReachedWeekStart != null
+          && currentGoalMinutes > lastNotifiedWeeklyGoalMinutes) {
+        weeklyGoalReachedWeekStart = null;
+      }
+
+      // Already notified this week for this goal
+      if (weeklyGoalReachedWeekStart != null) {
+        return;
+      }
+
       weeklyGoalReachedWeekStart = currentWeekStart;
-      showWeeklyGoalNotification(progress);
+      lastNotifiedWeeklyGoalMinutes = currentGoalMinutes;
     }
+
+    showWeeklyGoalNotification(progress);
   }
 
   private void showDailyGoalNotification(GoalProgress progress) {
