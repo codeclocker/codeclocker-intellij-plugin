@@ -32,6 +32,7 @@
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.analytics.AnalyticsReportingTask"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.goal.GoalService"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.goal.GoalNotificationService"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.onboarding.OnboardingService"/>
 
     <projectService serviceImplementation="com.codeclocker.plugin.intellij.services.TimeTrackerWidgetService"/>
 
@@ -44,6 +45,7 @@
       order="before memoryUsageWidget"/>
 
     <postStartupActivity implementation="com.codeclocker.plugin.intellij.ListenerRegistrator"/>
+    <postStartupActivity implementation="com.codeclocker.plugin.intellij.onboarding.OnboardingStartupActivity"/>
 
     <notificationGroup id="CodeClocker" displayType="STICKY_BALLOON"/>
 
@@ -63,6 +65,13 @@
       text="CodeClocker API Key"
       description="Enter CodeClocker API Key">
       <add-to-group group-id="ToolsMenu" anchor="first"/>
+    </action>
+    <action id="com.codeclocker.plugin.intellij.onboarding.RestartOnboardingAction"
+      class="com.codeclocker.plugin.intellij.onboarding.RestartOnboardingAction"
+      text="CodeClocker Tutorial"
+      description="Restart the CodeClocker getting started tutorial">
+      <add-to-group group-id="ToolsMenu" anchor="after"
+        relative-to-action="com.codeclocker.plugin.intellij.apikey.EnterApiKeyAction"/>
     </action>
   </actions>
 </idea-plugin>

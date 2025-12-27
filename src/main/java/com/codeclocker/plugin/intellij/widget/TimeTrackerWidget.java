@@ -114,13 +114,14 @@ public class TimeTrackerWidget
   }
 
   public void updateText() {
-    if (statusBar != null) {
+    // Always get the current status bar from WindowManager to ensure we update the correct one
+    // The statusBar field might be stale if the project window was reopened
+    StatusBar currentStatusBar = WindowManager.getInstance().getStatusBar(project);
+    if (currentStatusBar != null) {
+      currentStatusBar.updateWidget(WIDGET_ID);
+    } else if (statusBar != null) {
+      // Fallback to the installed status bar reference
       statusBar.updateWidget(WIDGET_ID);
-    } else {
-      StatusBar fb = WindowManager.getInstance().getStatusBar(project);
-      if (fb != null) {
-        fb.updateWidget(WIDGET_ID);
-      }
     }
   }
 }

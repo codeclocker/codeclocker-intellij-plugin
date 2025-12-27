@@ -29,4 +29,7 @@ public final class AnalyticsEventType {
   // Error events
   public static final String ERROR_DATA_REPORT_FAILED = "error_data_report_failed";
   public static final String ERROR_API_REQUEST_FAILED = "error_api_request_failed";
+
+  // Onboarding tour user actions
+  public static final String TOUR_ACTION = "tour_action";
 }

@@ -28,7 +28,7 @@ public class EnterApiKeyAction extends AnAction {
             text,
             "Enter CodeClocker API Key",
             "Get API Key",
-            "Cancel",
+            "Continue Without API Key",
             Messages.getInformationIcon());
     if (result == Messages.YES) {
       BrowserUtil.browse(HUB_UI_HOST + "/api-key");

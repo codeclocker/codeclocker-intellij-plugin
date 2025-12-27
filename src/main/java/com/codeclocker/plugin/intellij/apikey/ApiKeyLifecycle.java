@@ -7,7 +7,6 @@ import com.codeclocker.plugin.intellij.NotificationService;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 public class ApiKeyLifecycle {
@@ -29,14 +28,14 @@ public class ApiKeyLifecycle {
       return;
     }
 
-    if (StringUtils.contains(response, "Unknown API key")) {
+    if (response.contains("Unknown API key")) {
       ApiKeyPersistence.unsetApiKey();
       notificationService.showInvalidApiKeyNotification();
-    } else if (StringUtils.contains(response, "Subscription expire soon")) {
+    } else if (response.contains("Subscription expire soon")) {
       notificationService.showSubscriptionWillExpireSoonNotification();
-    } else if (StringUtils.contains(response, "Subscription expired")) {
+    } else if (response.contains("Subscription expired")) {
       notificationService.showSubscriptionExpiredNotification();
-    } else if (StringUtils.contains(response, "Activity data stopped being collected")) {
+    } else if (response.contains("Activity data stopped being collected")) {
       PropertiesComponent.getInstance()
           .setValue(ACTIVITY_DATA_STOPPED_BEING_COLLECTED_PROPERTY, true);
       notificationService.showSubscriptionExpiredNotification();

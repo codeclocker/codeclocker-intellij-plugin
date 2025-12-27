@@ -6,6 +6,8 @@ import static com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracke
 import static com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker.GLOBAL_REMOVALS;
 
 import com.codeclocker.plugin.intellij.goal.GoalNotificationService;
+import com.codeclocker.plugin.intellij.local.LocalStateRepository;
+import com.codeclocker.plugin.intellij.local.ProjectActivitySnapshot;
 import com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker;
 import com.codeclocker.plugin.intellij.stopwatch.SafeStopWatch;
 import com.codeclocker.plugin.intellij.widget.TimeTrackerWidget;
@@ -15,6 +17,8 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.concurrency.AppExecutorUtil;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +41,53 @@ public class TimeTrackerWidgetService implements Disposable {
   public TimeTrackerWidgetService(Project project) {
     this.project = project;
     this.widget = new TimeTrackerWidget(project, this);
+
+    // Initialize project time from local state for late-opened projects
+    initializeProjectTimeFromLocalState();
+
     startTicker();
+
+    // Force an initial repaint to ensure the widget shows current data
+    // This handles cases where the project is opened after the global initialization
+    ApplicationManager.getApplication().invokeLater(this::repaintWidget);
+  }
+
+  /**
+   * Initialize project-specific time from local state. This ensures projects opened after the
+   * global initialization still get their correct per-project time.
+   */
+  private void initializeProjectTimeFromLocalState() {
+    try {
+      LocalStateRepository localState =
+          ApplicationManager.getApplication().getService(LocalStateRepository.class);
+      if (localState == null) {
+        return;
+      }
+
+      String todayPrefix = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+      String projectName = project.getName();
+      long totalProjectSeconds = 0;
+
+      for (Map.Entry<String, Map<String, ProjectActivitySnapshot>> hourEntry :
+          localState.getAllData().entrySet()) {
+        if (!hourEntry.getKey().startsWith(todayPrefix)) {
+          continue;
+        }
+
+        ProjectActivitySnapshot snapshot = hourEntry.getValue().get(projectName);
+        if (snapshot != null) {
+          totalProjectSeconds += snapshot.getCodedTimeSeconds();
+        }
+      }
+
+      if (totalProjectSeconds > 0) {
+        LOG.debug(
+            "Initialized project {} with {}s from local state", projectName, totalProjectSeconds);
+        this.initProjectTime.set(totalProjectSeconds);
+      }
+    } catch (Exception e) {
+      LOG.warn("Failed to initialize project time from local state", e);
+    }
   }
 
   public void initialize(long initialSeconds) {
