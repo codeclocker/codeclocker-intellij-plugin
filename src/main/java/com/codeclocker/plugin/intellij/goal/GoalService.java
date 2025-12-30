@@ -1,10 +1,8 @@
 package com.codeclocker.plugin.intellij.goal;
 
-import static com.codeclocker.plugin.intellij.services.TimeSpentPerProjectLogger.GLOBAL_INIT_SECONDS;
-import static com.codeclocker.plugin.intellij.services.TimeSpentPerProjectLogger.GLOBAL_STOP_WATCH;
-
 import com.codeclocker.plugin.intellij.local.LocalStateRepository;
 import com.codeclocker.plugin.intellij.local.ProjectActivitySnapshot;
+import com.codeclocker.plugin.intellij.services.TimeSpentPerProjectLogger;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
 import java.time.DayOfWeek;
@@ -42,7 +40,12 @@ public final class GoalService {
 
   /** Get total coded seconds for today from live tracking. */
   private long getTotalSecondsToday() {
-    return GLOBAL_INIT_SECONDS.get() + GLOBAL_STOP_WATCH.getSeconds();
+    TimeSpentPerProjectLogger logger =
+        ApplicationManager.getApplication().getService(TimeSpentPerProjectLogger.class);
+    if (logger == null) {
+      return 0;
+    }
+    return logger.getGlobalAccumulatedToday();
   }
 
   /**

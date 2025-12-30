@@ -2,6 +2,7 @@ package com.codeclocker.plugin.intellij.apikey;
 
 import static com.codeclocker.plugin.intellij.HubHost.HUB_UI_HOST;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import com.codeclocker.plugin.intellij.subscription.SubscriptionStateCheckerTask;
 import com.codeclocker.plugin.intellij.widget.TimeTrackerInitializer;
@@ -23,12 +24,14 @@ public class EnterApiKeyAction extends AnAction {
 
   public static void showAction() {
     String text = getText();
+    boolean hasApiKey = isNotBlank(ApiKeyPersistence.getApiKey());
+
     int result =
         Messages.showOkCancelDialog(
             text,
             "Enter CodeClocker API Key",
             "Get API Key",
-            "Continue Without API Key",
+            hasApiKey ? "Cancel" : "Continue Without API Key",
             Messages.getInformationIcon());
     if (result == Messages.YES) {
       BrowserUtil.browse(HUB_UI_HOST + "/api-key");

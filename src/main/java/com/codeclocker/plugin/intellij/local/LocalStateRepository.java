@@ -6,9 +6,11 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.diagnostic.Logger;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -76,5 +78,26 @@ public class LocalStateRepository implements PersistentStateComponent<LocalTrack
     if (removed > 0) {
       LOG.info("Cleaned up " + removed + " old hour entries");
     }
+  }
+
+  /** Get total coded seconds for today across all projects from persisted data. */
+  public long getTodayTotalSeconds() {
+    String todayPrefix = LocalDate.now().toString();
+    return state.getHourlyActivity().entrySet().stream()
+        .filter(entry -> entry.getKey().startsWith(todayPrefix))
+        .flatMap(entry -> entry.getValue().values().stream())
+        .mapToLong(ProjectActivitySnapshot::getCodedTimeSeconds)
+        .sum();
+  }
+
+  /** Get total coded seconds for today for a specific project from persisted data. */
+  public long getTodayProjectSeconds(String projectName) {
+    String todayPrefix = LocalDate.now().toString();
+    return state.getHourlyActivity().entrySet().stream()
+        .filter(entry -> entry.getKey().startsWith(todayPrefix))
+        .map(entry -> entry.getValue().get(projectName))
+        .filter(Objects::nonNull)
+        .mapToLong(ProjectActivitySnapshot::getCodedTimeSeconds)
+        .sum();
   }
 }
