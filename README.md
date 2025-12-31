@@ -6,10 +6,9 @@
 
 <!-- Plugin description -->
 
-## CodeClocker - Automatic Time & Activity Tracker for JetBrains IDEs
+## CodeClocker - Automatic Time & Activity Tracker
 
-**CodeClocker** is a lightweight **time tracking** and **coding activity** plugin for **JetBrains IDEs**.  
-It automatically tracks your **active coding time per project**, shows your progress in the **IDE status bar**, and helps you build consistent habits with **daily/weekly goals**.  
+Plugin automatically tracks your **active coding time per project**, shows your progress in the **IDE status bar**, and helps you build consistent habits with **daily/weekly goals**.  
 Use it **locally (offline)** by default, or optionally sync to **[CodeClocker Hub](https://hub.codeclocker.com/)** for **web dashboards** and **team analytics**.
 
 ### Local Mode (Default - No account, no API key)
