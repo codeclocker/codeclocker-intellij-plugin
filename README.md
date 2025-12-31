@@ -1,43 +1,47 @@
-# CodeClocker – IntelliJ Plugin for Tracking Developer Activity
+# CodeClocker – Time & Activity Tracking for JetBrains IDEs
 
 ![Build](https://github.com/codeclocker/codeclocker-intellij-plugin/actions/workflows/gradle.yml/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/26962)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/26962)
+[![Version](https://img.shields.io/jetbrains/plugin/v/26962.svg)](https://plugins.jetbrains.com/plugin/26962)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/26962.svg)](https://plugins.jetbrains.com/plugin/26962)
 
 <!-- Plugin description -->
 
-## CodeClocker Time Tracker
+## CodeClocker - Automatic Time & Activity Tracker
 
-Plugin automatically tracks your coding time and activity, displaying it in the IDE status bar. 
-Optionally, sync your data to the [CodeClocker Hub](https://hub.codeclocker.com/) for web dashboards and team features.
+Plugin automatically tracks your **active coding time per project**, shows your progress in the **IDE status bar**, and helps you build consistent habits with **daily/weekly goals**.  
+Use it **locally (offline)** by default, or optionally sync to **[CodeClocker Hub](https://hub.codeclocker.com/)** for **web dashboards** and **team analytics**.
 
-### Features
+### Local Mode (Default - No account, no API key)
 
-#### Local Features (No API Key Required)
+- **Automatic coding time tracking** - records active time while you work, organized by project.
+- **Daily & weekly goals** - set targets, monitor progress, and get notified when you reach them.
+- **VCS / Git insights** - tracks **added & removed lines** from version control activity.
+- **Status bar widget** - see today’s tracked time, current activity, and goal progress at a glance.
 
-* **Coding Time Tracking** – Automatically records time spent on each project.
-* **Daily & Weekly Goals** – Set personalized coding time goals and track your progress. Get notified when you reach your targets.
-* **VCS Added & Removed Lines** – Tracks added and removed lines in your version control system.
-* **IDE Status Bar Widget** – Displays your current coding activity and goal progress directly in the IDE status bar for quick, at-a-glance monitoring.
+**Privacy:** All tracking data stays on your machine in Local Mode.
 
-#### Hub Features (Optional – Requires API Key)
+### Hub Mode (Optional - Web dashboards & team reporting)
 
-* **Personal Activity Web Dashboard** – Visualizes your coding activity in a web dashboard on [CodeClocker Hub](https://hub.codeclocker.com/).
-* **Team Dashboard** – Provides team management and monitoring on [CodeClocker Hub](https://hub.codeclocker.com/) for collective coding activity:
-  * **Team Statistics** – Presents aggregated metrics, including total time and daily averages.
-  * **Contributors Overview** – Displays individual contributor statistics, including hours coded.
-  * **Project Activity Charts** – Renders project-level activity with stacked bar charts showing each contributor’s participation.
-  * **Time Period Filtering** – Supports analysis of team performance across different time ranges (e.g., last 7 days).
+Enable Hub Mode with an API key to sync activity to **[CodeClocker Hub](https://hub.codeclocker.com/)** and unlock:
+
+- **Personal activity dashboard** - visualize trends, totals, and project breakdowns in the browser.
+- **Team dashboard** - monitor team activity and productivity insights:
+  - **Team statistics** (totals, daily averages)
+  - **Contributor overview** (individual hours and activity)
+  - **Project activity charts** (who contributed and when)
+  - **Time range filtering** (e.g., last 7 days, custom periods)
+
+**Data storage:** Activity is synced to CodeClocker Hub only when you enable Hub Mode and provide an API key.
 
 <!-- Plugin description end -->
 
 ## Installation
 
 - Using the IDE built-in plugin system:
-  
+
   <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "CodeClocker"</kbd> >
   <kbd>Install</kbd>
-  
+
 - Using JetBrains Marketplace:
 
   Go to [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/26962) and install it by clicking the <kbd>Install to ...</kbd> button in case your IDE is running.
@@ -57,8 +61,8 @@ Optionally, sync your data to the [CodeClocker Hub](https://hub.codeclocker.com/
 To enable Hub integration:
 
 1. After [installation](#installation), a dialog will prompt you to enter your CodeClocker API key.
-  Click "Get API Key" to be redirected to the [API Key page on CodeClocker Hub](https://hub.codeclocker.com/api-key).
-  Copy your API key from this page.
+   Click "Get API Key" to be redirected to the [API Key page on CodeClocker Hub](https://hub.codeclocker.com/api-key).
+   Copy your API key from this page.
 2. Return to your running IntelliJ IDE, paste the copied API key into the dialog window, and click "OK".
 
 Once set up, CodeClocker will automatically track your coding activity and report it to [CodeClocker Hub](https://hub.codeclocker.com).
