@@ -1,8 +1,8 @@
 # CodeClocker – IntelliJ Plugin for Tracking Developer Activity
 
 ![Build](https://github.com/codeclocker/codeclocker-intellij-plugin/actions/workflows/gradle.yml/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/26962)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/26962)
+[![Version](https://img.shields.io/jetbrains/plugin/v/26962.svg)](https://plugins.jetbrains.com/plugin/26962)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/26962.svg)](https://plugins.jetbrains.com/plugin/26962)
 
 <!-- Plugin description -->
 
