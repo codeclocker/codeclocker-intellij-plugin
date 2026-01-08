@@ -9,6 +9,7 @@ import com.codeclocker.plugin.intellij.reporting.TimeComparisonHttpClient.TimeCo
 import com.codeclocker.plugin.intellij.reporting.TimeComparisonHttpClient.TimePeriodComparisonDto;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
 import java.time.DayOfWeek;
 import java.time.Instant;
@@ -19,6 +20,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
+@Service
 public final class TimeComparisonFetchTask implements Disposable {
 
   private static final Logger LOG = Logger.getInstance(TimeComparisonFetchTask.class);

@@ -1,6 +1,7 @@
 package com.codeclocker.plugin.intellij.goal;
 
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.FormBuilder;
@@ -70,6 +71,29 @@ public class GoalSettingsDialog extends DialogWrapper {
         .addComponent(notificationsCheckbox)
         .addComponentFillVertically(new JPanel(), 0)
         .getPanel();
+  }
+
+  @Override
+  protected @Nullable ValidationInfo doValidate() {
+    int dailyHours = (Integer) dailyHoursSpinner.getValue();
+    int dailyMins = (Integer) dailyMinutesSpinner.getValue();
+    int dailyTotal = dailyHours * 60 + dailyMins;
+
+    int weeklyHours = (Integer) weeklyHoursSpinner.getValue();
+    int weeklyMins = (Integer) weeklyMinutesSpinner.getValue();
+    int weeklyTotal = weeklyHours * 60 + weeklyMins;
+
+    // Daily goal cannot exceed 24 hours (1440 minutes)
+    if (dailyTotal > 1440) {
+      return new ValidationInfo("Daily goal cannot exceed 24 hours", dailyHoursSpinner);
+    }
+
+    // Weekly goal cannot exceed 168 hours (10080 minutes)
+    if (weeklyTotal > 10080) {
+      return new ValidationInfo("Weekly goal cannot exceed 168 hours", weeklyHoursSpinner);
+    }
+
+    return null;
   }
 
   @Override

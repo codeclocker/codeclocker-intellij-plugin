@@ -66,8 +66,6 @@ public class EnterApiKeyAction extends AnAction {
       TimeTrackerInitializer.markApiKeyAsChanged();
       ApiKeyPersistence.persistApiKey(apiKey);
       ApplicationManager.getApplication().getService(SubscriptionStateCheckerTask.class).schedule();
-
-      TimeTrackerInitializer.reinitializeTimerWidgetsRefetchingDataFromHub();
     }
   }
 }

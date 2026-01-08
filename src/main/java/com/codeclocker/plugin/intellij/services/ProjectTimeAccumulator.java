@@ -1,17 +1,19 @@
 package com.codeclocker.plugin.intellij.services;
 
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Accumulates coding time for a single project within an hour bucket. Thread-safe via synchronized
- * methods and volatile fields.
+ * methods and volatile fields. Hour keys are stored in UTC timezone.
  */
 public class ProjectTimeAccumulator {
 
   public static final DateTimeFormatter HOUR_KEY_FORMATTER =
       DateTimeFormatter.ofPattern("yyyy-MM-dd-HH");
+  private static final ZoneId UTC = ZoneId.of("UTC");
 
   private static final long MILLIS_PER_SECOND = 1000L;
 
@@ -22,7 +24,7 @@ public class ProjectTimeAccumulator {
   private volatile long lastReportedSeconds;
 
   public ProjectTimeAccumulator() {
-    this.hourKey = LocalDateTime.now().format(HOUR_KEY_FORMATTER);
+    this.hourKey = ZonedDateTime.now(UTC).format(HOUR_KEY_FORMATTER);
     this.accumulatedSeconds = 0;
     this.lastActivityTimestampMillis = 0;
     this.active = false;
@@ -69,7 +71,7 @@ public class ProjectTimeAccumulator {
    */
   @Nullable
   public synchronized HourTransition checkAndHandleHourBoundary() {
-    String currentHour = LocalDateTime.now().format(HOUR_KEY_FORMATTER);
+    String currentHour = ZonedDateTime.now(UTC).format(HOUR_KEY_FORMATTER);
     if (!currentHour.equals(hourKey)) {
       HourTransition transition =
           new HourTransition(hourKey, accumulatedSeconds, lastReportedSeconds);

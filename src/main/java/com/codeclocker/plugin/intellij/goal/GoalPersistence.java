@@ -16,11 +16,6 @@ public class GoalPersistence {
   private static final int DEFAULT_DAILY_GOAL_MINUTES = 60; // 1 hour
   private static final int DEFAULT_WEEKLY_GOAL_MINUTES = 300; // 5 hours
 
-  /**
-   * Get the daily coding time goal in minutes.
-   *
-   * @return goal in minutes (defaults to 60 minutes / 1 hour)
-   */
   public static int getDailyGoalMinutes() {
     return PropertiesComponent.getInstance().getInt(DAILY_GOAL_MINUTES, DEFAULT_DAILY_GOAL_MINUTES);
   }
@@ -35,11 +30,6 @@ public class GoalPersistence {
         .setValue(DAILY_GOAL_MINUTES, minutes, DEFAULT_DAILY_GOAL_MINUTES);
   }
 
-  /**
-   * Get the weekly coding time goal in minutes.
-   *
-   * @return goal in minutes (defaults to 300 minutes / 5 hours)
-   */
   public static int getWeeklyGoalMinutes() {
     return PropertiesComponent.getInstance()
         .getInt(WEEKLY_GOAL_MINUTES, DEFAULT_WEEKLY_GOAL_MINUTES);

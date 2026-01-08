@@ -1,0 +1,7 @@
+<idea-plugin>
+  <!-- Git-specific features for CodeClocker -->
+  <projectListeners>
+    <listener class="com.codeclocker.plugin.intellij.git.BranchChangeListener"
+              topic="git4idea.repo.GitRepositoryChangeListener"/>
+  </projectListeners>
+</idea-plugin>

@@ -7,7 +7,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import com.codeclocker.plugin.intellij.apikey.ApiKeyLifecycle;
 import com.codeclocker.plugin.intellij.config.Config;
-import com.codeclocker.plugin.intellij.local.LocalStateRepository;
+import com.codeclocker.plugin.intellij.local.LocalActivityDataProvider;
 import com.codeclocker.plugin.intellij.local.ProjectActivitySnapshot;
 import com.codeclocker.plugin.intellij.reporting.DailyTimeHttpClient;
 import com.codeclocker.plugin.intellij.reporting.DailyTimeHttpClient.DailyTimeResponse;
@@ -199,9 +199,14 @@ public class TimeTrackerInitializer {
       return;
     }
 
-    LocalStateRepository localState =
-        ApplicationManager.getApplication().getService(LocalStateRepository.class);
-    Map<String, ProjectActivitySnapshot> todayStats = aggregateTodayStats(localState);
+    LocalActivityDataProvider dataProvider =
+        ApplicationManager.getApplication().getService(LocalActivityDataProvider.class);
+    if (dataProvider == null) {
+      LOG.warn("LocalActivityDataProvider not available, skipping initialization");
+      return;
+    }
+
+    Map<String, ProjectActivitySnapshot> todayStats = aggregateTodayStats(dataProvider);
 
     // Calculate VCS totals from local state
     long totalAdditions = 0;
@@ -213,7 +218,7 @@ public class TimeTrackerInitializer {
       totalRemovals += stats.getRemovals();
     }
 
-    long totalTime = localState.getTodayTotalSeconds();
+    long totalTime = dataProvider.getTodayTotalSeconds();
     LOG.info(
         "Initializing VCS counters from local state - total time: "
             + totalTime
@@ -222,7 +227,7 @@ public class TimeTrackerInitializer {
             + ", removals: "
             + totalRemovals);
 
-    // Note: Time data is now read directly from LocalStateRepository, no need to load into
+    // Note: Time data is now read directly from LocalActivityDataProvider, no need to load into
     // accumulators
     GLOBAL_ADDITIONS.set(totalAdditions);
     GLOBAL_REMOVALS.set(totalRemovals);
@@ -233,12 +238,13 @@ public class TimeTrackerInitializer {
   }
 
   private static Map<String, ProjectActivitySnapshot> aggregateTodayStats(
-      LocalStateRepository localState) {
+      LocalActivityDataProvider dataProvider) {
     String todayPrefix = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     Map<String, ProjectActivitySnapshot> aggregated = new HashMap<>();
 
+    // Data from LocalActivityDataProvider is already in local timezone
     for (Map.Entry<String, Map<String, ProjectActivitySnapshot>> hourEntry :
-        localState.getAllData().entrySet()) {
+        dataProvider.getAllDataInLocalTimezone().entrySet()) {
       if (!hourEntry.getKey().startsWith(todayPrefix)) {
         continue;
       }

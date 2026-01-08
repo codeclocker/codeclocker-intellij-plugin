@@ -3,6 +3,7 @@ package com.codeclocker.plugin.intellij.services;
 import static com.codeclocker.plugin.intellij.ScheduledExecutor.EXECUTOR;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import com.codeclocker.plugin.intellij.tracking.TrackingPersistence;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -14,7 +15,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class TimeSpentActivityTracker implements Disposable {
 
   private final TimeSpentPerProjectLogger timeSpentPerProjectLogger;
-  private final long pauseActivityAfterInactivityMillis = Duration.ofMinutes(2).toMillis();
   private final AtomicReference<ScheduledFuture<?>> scheduledTask;
   private final AtomicLong lastRescheduledAt = new AtomicLong();
 
@@ -22,6 +22,10 @@ public class TimeSpentActivityTracker implements Disposable {
     this.scheduledTask = new AtomicReference<>(schedule());
     this.timeSpentPerProjectLogger =
         ApplicationManager.getApplication().getService(TimeSpentPerProjectLogger.class);
+  }
+
+  private long getInactivityTimeoutMillis() {
+    return Duration.ofSeconds(TrackingPersistence.getInactivityTimeoutSeconds()).toMillis();
   }
 
   public void logTime(Project project) {
@@ -45,7 +49,7 @@ public class TimeSpentActivityTracker implements Disposable {
   }
 
   private ScheduledFuture<?> schedule() {
-    return EXECUTOR.schedule(this::pause, pauseActivityAfterInactivityMillis, MILLISECONDS);
+    return EXECUTOR.schedule(this::pause, getInactivityTimeoutMillis(), MILLISECONDS);
   }
 
   public void pause() {

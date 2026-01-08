@@ -62,6 +62,13 @@ public class TimeSpentPerProjectLogger {
 
     accumulator.calculateAndAddElapsed(now);
     accumulator.activate(now);
+
+    // Record branch activity
+    BranchActivityTracker branchTracker =
+        ApplicationManager.getApplication().getService(BranchActivityTracker.class);
+    if (branchTracker != null) {
+      branchTracker.recordActivityTick(projectName);
+    }
   }
 
   private void checkHourBoundary(ProjectTimeAccumulator accumulator, String projectName) {
