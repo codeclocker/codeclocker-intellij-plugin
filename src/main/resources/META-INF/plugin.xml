@@ -5,6 +5,7 @@
   <vendor>AndrewPasika</vendor>
 
   <depends>com.intellij.modules.platform</depends>
+  <depends optional="true" config-file="git-features.xml">Git4Idea</depends>
 
   <resource-bundle>messages.Bundle</resource-bundle>
 
@@ -26,23 +27,15 @@
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.reporting.DailyTimeHttpClient"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.services.TimeSpentPerProjectLogger"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.local.LocalStateRepository"/>
-    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.reporting.DataReportingTask"/>
-    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.reporting.TimeComparisonFetchTask"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.analytics.AnalyticsHttpClient"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.analytics.AnalyticsReportingTask"/>
-    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.goal.GoalService"/>
-    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.goal.GoalNotificationService"/>
-    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.onboarding.OnboardingService"/>
 
     <projectService serviceImplementation="com.codeclocker.plugin.intellij.services.TimeTrackerWidgetService"/>
-
-<!--    <statusBarWidgetFactory-->
-<!--      implementation="com.codeclocker.plugin.intellij.widget.SparklineStatusBarWidgetFactory"/>-->
 
     <statusBarWidgetFactory
       id="com.codeclocker.TimeTrackerWidget"
       implementation="com.codeclocker.plugin.intellij.widget.TimeTrackerWidgetFactory"
-      order="before memoryUsageWidget"/>
+      order="before largeFileEncodingWidget"/>
 
     <postStartupActivity implementation="com.codeclocker.plugin.intellij.ListenerRegistrator"/>
     <postStartupActivity implementation="com.codeclocker.plugin.intellij.onboarding.OnboardingStartupActivity"/>
@@ -50,6 +43,11 @@
     <notificationGroup id="CodeClocker" displayType="STICKY_BALLOON"/>
 
     <checkinHandlerFactory implementation="com.codeclocker.plugin.intellij.git.GitCommitStatsListener"/>
+
+    <toolWindow id="CodeClocker Activity Report"
+                factoryClass="com.codeclocker.plugin.intellij.toolwindow.BranchActivityToolWindowFactory"
+                anchor="bottom"
+                icon="/META-INF/statusBarWidgetIcon.svg"/>
   </extensions>
 
   <applicationListeners>
@@ -63,7 +61,7 @@
     <action id="com.codeclocker.plugin.intellij.apikey.EnterApiKeyAction"
       class="com.codeclocker.plugin.intellij.apikey.EnterApiKeyAction"
       text="CodeClocker API Key"
-      description="Enter CodeClocker API Key">
+      description="Enter codeClocker API key">
       <add-to-group group-id="ToolsMenu" anchor="first"/>
     </action>
     <action id="com.codeclocker.plugin.intellij.onboarding.RestartOnboardingAction"

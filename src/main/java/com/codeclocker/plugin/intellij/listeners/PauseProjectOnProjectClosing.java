@@ -20,6 +20,6 @@ public class PauseProjectOnProjectClosing implements ProjectManagerListener {
   @Override
   public void projectClosing(@NotNull Project project) {
     LOG.debug("Project closing: " + project.getName());
-    logger.pauseProject(project);
+    logger.closeProject(project);
   }
 }

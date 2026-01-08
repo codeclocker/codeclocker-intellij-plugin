@@ -17,6 +17,7 @@ import com.codeclocker.plugin.intellij.reporting.TimeComparisonFetchTask;
 import com.codeclocker.plugin.intellij.reporting.TimeComparisonHttpClient.TimePeriodComparisonDto;
 import com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker;
 import com.codeclocker.plugin.intellij.services.vcs.ProjectChangesCounters;
+import com.codeclocker.plugin.intellij.tracking.TrackingSettingsDialog;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -25,9 +26,10 @@ import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.ui.popup.ListSeparator;
 import com.intellij.openapi.ui.popup.PopupStep;
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowManager;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.jetbrains.annotations.Nullable;
 
 public class TimeTrackerPopup {
@@ -36,6 +38,8 @@ public class TimeTrackerPopup {
   private static final String SAVE_HISTORY = "Save my history & unlock trends →";
   private static final String RENEW_SUBSCRIPTION = "Renew subscription to keep my history →";
   private static final String SET_GOALS = "Set Goals...";
+  private static final String AUTO_PAUSE = "Auto-Pause...";
+  private static final String ACTIVITY_REPORT = "Activity Report...";
 
   public static ListPopup create(Project project, String totalTime, String projectTime) {
     ChangesActivityTracker tracker =
@@ -65,8 +69,10 @@ public class TimeTrackerPopup {
     items.add(formatTodayVsYesterday(comparisonTask.getTodayVsYesterday()));
     items.add(formatThisWeekVsLastWeek(comparisonTask.getThisWeekVsLastWeek()));
 
-    // Add Set Goals action
+    // Add settings actions
     items.add(SET_GOALS);
+    items.add(AUTO_PAUSE);
+    items.add(ACTIVITY_REPORT);
 
     boolean hasApiKey = isNotBlank(ApiKeyPersistence.getApiKey());
     if (ApiKeyLifecycle.isActivityDataStoppedBeingCollected()) {
@@ -84,27 +90,36 @@ public class TimeTrackerPopup {
             return WEB_DASHBOARD.equals(value)
                 || SAVE_HISTORY.equals(value)
                 || RENEW_SUBSCRIPTION.equals(value)
-                || SET_GOALS.equals(value);
+                || SET_GOALS.equals(value)
+                || AUTO_PAUSE.equals(value)
+                || ACTIVITY_REPORT.equals(value);
           }
 
           @Override
           public PopupStep<?> onChosen(String selectedValue, boolean finalChoice) {
             if (WEB_DASHBOARD.equals(selectedValue)) {
-              Analytics.track(
-                  AnalyticsEventType.WIDGET_POPUP_ACTION, Map.of("action", "web_dashboard"));
+              Analytics.track(AnalyticsEventType.POPUP_WEB_DASHBOARD_CLICK);
               BrowserUtil.browse(HUB_UI_HOST);
             } else if (SAVE_HISTORY.equals(selectedValue)) {
-              Analytics.track(
-                  AnalyticsEventType.WIDGET_POPUP_ACTION, Map.of("action", "save_history"));
+              Analytics.track(AnalyticsEventType.POPUP_SAVE_HISTORY_CLICK);
               EnterApiKeyAction.showAction();
             } else if (RENEW_SUBSCRIPTION.equals(selectedValue)) {
-              Analytics.track(
-                  AnalyticsEventType.WIDGET_POPUP_ACTION, Map.of("action", "renew_subscription"));
+              Analytics.track(AnalyticsEventType.POPUP_RENEW_SUBSCRIPTION_CLICK);
               BrowserUtil.browse(HUB_UI_HOST + "/payment");
             } else if (SET_GOALS.equals(selectedValue)) {
-              Analytics.track(
-                  AnalyticsEventType.WIDGET_POPUP_ACTION, Map.of("action", "set_goals"));
+              Analytics.track(AnalyticsEventType.POPUP_SET_GOALS_CLICK);
               GoalSettingsDialog.showDialog();
+            } else if (AUTO_PAUSE.equals(selectedValue)) {
+              Analytics.track(AnalyticsEventType.POPUP_AUTO_PAUSE_CLICK);
+              TrackingSettingsDialog.showDialog();
+            } else if (ACTIVITY_REPORT.equals(selectedValue)) {
+              Analytics.track(AnalyticsEventType.POPUP_ACTIVITY_REPORT_CLICK);
+              ToolWindow toolWindow =
+                  ToolWindowManager.getInstance(project)
+                      .getToolWindow("CodeClocker Activity Report");
+              if (toolWindow != null) {
+                toolWindow.show();
+              }
             }
             return FINAL_CHOICE;
           }

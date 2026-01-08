@@ -6,7 +6,7 @@
 
 <!-- Plugin description -->
 
-## CodeClocker - Automatic Time & Activity Tracker
+## Automatic Time & Activity Tracker
 
 Plugin automatically tracks your **active coding time per project**, shows your progress in the **IDE status bar**, and helps you build consistent habits with **daily/weekly goals**.  
 Use it **locally (offline)** by default, or optionally sync to **[CodeClocker Hub](https://hub.codeclocker.com/)** for **web dashboards** and **team analytics**.
@@ -15,10 +15,12 @@ Use it **locally (offline)** by default, or optionally sync to **[CodeClocker Hu
 
 - **Automatic coding time tracking** - records active time while you work, organized by project.
 - **Daily & weekly goals** - set targets, monitor progress, and get notified when you reach them.
+- **Activity Report** - detailed tree-view of daily activity with project breakdown and commit details.
+- **CSV export** - export activity data for invoicing with date range selection.
+- **Status bar widget** - see today's tracked time, current activity, and goal progress at a glance.
+- **Auto-pause settings** - configure when tracking pauses (IDE focus lost, inactivity timeout).
+- **Privacy** - all tracking data stays on your machine in Local Mode.
 - **VCS / Git insights** - tracks **added & removed lines** from version control activity.
-- **Status bar widget** - see today’s tracked time, current activity, and goal progress at a glance.
-
-**Privacy:** All tracking data stays on your machine in Local Mode.
 
 ### Hub Mode (Optional - Web dashboards & team reporting)
 
@@ -30,8 +32,25 @@ Enable Hub Mode with an API key to sync activity to **[CodeClocker Hub](https://
   - **Contributor overview** (individual hours and activity)
   - **Project activity charts** (who contributed and when)
   - **Time range filtering** (e.g., last 7 days, custom periods)
+  - **Data storage** - Activity is synced to CodeClocker Hub only when you enable Hub Mode and provide an API key.
 
-**Data storage:** Activity is synced to CodeClocker Hub only when you enable Hub Mode and provide an API key.
+### Activity Report
+
+Click the status bar widget and select **Activity Report...** to open a detailed view of your coding activity:
+
+- **Tree-table view** - Daily activity organized by project with expandable rows
+- **Commit history** - See commits with hash and message for each project
+- **Project filter** - View all projects or filter to a specific one
+- **CSV export** - Export data for invoicing with customizable date range
+
+The Activity Report auto-refreshes every 10 seconds to show live data.
+
+### Auto-Pause Settings
+
+Click the status bar widget and select **Auto-Pause...** to configure tracking behavior:
+
+- **Pause when IDE loses focus** - Automatically pause tracking when you switch to another application
+- **Inactivity timeout** - Set how long to wait before pausing when there's no activity (10 seconds to 60 minutes)
 
 <!-- Plugin description end -->
 

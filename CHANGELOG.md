@@ -4,6 +4,54 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Activity Report Tool Window** - New IDE tool window accessible from the status bar popup showing detailed activity breakdown:
+  - Tree-table view with daily activity organized by project
+  - Commit history display with hash and message
+  - Project filter dropdown to view all projects or a specific one
+  - Auto-refresh every 10 seconds to show live data
+  - Expand/collapse all functionality
+
+- **CSV Export for Invoicing** - Export activity data to CSV format:
+  - Date range selection dialog
+  - Includes date, project, hours (decimal), and commit descriptions
+  - Proper CSV escaping for special characters
+
+- **Git Branch and Commit Tracking** - Enhanced VCS integration:
+  - Track time spent per Git branch within each project
+  - Record commits with hash, message, author, timestamp, and changed files count
+  - Branch change listener to track branch switches
+
+- **Auto-Pause Settings** - Configure tracking behavior via "Auto-Pause..." in status bar popup:
+  - Toggle pause when IDE loses focus
+  - Configure inactivity timeout with minutes and seconds precision (10 sec - 60 min range)
+
+### Changed
+
+- **UTC Timezone Storage** - Local storage now uses UTC timezone for hour buckets:
+  - Consistent data storage regardless of timezone changes
+  - Automatic conversion to local timezone for display in Activity Report
+
+- **Idempotent Hub Sync** - Improved data sync reliability:
+  - Added `recordId` field for local storage records
+  - Prevents data duplication on double-sync while supporting multiple IDEs
+  - Live reporting still uses delta (ADD) mode for real-time updates
+
+- **Reworked Time Tracking Architecture** - Internal improvements:
+  - New `ProjectTimeAccumulator` for per-project time accumulation
+  - `CodingTimeCalculator` for total coding time calculations
+  - Better separation of concerns between tracking and reporting
+
+- **Analytics Event Types** - Cleaner analytics tracking:
+  - Unique event type constants for each trackable action
+  - Removed Map-based properties in favor of descriptive event names
+
+### Fixed
+
+- Activity Report now shows same totals as status bar widget (includes unsaved deltas)
+- Improved data persistence during IDE shutdown with final flush
+
 ## [1.5.2] - 2025-12-31
 
 - Update README

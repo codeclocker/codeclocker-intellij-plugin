@@ -7,7 +7,10 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.diagnostic.Logger;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,6 +40,18 @@ public class LocalStateRepository implements PersistentStateComponent<LocalTrack
   @Override
   public void loadState(@NotNull LocalTrackerState state) {
     this.state = state;
+
+    // Migrate hourKeys from local timezone to UTC if needed
+    if (this.state.needsMigrationToUtc()) {
+      migrateHourKeysToUtc();
+    }
+
+    // Ensure all entries have recordIds (for backward compatibility with older data)
+    int recordIdsGenerated = this.state.ensureAllRecordIds();
+    if (recordIdsGenerated > 0) {
+      LOG.info("Generated recordIds for " + recordIdsGenerated + " existing entries");
+    }
+
     // Cleanup old entries on load
     int removed = this.state.cleanupOldEntries();
     if (removed > 0) {
@@ -45,10 +60,74 @@ public class LocalStateRepository implements PersistentStateComponent<LocalTrack
     LOG.debug("Loaded local tracker state with " + this.state.getTotalEntries() + " entries");
   }
 
+  /**
+   * Migrates all hourKeys from local timezone to UTC. This is a one-time migration for existing
+   * data that was stored using the host's timezone.
+   */
+  private void migrateHourKeysToUtc() {
+    Map<String, Map<String, ProjectActivitySnapshot>> oldData = state.getHourlyActivity();
+    if (oldData.isEmpty()) {
+      state.setHourKeyTimezone(LocalTrackerState.TIMEZONE_UTC);
+      LOG.info("No data to migrate, setting timezone to UTC");
+      return;
+    }
+
+    LOG.info("Migrating " + oldData.size() + " hour entries from local timezone to UTC");
+
+    Map<String, Map<String, ProjectActivitySnapshot>> migratedData = new HashMap<>();
+    ZoneId localZone = ZoneId.systemDefault();
+
+    for (Map.Entry<String, Map<String, ProjectActivitySnapshot>> entry : oldData.entrySet()) {
+      String localHourKey = entry.getKey();
+      String utcHourKey = convertLocalHourKeyToUtc(localHourKey, localZone);
+
+      // Merge into migrated data (in case of collision, though unlikely)
+      migratedData.compute(
+          utcHourKey,
+          (key, existingProjects) -> {
+            if (existingProjects == null) {
+              return new HashMap<>(entry.getValue());
+            }
+            // Merge projects if collision occurs
+            for (Map.Entry<String, ProjectActivitySnapshot> projectEntry :
+                entry.getValue().entrySet()) {
+              existingProjects.merge(
+                  projectEntry.getKey(),
+                  projectEntry.getValue(),
+                  (existing, incoming) ->
+                      new ProjectActivitySnapshot(
+                          existing.getCodedTimeSeconds() + incoming.getCodedTimeSeconds(),
+                          existing.getAdditions() + incoming.getAdditions(),
+                          existing.getRemovals() + incoming.getRemovals(),
+                          existing.isReported() && incoming.isReported()));
+            }
+            return existingProjects;
+          });
+    }
+
+    state.setHourlyActivity(migratedData);
+    state.setHourKeyTimezone(LocalTrackerState.TIMEZONE_UTC);
+    LOG.info("Migration complete. Converted " + oldData.size() + " entries to UTC");
+  }
+
+  private String convertLocalHourKeyToUtc(String localHourKey, ZoneId localZone) {
+    try {
+      LocalDateTime localDateTime = LocalDateTime.parse(localHourKey, DATETIME_HOUR_FORMATTER);
+      ZonedDateTime utcDateTime =
+          localDateTime.atZone(localZone).withZoneSameInstant(ZoneId.of("UTC"));
+      return utcDateTime.format(DATETIME_HOUR_FORMATTER);
+    } catch (Exception e) {
+      LOG.warn("Failed to convert hourKey to UTC: " + localHourKey, e);
+      return localHourKey;
+    }
+  }
+
   public void mergeProjectCurrentHour(String projectName, ProjectActivitySnapshot snapshot) {
-    String currentHour = LocalDateTime.now().format(DATETIME_HOUR_FORMATTER);
-    state.mergeProject(currentHour, projectName, snapshot);
-    LOG.debug("Merged local state for project: " + projectName + " at hour: " + currentHour);
+    // Ensure snapshot has a recordId for idempotent sync
+    snapshot.ensureRecordId();
+    String currentUtcHour = ZonedDateTime.now(ZoneId.of("UTC")).format(DATETIME_HOUR_FORMATTER);
+    state.mergeProject(currentUtcHour, projectName, snapshot);
+    LOG.debug("Merged local state for project: " + projectName + " at UTC hour: " + currentUtcHour);
   }
 
   public Map<String, Map<String, ProjectActivitySnapshot>> getAllData() {

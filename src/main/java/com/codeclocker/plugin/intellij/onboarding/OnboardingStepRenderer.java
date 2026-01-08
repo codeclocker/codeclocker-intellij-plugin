@@ -13,14 +13,11 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.WindowManager;
-import java.util.Map;
 
-/** Renders each onboarding step with appropriate UI components. */
 public final class OnboardingStepRenderer {
 
   private OnboardingStepRenderer() {}
 
-  /** Render the specified onboarding step. */
   public static void renderStep(OnboardingStep step, Project project, OnboardingService service) {
     switch (step) {
       case WELCOME -> showWelcomeStep(project, service);
@@ -32,11 +29,6 @@ public final class OnboardingStepRenderer {
     }
   }
 
-  private static void trackAction(String action, OnboardingStep step) {
-    Analytics.track(AnalyticsEventType.TOUR_ACTION, Map.of("action", action, "step", step.name()));
-  }
-
-  /** Step 1: Welcome notification introducing CodeClocker. */
   private static void showWelcomeStep(Project project, OnboardingService service) {
     Notification notification =
         NotificationGroupManager.getInstance()
@@ -51,21 +43,20 @@ public final class OnboardingStepRenderer {
         NotificationAction.createSimpleExpiring(
             "Start tour",
             () -> {
-              trackAction("start_tour", OnboardingStep.WELCOME);
+              Analytics.track(AnalyticsEventType.TOUR_WELCOME_START);
               service.nextStep();
             }));
     notification.addAction(
         NotificationAction.createSimpleExpiring(
             "Skip tour",
             () -> {
-              trackAction("skip_tour", OnboardingStep.WELCOME);
+              Analytics.track(AnalyticsEventType.TOUR_WELCOME_SKIP);
               service.skipOnboarding();
             }));
 
     notification.notify(project);
   }
 
-  /** Step 2: Highlight the status bar widget using a notification with instructions. */
   private static void showStatusBarWidgetStep(Project project, OnboardingService service) {
     StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
     if (statusBar == null) {
@@ -90,21 +81,20 @@ public final class OnboardingStepRenderer {
         NotificationAction.createSimpleExpiring(
             "Got it, Next",
             () -> {
-              trackAction("next", OnboardingStep.STATUS_BAR_WIDGET);
+              Analytics.track(AnalyticsEventType.TOUR_STATUS_BAR_NEXT);
               service.nextStep();
             }));
     notification.addAction(
         NotificationAction.createSimpleExpiring(
             "Skip tour",
             () -> {
-              trackAction("skip_tour", OnboardingStep.STATUS_BAR_WIDGET);
+              Analytics.track(AnalyticsEventType.TOUR_STATUS_BAR_SKIP);
               service.skipOnboarding();
             }));
 
     notification.notify(project);
   }
 
-  /** Step 3: Explain the activity popup. */
   private static void showActivityPopupStep(Project project, OnboardingService service) {
     Notification notification =
         NotificationGroupManager.getInstance()
@@ -123,21 +113,20 @@ public final class OnboardingStepRenderer {
         NotificationAction.createSimpleExpiring(
             "Got it, Next",
             () -> {
-              trackAction("next", OnboardingStep.ACTIVITY_POPUP);
+              Analytics.track(AnalyticsEventType.TOUR_ACTIVITY_POPUP_NEXT);
               service.nextStep();
             }));
     notification.addAction(
         NotificationAction.createSimpleExpiring(
             "Skip tour",
             () -> {
-              trackAction("skip_tour", OnboardingStep.ACTIVITY_POPUP);
+              Analytics.track(AnalyticsEventType.TOUR_ACTIVITY_POPUP_SKIP);
               service.skipOnboarding();
             }));
 
     notification.notify(project);
   }
 
-  /** Step 4: Introduce goal setting. */
   private static void showGoalsStep(Project project, OnboardingService service) {
     Notification notification =
         NotificationGroupManager.getInstance()
@@ -153,7 +142,7 @@ public final class OnboardingStepRenderer {
         NotificationAction.createSimpleExpiring(
             "Set goals now",
             () -> {
-              trackAction("set_goals", OnboardingStep.GOALS);
+              Analytics.track(AnalyticsEventType.TOUR_GOALS_SET);
               ApplicationManager.getApplication()
                   .invokeLater(
                       () -> {
@@ -165,21 +154,20 @@ public final class OnboardingStepRenderer {
         NotificationAction.createSimpleExpiring(
             "Maybe later",
             () -> {
-              trackAction("skip_goals", OnboardingStep.GOALS);
+              Analytics.track(AnalyticsEventType.TOUR_GOALS_LATER);
               service.nextStep();
             }));
     notification.addAction(
         NotificationAction.createSimpleExpiring(
             "Skip tour",
             () -> {
-              trackAction("skip_tour", OnboardingStep.GOALS);
+              Analytics.track(AnalyticsEventType.TOUR_GOALS_SKIP);
               service.skipOnboarding();
             }));
 
     notification.notify(project);
   }
 
-  /** Step 5: Optional Hub connection. */
   private static void showHubConnectionStep(Project project, OnboardingService service) {
     Notification notification =
         NotificationGroupManager.getInstance()
@@ -198,7 +186,7 @@ public final class OnboardingStepRenderer {
         NotificationAction.createSimpleExpiring(
             "Connect to Hub",
             () -> {
-              trackAction("connect_hub", OnboardingStep.HUB_CONNECTION);
+              Analytics.track(AnalyticsEventType.TOUR_HUB_CONNECT);
               ApplicationManager.getApplication()
                   .invokeLater(
                       () -> {
@@ -210,14 +198,13 @@ public final class OnboardingStepRenderer {
         NotificationAction.createSimpleExpiring(
             "Skip, finish tour",
             () -> {
-              trackAction("skip_hub", OnboardingStep.HUB_CONNECTION);
+              Analytics.track(AnalyticsEventType.TOUR_HUB_SKIP);
               service.completeOnboarding();
             }));
 
     notification.notify(project);
   }
 
-  /** Show completion notification. */
   public static void showCompletionNotification(Project project) {
     Notification notification =
         NotificationGroupManager.getInstance()

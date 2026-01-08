@@ -8,6 +8,7 @@ import com.codeclocker.plugin.intellij.apikey.ApiKeyPromptStartupActivity;
 import com.codeclocker.plugin.intellij.listeners.FocusListener;
 import com.codeclocker.plugin.intellij.reporting.DataReportingTask;
 import com.codeclocker.plugin.intellij.reporting.TimeComparisonFetchTask;
+import com.codeclocker.plugin.intellij.services.BranchActivityTracker;
 import com.codeclocker.plugin.intellij.subscription.SubscriptionStateCheckerTask;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -44,7 +45,18 @@ public class ListenerRegistrator implements ProjectActivity {
           return true;
         });
 
+    // Initialize branch tracking for this project
+    initializeBranchTracking(project);
+
     return null;
+  }
+
+  private static void initializeBranchTracking(Project project) {
+    BranchActivityTracker branchTracker =
+        ApplicationManager.getApplication().getService(BranchActivityTracker.class);
+    if (branchTracker != null) {
+      branchTracker.initializeFromGit(project);
+    }
   }
 
   private static void registerFocusListener() {

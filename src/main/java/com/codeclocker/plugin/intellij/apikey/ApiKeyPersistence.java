@@ -34,22 +34,27 @@ public class ApiKeyPersistence {
   }
 
   private static void syncLocalDataToServer(String apiKey) {
-    try {
-      DataReportingTask dataReportingTask =
-          ApplicationManager.getApplication().getService(DataReportingTask.class);
-      if (dataReportingTask != null) {
-        dataReportingTask.syncLocalDataToServer(apiKey);
-      }
+    // Run sync on background thread to avoid blocking UI
+    ApplicationManager.getApplication()
+        .executeOnPooledThread(
+            () -> {
+              try {
+                DataReportingTask dataReportingTask =
+                    ApplicationManager.getApplication().getService(DataReportingTask.class);
+                if (dataReportingTask != null) {
+                  dataReportingTask.syncLocalDataToServer(apiKey);
+                }
 
-      // Refetch trends data now that local data has been synced
-      TimeComparisonFetchTask timeComparisonFetchTask =
-          ApplicationManager.getApplication().getService(TimeComparisonFetchTask.class);
-      if (timeComparisonFetchTask != null) {
-        timeComparisonFetchTask.refetch();
-      }
-    } catch (Exception e) {
-      LOG.warn("Failed to sync local data after API key was set", e);
-    }
+                // Refetch trends data now that local data has been synced
+                TimeComparisonFetchTask timeComparisonFetchTask =
+                    ApplicationManager.getApplication().getService(TimeComparisonFetchTask.class);
+                if (timeComparisonFetchTask != null) {
+                  timeComparisonFetchTask.refetch();
+                }
+              } catch (Exception e) {
+                LOG.warn("Failed to sync local data after API key was set", e);
+              }
+            });
   }
 
   public static void unsetApiKey() {

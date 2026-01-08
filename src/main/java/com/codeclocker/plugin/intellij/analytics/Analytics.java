@@ -9,8 +9,8 @@ import org.jetbrains.annotations.NotNull;
  * Simple facade for tracking analytics events from anywhere in the plugin. Usage:
  *
  * <pre>
- *   Analytics.track(AnalyticsEventType.WIDGET_CLICK);
- *   Analytics.track(AnalyticsEventType.WIDGET_POPUP_ACTION, Map.of("action", "pause"));
+ *   Analytics.track(AnalyticsEventType.STATUS_BAR_WIDGET_CLICK);
+ *   Analytics.track(AnalyticsEventType.POPUP_SET_GOALS_CLICK);
  * </pre>
  */
 public final class Analytics {

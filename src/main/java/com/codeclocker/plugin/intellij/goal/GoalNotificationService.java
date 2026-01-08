@@ -2,6 +2,8 @@ package com.codeclocker.plugin.intellij.goal;
 
 import static com.intellij.notification.NotificationType.INFORMATION;
 
+import com.codeclocker.plugin.intellij.analytics.Analytics;
+import com.codeclocker.plugin.intellij.analytics.AnalyticsEventType;
 import com.intellij.ide.DataManager;
 import com.intellij.notification.NotificationGroupManager;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -133,6 +135,7 @@ public final class GoalNotificationService {
                           + formatGoalTime(progress.goalSeconds())
                           + ".",
                       INFORMATION)
+                  .addAction(new SetNewGoalAction())
                   .notify(getCurrentProject());
             });
   }
@@ -149,8 +152,24 @@ public final class GoalNotificationService {
                           + formatGoalTime(progress.goalSeconds())
                           + ".",
                       INFORMATION)
+                  .addAction(new SetNewGoalAction())
                   .notify(getCurrentProject());
             });
+  }
+
+  private static class SetNewGoalAction extends com.intellij.notification.NotificationAction {
+    SetNewGoalAction() {
+      super("Set New Goal");
+    }
+
+    @Override
+    public void actionPerformed(
+        com.intellij.openapi.actionSystem.AnActionEvent e,
+        com.intellij.notification.Notification notification) {
+      Analytics.track(AnalyticsEventType.SET_NEW_GOAL);
+      notification.expire();
+      GoalSettingsDialog.showDialog();
+    }
   }
 
   private String formatGoalTime(long seconds) {
