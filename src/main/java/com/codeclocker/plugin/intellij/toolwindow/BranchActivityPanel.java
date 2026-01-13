@@ -272,7 +272,7 @@ public class BranchActivityPanel extends JPanel implements Disposable {
                 bannerMessageLabel.setText(message);
                 bannerLink.setHyperlinkText(
                     hasApiKey && subscriptionExpired
-                        ? "Renew subscription to keep data forever"
+                        ? "Renew subscription to keep your data forever"
                         : "Connect to Hub to keep data forever");
                 infoBanner.setVisible(true);
               } catch (Exception e) {
@@ -283,9 +283,7 @@ public class BranchActivityPanel extends JPanel implements Disposable {
             });
   }
 
-  /**
-   * Count unique days with coding activity (sessions). A session is a day where the user coded.
-   */
+  /** Count unique days with coding activity (sessions). A session is a day where the user coded. */
   private int calculateDaysOfHistory(LocalActivityDataProvider dataProvider) {
     if (dataProvider == null) {
       return 0;

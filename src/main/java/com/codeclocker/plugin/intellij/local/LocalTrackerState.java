@@ -1,6 +1,5 @@
 package com.codeclocker.plugin.intellij.local;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
