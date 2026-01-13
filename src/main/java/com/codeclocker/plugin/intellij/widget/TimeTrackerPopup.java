@@ -13,8 +13,7 @@ import com.codeclocker.plugin.intellij.apikey.EnterApiKeyAction;
 import com.codeclocker.plugin.intellij.goal.GoalProgress;
 import com.codeclocker.plugin.intellij.goal.GoalService;
 import com.codeclocker.plugin.intellij.goal.GoalSettingsDialog;
-import com.codeclocker.plugin.intellij.reporting.TimeComparisonFetchTask;
-import com.codeclocker.plugin.intellij.reporting.TimeComparisonHttpClient.TimePeriodComparisonDto;
+import com.codeclocker.plugin.intellij.local.LocalActivityDataProvider;
 import com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker;
 import com.codeclocker.plugin.intellij.services.vcs.ProjectChangesCounters;
 import com.codeclocker.plugin.intellij.tracking.TrackingSettingsDialog;
@@ -35,8 +34,8 @@ import org.jetbrains.annotations.Nullable;
 public class TimeTrackerPopup {
 
   private static final String WEB_DASHBOARD = "My Dashboard →";
-  private static final String SAVE_HISTORY = "Save my history & unlock trends →";
-  private static final String RENEW_SUBSCRIPTION = "Renew subscription to keep my history →";
+  private static final String SAVE_HISTORY = "Save my data →";
+  private static final String RENEW_SUBSCRIPTION = "Renew subscription to keep data forever →";
   private static final String SET_GOALS = "Set Goals...";
   private static final String AUTO_PAUSE = "Auto-Pause...";
   private static final String ACTIVITY_REPORT = "Activity Report...";
@@ -46,7 +45,8 @@ public class TimeTrackerPopup {
         ApplicationManager.getApplication().getService(ChangesActivityTracker.class);
     ProjectChangesCounters projectChanges = tracker.getProjectChanges(project.getName());
 
-    TimeComparisonFetchTask comparisonTask = TimeComparisonFetchTask.getInstance();
+    LocalActivityDataProvider dataProvider =
+        ApplicationManager.getApplication().getService(LocalActivityDataProvider.class);
     GoalService goalService = ApplicationManager.getApplication().getService(GoalService.class);
 
     List<String> items = new ArrayList<>();
@@ -65,9 +65,9 @@ public class TimeTrackerPopup {
     items.add("Total: " + getFormattedVcsChanges());
     items.add(project.getName() + ": " + formatProjectVcsChanges(projectChanges));
 
-    // Trends
-    items.add(formatTodayVsYesterday(comparisonTask.getTodayVsYesterday()));
-    items.add(formatThisWeekVsLastWeek(comparisonTask.getThisWeekVsLastWeek()));
+    // Trends (calculated on-demand from local data)
+    items.add(formatTodayVsYesterday(dataProvider));
+    items.add(formatThisWeekVsLastWeek(dataProvider));
 
     // Add settings actions
     items.add(SET_GOALS);
@@ -176,24 +176,38 @@ public class TimeTrackerPopup {
     return String.format("+%d / -%d", changes.additions().get(), changes.removals().get());
   }
 
-  private static String formatTodayVsYesterday(TimePeriodComparisonDto comparison) {
-    if (comparison == null) {
+  private static String formatTodayVsYesterday(LocalActivityDataProvider dataProvider) {
+    if (dataProvider == null) {
       return "Today vs. Yesterday: --";
     }
+    long todaySeconds = dataProvider.getTodayTotalSeconds();
+    long yesterdaySeconds = dataProvider.getYesterdayTotalSeconds();
+    long diff = todaySeconds - yesterdaySeconds;
+    int percentage = calculatePercentageChange(todaySeconds, yesterdaySeconds);
+
     return String.format(
-        "Today vs. Yesterday: %s / %s",
-        formatTimeDifference(comparison.differenceSeconds()),
-        formatPercentage(comparison.percentageChange()));
+        "Today vs. Yesterday: %s / %s", formatTimeDifference(diff), formatPercentage(percentage));
   }
 
-  private static String formatThisWeekVsLastWeek(TimePeriodComparisonDto comparison) {
-    if (comparison == null) {
+  private static String formatThisWeekVsLastWeek(LocalActivityDataProvider dataProvider) {
+    if (dataProvider == null) {
       return "This week vs. Last week: --";
     }
+    long thisWeekSeconds = dataProvider.getWeekTotalSeconds();
+    long lastWeekSeconds = dataProvider.getLastWeekTotalSeconds();
+    long diff = thisWeekSeconds - lastWeekSeconds;
+    int percentage = calculatePercentageChange(thisWeekSeconds, lastWeekSeconds);
+
     return String.format(
         "This week vs. Last week: %s / %s",
-        formatTimeDifference(comparison.differenceSeconds()),
-        formatPercentage(comparison.percentageChange()));
+        formatTimeDifference(diff), formatPercentage(percentage));
+  }
+
+  private static int calculatePercentageChange(long current, long previous) {
+    if (previous == 0) {
+      return current > 0 ? 100 : 0;
+    }
+    return (int) Math.round(((double) (current - previous) / previous) * 100);
   }
 
   private static String formatTimeDifference(long diffSeconds) {

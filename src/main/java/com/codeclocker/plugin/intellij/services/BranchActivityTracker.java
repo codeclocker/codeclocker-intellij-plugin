@@ -1,5 +1,6 @@
 package com.codeclocker.plugin.intellij.services;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -131,7 +132,8 @@ public final class BranchActivityTracker {
   }
 
   /**
-   * Initialize branch tracking for a project by reading current branch from git.
+   * Initialize branch tracking for a project by reading current branch from git. Runs
+   * asynchronously to avoid blocking IDE startup.
    *
    * @param project the IntelliJ project
    */
@@ -140,21 +142,49 @@ public final class BranchActivityTracker {
       return;
     }
 
-    try {
-      GitRepositoryManager gitManager = GitRepositoryManager.getInstance(project);
-      if (gitManager == null) {
-        return;
-      }
+    // Run asynchronously to avoid blocking startup
+    ApplicationManager.getApplication()
+        .executeOnPooledThread(
+            () -> {
+              try {
+                if (project.isDisposed()) {
+                  return;
+                }
 
-      for (GitRepository repo : gitManager.getRepositories()) {
-        String branchName = getBranchName(repo);
-        currentBranchByProject.put(project.getName(), branchName);
-        LOG.info("Initialized branch tracking for " + project.getName() + ": " + branchName);
-        break; // Use first repository for now
-      }
-    } catch (Exception e) {
-      LOG.warn("Failed to initialize branch tracking for " + project.getName(), e);
-    }
+                // Read action needed to access Git services safely
+                ApplicationManager.getApplication()
+                    .runReadAction(
+                        () -> {
+                          if (project.isDisposed()) {
+                            return;
+                          }
+
+                          try {
+                            GitRepositoryManager gitManager =
+                                GitRepositoryManager.getInstance(project);
+                            if (gitManager == null) {
+                              return;
+                            }
+
+                            for (GitRepository repo : gitManager.getRepositories()) {
+                              String branchName = getBranchName(repo);
+                              currentBranchByProject.put(project.getName(), branchName);
+                              LOG.info(
+                                  "Initialized branch tracking for "
+                                      + project.getName()
+                                      + ": "
+                                      + branchName);
+                              break; // Use first repository for now
+                            }
+                          } catch (Exception e) {
+                            LOG.debug(
+                                "Failed to initialize branch tracking for " + project.getName(), e);
+                          }
+                        });
+              } catch (Exception e) {
+                LOG.debug("Failed to initialize branch tracking for " + project.getName(), e);
+              }
+            });
   }
 
   private String getBranchName(GitRepository repo) {

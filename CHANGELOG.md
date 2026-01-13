@@ -4,6 +4,37 @@
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-01-11
+
+### Added
+
+- **Activity Report Info Banner** - New informational banner in Activity Report tool window:
+  - Shows days of activity history stored locally
+  - Displays local storage retention limit (14 days)
+  - Quick link to connect to Hub for unlimited history retention
+  - Adapts message based on Hub connection status
+
+### Changed
+
+- **Local Trend Calculations** - "Today vs Yesterday" and "This Week vs Last Week" comparisons now calculated from local data:
+  - Works offline without Hub connection
+  - Faster popup display (no network requests)
+  - Removed dependency on Hub API for trend data
+- **Async Branch Tracking Initialization** - Branch tracker now initializes asynchronously:
+  - Faster IDE startup
+  - Prevents UI blocking when Git services are slow to initialize
+- **Unified Hub Sync** - All activity data now sent in a single API payload:
+  - Time spent, VCS changes, branch activity, and commits synced together
+  - More efficient network usage
+  - Better data consistency
+
+### Removed
+
+- `TimeComparisonFetchTask` and `TimeComparisonHttpClient` - replaced by local calculations
+- `DataAccessPolicy` - simplified data access architecture
+
+## [1.6.0] - 2026-01-08
+
 ### Added
 
 - **Activity Report Tool Window** - New IDE tool window accessible from the status bar popup showing detailed activity breakdown:
@@ -12,17 +43,14 @@
   - Project filter dropdown to view all projects or a specific one
   - Auto-refresh every 10 seconds to show live data
   - Expand/collapse all functionality
-
 - **CSV Export for Invoicing** - Export activity data to CSV format:
   - Date range selection dialog
   - Includes date, project, hours (decimal), and commit descriptions
   - Proper CSV escaping for special characters
-
 - **Git Branch and Commit Tracking** - Enhanced VCS integration:
   - Track time spent per Git branch within each project
   - Record commits with hash, message, author, timestamp, and changed files count
   - Branch change listener to track branch switches
-
 - **Auto-Pause Settings** - Configure tracking behavior via "Auto-Pause..." in status bar popup:
   - Toggle pause when IDE loses focus
   - Configure inactivity timeout with minutes and seconds precision (10 sec - 60 min range)
@@ -32,17 +60,14 @@
 - **UTC Timezone Storage** - Local storage now uses UTC timezone for hour buckets:
   - Consistent data storage regardless of timezone changes
   - Automatic conversion to local timezone for display in Activity Report
-
 - **Idempotent Hub Sync** - Improved data sync reliability:
   - Added `recordId` field for local storage records
   - Prevents data duplication on double-sync while supporting multiple IDEs
   - Live reporting still uses delta (ADD) mode for real-time updates
-
 - **Reworked Time Tracking Architecture** - Internal improvements:
   - New `ProjectTimeAccumulator` for per-project time accumulation
   - `CodingTimeCalculator` for total coding time calculations
   - Better separation of concerns between tracking and reporting
-
 - **Analytics Event Types** - Cleaner analytics tracking:
   - Unique event type constants for each trackable action
   - Removed Map-based properties in favor of descriptive event names
@@ -146,7 +171,9 @@
 
 - Support IntelliJ Platform 2024.3.5
 
-[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.5.2...HEAD
+[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.6.0...v1.7.0
+[1.6.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.5.2...v1.6.0
 [1.5.2]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.4.0...v1.5.0

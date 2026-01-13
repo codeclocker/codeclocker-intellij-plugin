@@ -1,12 +1,20 @@
 package com.codeclocker.plugin.intellij.toolwindow;
 
+import static com.codeclocker.plugin.intellij.HubHost.HUB_UI_HOST;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
+import com.codeclocker.plugin.intellij.apikey.ApiKeyLifecycle;
+import com.codeclocker.plugin.intellij.apikey.ApiKeyPersistence;
+import com.codeclocker.plugin.intellij.apikey.EnterApiKeyAction;
 import com.codeclocker.plugin.intellij.local.CommitRecord;
 import com.codeclocker.plugin.intellij.local.LocalActivityDataProvider;
+import com.codeclocker.plugin.intellij.local.LocalTrackerState;
 import com.codeclocker.plugin.intellij.local.ProjectActivitySnapshot;
 import com.codeclocker.plugin.intellij.services.TimeSpentPerProjectLogger;
 import com.codeclocker.plugin.intellij.toolwindow.export.ActivityCsvExporter;
 import com.codeclocker.plugin.intellij.toolwindow.export.ExportDialog;
 import com.intellij.icons.AllIcons;
+import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -22,9 +30,13 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFileWrapper;
+import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.treetable.TreeTable;
+import com.intellij.util.ui.JBUI;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -61,6 +73,9 @@ public class BranchActivityPanel extends JPanel implements Disposable {
   private final ActivityTreeTableModel treeTableModel;
   private final ComboBox<String> projectComboBox;
   private final javax.swing.Timer autoRefreshTimer;
+  private final JPanel infoBanner;
+  private final javax.swing.JLabel bannerMessageLabel;
+  private final HyperlinkLabel bannerLink;
 
   private String selectedProject;
 
@@ -70,12 +85,18 @@ public class BranchActivityPanel extends JPanel implements Disposable {
     this.treeTableModel = new ActivityTreeTableModel();
     this.treeTable = new TreeTable(treeTableModel);
     this.projectComboBox = new ComboBox<>();
+    this.bannerMessageLabel = new javax.swing.JLabel();
+    this.bannerLink = new HyperlinkLabel();
+    this.infoBanner = createInfoBanner();
 
     setLayout(new BorderLayout());
 
-    // Create toolbar
+    // Create header with toolbar and info banner
+    JPanel headerPanel = new JPanel(new BorderLayout());
     JPanel toolbarPanel = createToolbarPanel();
-    add(toolbarPanel, BorderLayout.NORTH);
+    headerPanel.add(toolbarPanel, BorderLayout.NORTH);
+    headerPanel.add(infoBanner, BorderLayout.SOUTH);
+    add(headerPanel, BorderLayout.NORTH);
 
     // Configure tree table
     configureTreeTable();
@@ -178,6 +199,113 @@ public class BranchActivityPanel extends JPanel implements Disposable {
     return toolbarPanel;
   }
 
+  private JPanel createInfoBanner() {
+    JPanel banner = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+    banner.setBackground(new Color(230, 243, 255)); // Light blue
+    banner.setBorder(JBUI.Borders.customLine(new Color(100, 149, 237), 0, 0, 1, 0));
+
+    javax.swing.JLabel infoIcon = new javax.swing.JLabel(AllIcons.General.Information);
+    banner.add(infoIcon);
+    banner.add(bannerMessageLabel);
+    banner.add(bannerLink);
+
+    // Set up click handler that checks current state
+    bannerLink.addHyperlinkListener(
+        e -> {
+          if (javax.swing.event.HyperlinkEvent.EventType.ACTIVATED.equals(e.getEventType())) {
+            try {
+              boolean hasApiKey = isNotBlank(ApiKeyPersistence.getApiKey());
+              boolean subscriptionExpired = ApiKeyLifecycle.isActivityDataStoppedBeingCollected();
+
+              if (hasApiKey && subscriptionExpired) {
+                BrowserUtil.browse(HUB_UI_HOST + "/payment");
+              } else {
+                EnterApiKeyAction.showAction();
+              }
+            } catch (Exception ex) {
+              LOG.debug("Failed to handle banner link click", ex);
+              EnterApiKeyAction.showAction();
+            }
+          }
+        });
+
+    banner.setVisible(false); // Initially hidden
+    return banner;
+  }
+
+  private void updateInfoBanner() {
+    // Run on EDT to avoid threading issues, and use invokeLater to avoid blocking
+    ApplicationManager.getApplication()
+        .invokeLater(
+            () -> {
+              try {
+                boolean hasApiKey = isNotBlank(ApiKeyPersistence.getApiKey());
+                boolean subscriptionExpired = ApiKeyLifecycle.isActivityDataStoppedBeingCollected();
+                boolean hasActiveSubscription = hasApiKey && !subscriptionExpired;
+
+                if (hasActiveSubscription) {
+                  // Connected with active subscription - hide banner
+                  infoBanner.setVisible(false);
+                  return;
+                }
+
+                // Calculate days of history
+                LocalActivityDataProvider dataProvider =
+                    ApplicationManager.getApplication().getService(LocalActivityDataProvider.class);
+                int daysOfHistory = calculateDaysOfHistory(dataProvider);
+
+                int maxDays = LocalTrackerState.MAX_SESSIONS;
+                String message;
+                if (daysOfHistory >= maxDays) {
+                  message =
+                      String.format(
+                          "You have %d days of history. Older data is being rotated.", maxDays);
+                } else if (daysOfHistory > 0) {
+                  message =
+                      String.format(
+                          "You have %d day%s of history. Local storage keeps %d days.",
+                          daysOfHistory, daysOfHistory == 1 ? "" : "s", maxDays);
+                } else {
+                  message = "Start coding to build your activity history.";
+                }
+
+                bannerMessageLabel.setText(message);
+                bannerLink.setHyperlinkText(
+                    hasApiKey && subscriptionExpired
+                        ? "Renew subscription to keep your data forever"
+                        : "Connect to Hub to keep data forever");
+                infoBanner.setVisible(true);
+              } catch (Exception e) {
+                // Services may not be ready during early initialization
+                LOG.debug("Failed to update info banner, services may not be ready", e);
+                infoBanner.setVisible(false);
+              }
+            });
+  }
+
+  /** Count unique days with coding activity (sessions). A session is a day where the user coded. */
+  private int calculateDaysOfHistory(LocalActivityDataProvider dataProvider) {
+    if (dataProvider == null) {
+      return 0;
+    }
+
+    Map<String, Map<String, ProjectActivitySnapshot>> data =
+        dataProvider.getAllDataInLocalTimezone();
+    if (data == null || data.isEmpty()) {
+      return 0;
+    }
+
+    // Count unique dates (hourKey format: yyyy-MM-dd-HH, extract first 10 chars for date)
+    Set<String> uniqueDates = new HashSet<>();
+    for (String hourKey : data.keySet()) {
+      if (hourKey != null && hourKey.length() >= 10) {
+        uniqueDates.add(hourKey.substring(0, 10));
+      }
+    }
+
+    return uniqueDates.size();
+  }
+
   private void configureTreeTable() {
     treeTable.setRootVisible(false);
     treeTable.setRowHeight(25);
@@ -204,6 +332,9 @@ public class BranchActivityPanel extends JPanel implements Disposable {
     if (dataProvider == null) {
       return;
     }
+
+    // Update info banner based on Hub connection status
+    updateInfoBanner();
 
     // Save expanded state before refresh
     Set<String> expandedNodes = saveExpandedState();

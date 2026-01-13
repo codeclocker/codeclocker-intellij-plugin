@@ -73,6 +73,7 @@ public class ExportDialog extends DialogWrapper {
       setErrorText("'From' date must be before or equal to 'To' date");
       return;
     }
+
     super.doOKAction();
   }
 }

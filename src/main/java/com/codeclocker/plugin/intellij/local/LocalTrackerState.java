@@ -1,8 +1,8 @@
 package com.codeclocker.plugin.intellij.local;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,14 +13,16 @@ import java.util.function.Predicate;
 
 /**
  * State class for local persistence of tracked time and VCS changes. Structure: datetime
- * (YYYY-MM-DD-HH in UTC) -> project name -> activity snapshot. Data is retained for a maximum of 2
- * weeks.
+ * (YYYY-MM-DD-HH in UTC) -> project name -> activity snapshot. Data is retained for a maximum of 30
+ * coding sessions (days with activity).
  */
 public class LocalTrackerState {
 
   public static final String TIMEZONE_UTC = "UTC";
 
-  private static final int RETENTION_DAYS = 14;
+  /** Maximum number of coding sessions (days with activity) to retain locally. */
+  public static final int MAX_SESSIONS = 30;
+
   private static final DateTimeFormatter DATETIME_HOUR_FORMATTER =
       DateTimeFormatter.ofPattern("yyyy-MM-dd-HH");
 
@@ -41,7 +43,7 @@ public class LocalTrackerState {
   }
 
   public boolean needsMigrationToUtc() {
-    return hourKeyTimezone == null || !TIMEZONE_UTC.equals(hourKeyTimezone);
+    return !TIMEZONE_UTC.equals(hourKeyTimezone);
   }
 
   public Map<String, Map<String, ProjectActivitySnapshot>> getHourlyActivity() {
@@ -111,24 +113,45 @@ public class LocalTrackerState {
         });
   }
 
-  /** Removes entries older than 2 weeks. Returns number of hour slots removed. */
+  /**
+   * Removes entries beyond the maximum session limit. Keeps only the most recent MAX_SESSIONS days
+   * (days with coding activity). Returns number of hour slots removed.
+   */
   public int cleanupOldEntries() {
-    LocalDateTime cutoffDateTime = LocalDateTime.now().minusDays(RETENTION_DAYS);
-    int removedCount = 0;
+    // Group hourKeys by date to find unique sessions
+    Map<String, List<String>> hourKeysByDate = new HashMap<>();
+    for (String hourKey : hourlyActivity.keySet()) {
+      if (hourKey != null && hourKey.length() >= 10) {
+        String date = hourKey.substring(0, 10); // Extract yyyy-MM-dd
+        hourKeysByDate.computeIfAbsent(date, k -> new ArrayList<>()).add(hourKey);
+      }
+    }
 
+    // If we have MAX_SESSIONS or fewer, no cleanup needed
+    if (hourKeysByDate.size() <= MAX_SESSIONS) {
+      return 0;
+    }
+
+    // Sort dates descending (newest first) and find dates to remove
+    List<String> sortedDates = new ArrayList<>(hourKeysByDate.keySet());
+    sortedDates.sort(Comparator.reverseOrder()); // Descending
+
+    Set<String> datesToRemove = new HashSet<>();
+    for (int i = MAX_SESSIONS; i < sortedDates.size(); i++) {
+      datesToRemove.add(sortedDates.get(i));
+    }
+
+    // Remove all hourKeys for dates beyond the limit
+    int removedCount = 0;
     Iterator<String> iterator = hourlyActivity.keySet().iterator();
     while (iterator.hasNext()) {
-      String datetimeStr = iterator.next();
-      try {
-        LocalDateTime entryDateTime = LocalDateTime.parse(datetimeStr, DATETIME_HOUR_FORMATTER);
-        if (entryDateTime.isBefore(cutoffDateTime)) {
+      String hourKey = iterator.next();
+      if (hourKey != null && hourKey.length() >= 10) {
+        String date = hourKey.substring(0, 10);
+        if (datesToRemove.contains(date)) {
           iterator.remove();
           removedCount++;
         }
-      } catch (Exception e) {
-        // Invalid format, remove the entry
-        iterator.remove();
-        removedCount++;
       }
     }
 
