@@ -17,7 +17,7 @@ Use it **locally (offline)** by default, or optionally sync to **[CodeClocker Hu
 - **Daily & weekly goals** - set targets, monitor progress, and get notified when you reach them.
 - **Activity Report** - detailed tree-view of daily activity with project breakdown and commit details.
 - **CSV export** - export activity data for invoicing with date range selection.
-- **Status bar widget** - see today's tracked time, current activity, and goal progress at a glance.
+- **Status bar widget** - see today's tracked time, and goal progress at a glance.
 - **Auto-pause settings** - configure when tracking pauses (IDE focus lost, inactivity timeout).
 - **Privacy** - all tracking data stays on your machine in Local Mode.
 - **VCS / Git insights** - tracks **added & removed lines** from version control activity.

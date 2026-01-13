@@ -7,7 +7,6 @@ import com.codeclocker.plugin.intellij.analytics.AnalyticsReportingTask;
 import com.codeclocker.plugin.intellij.apikey.ApiKeyPromptStartupActivity;
 import com.codeclocker.plugin.intellij.listeners.FocusListener;
 import com.codeclocker.plugin.intellij.reporting.DataReportingTask;
-import com.codeclocker.plugin.intellij.reporting.TimeComparisonFetchTask;
 import com.codeclocker.plugin.intellij.services.BranchActivityTracker;
 import com.codeclocker.plugin.intellij.subscription.SubscriptionStateCheckerTask;
 import com.intellij.openapi.application.ApplicationManager;
@@ -37,7 +36,6 @@ public class ListenerRegistrator implements ProjectActivity {
           registerFocusListener();
           startDataReportingTask();
           startCheckingApiKeyStatus();
-          startTimeComparisonFetchTask();
           startAnalyticsReportingTask();
           ApiKeyPromptStartupActivity.showApiKeyDialog();
           initializeTimerWidgets();
@@ -69,10 +67,6 @@ public class ListenerRegistrator implements ProjectActivity {
 
   private static void startCheckingApiKeyStatus() {
     ApplicationManager.getApplication().getService(SubscriptionStateCheckerTask.class).schedule();
-  }
-
-  private static void startTimeComparisonFetchTask() {
-    ApplicationManager.getApplication().getService(TimeComparisonFetchTask.class).schedule();
   }
 
   private static void startAnalyticsReportingTask() {

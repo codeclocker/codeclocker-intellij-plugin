@@ -13,6 +13,8 @@ import com.codeclocker.plugin.intellij.local.BranchActivityRecord;
 import com.codeclocker.plugin.intellij.local.CommitRecord;
 import com.codeclocker.plugin.intellij.local.LocalStateRepository;
 import com.codeclocker.plugin.intellij.local.ProjectActivitySnapshot;
+import com.codeclocker.plugin.intellij.reporting.TimeSpentSampleDto.BranchActivityDto;
+import com.codeclocker.plugin.intellij.reporting.TimeSpentSampleDto.CommitDto;
 import com.codeclocker.plugin.intellij.services.BranchActivityTracker;
 import com.codeclocker.plugin.intellij.services.ChangesSample;
 import com.codeclocker.plugin.intellij.services.CommitActivityTracker;
@@ -245,8 +247,38 @@ public final class DataReportingTask implements Disposable {
         String projectName = projectEntry.getKey();
         ProjectActivitySnapshot snapshot = projectEntry.getValue();
 
-        // Keep time spent data per hour per project (hourKey is already in UTC)
-        if (snapshot.getCodedTimeSeconds() > 0) {
+        // Convert branch activity to DTOs
+        List<BranchActivityDto> branchActivityDtos = null;
+        if (snapshot.getBranchActivity() != null && !snapshot.getBranchActivity().isEmpty()) {
+          branchActivityDtos =
+              snapshot.getBranchActivity().stream()
+                  .map(ba -> new BranchActivityDto(ba.getBranchName(), ba.getActiveSeconds()))
+                  .toList();
+        }
+
+        // Convert commits to DTOs
+        List<CommitDto> commitDtos = null;
+        if (snapshot.getCommits() != null && !snapshot.getCommits().isEmpty()) {
+          commitDtos =
+              snapshot.getCommits().stream()
+                  .map(
+                      c ->
+                          new CommitDto(
+                              c.getHash(),
+                              c.getMessage(),
+                              c.getAuthor(),
+                              c.getTimestamp(),
+                              c.getChangedFilesCount(),
+                              c.getBranch()))
+                  .toList();
+        }
+
+        // Include all data in the time spent DTO (unified sync)
+        if (snapshot.getCodedTimeSeconds() > 0
+            || snapshot.getAdditions() > 0
+            || snapshot.getRemovals() > 0
+            || (branchActivityDtos != null && !branchActivityDtos.isEmpty())
+            || (commitDtos != null && !commitDtos.isEmpty())) {
           timeSpentByHour
               .computeIfAbsent(hourKey, k -> new HashMap<>())
               .put(
@@ -255,10 +287,14 @@ public final class DataReportingTask implements Disposable {
                       snapshot.getRecordId(),
                       hourKey,
                       snapshot.getCodedTimeSeconds(),
-                      snapshot.getCodedTimeSeconds()));
+                      snapshot.getCodedTimeSeconds(),
+                      snapshot.getAdditions(),
+                      snapshot.getRemovals(),
+                      branchActivityDtos,
+                      commitDtos));
         }
 
-        // Aggregate VCS changes per project (with hour in filename for tracking)
+        // Also send VCS changes via legacy endpoint for backward compatibility
         if (snapshot.getAdditions() > 0 || snapshot.getRemovals() > 0) {
           String syntheticFileName = "local-sync-" + hourKey;
           ChangesSampleDto changesDto =

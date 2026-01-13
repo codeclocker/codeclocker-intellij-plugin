@@ -92,11 +92,50 @@ public final class LocalActivityDataProvider {
         .sum();
   }
 
+  /**
+   * Get total coded seconds for yesterday across all projects.
+   *
+   * @return total seconds coded yesterday in local timezone
+   */
+  public long getYesterdayTotalSeconds() {
+    String yesterdayPrefix = LocalDate.now().minusDays(1).toString();
+    Map<String, Map<String, ProjectActivitySnapshot>> localData = getAllDataInLocalTimezone();
+
+    return localData.entrySet().stream()
+        .filter(entry -> entry.getKey().startsWith(yesterdayPrefix))
+        .flatMap(entry -> entry.getValue().values().stream())
+        .mapToLong(ProjectActivitySnapshot::getCodedTimeSeconds)
+        .sum();
+  }
+
+  /**
+   * Get total coded seconds for last week (Monday to Sunday) across all projects.
+   *
+   * @return total seconds coded last week in local timezone
+   */
+  public long getLastWeekTotalSeconds() {
+    LocalDate today = LocalDate.now();
+    LocalDate startOfThisWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+    LocalDate startOfLastWeek = startOfThisWeek.minusWeeks(1);
+    LocalDate endOfLastWeek = startOfThisWeek.minusDays(1);
+    Map<String, Map<String, ProjectActivitySnapshot>> localData = getAllDataInLocalTimezone();
+
+    return localData.entrySet().stream()
+        .filter(entry -> isInDateRange(entry.getKey(), startOfLastWeek, endOfLastWeek))
+        .flatMap(entry -> entry.getValue().values().stream())
+        .mapToLong(ProjectActivitySnapshot::getCodedTimeSeconds)
+        .sum();
+  }
+
   private boolean isInWeek(String hourKey, LocalDate weekStart, LocalDate today) {
+    return isInDateRange(hourKey, weekStart, today);
+  }
+
+  private boolean isInDateRange(String hourKey, LocalDate start, LocalDate end) {
     try {
       String dateStr = hourKey.substring(0, 10); // "yyyy-MM-dd"
       LocalDate date = LocalDate.parse(dateStr);
-      return !date.isBefore(weekStart) && !date.isAfter(today);
+      return !date.isBefore(start) && !date.isAfter(end);
     } catch (Exception e) {
       return false;
     }
