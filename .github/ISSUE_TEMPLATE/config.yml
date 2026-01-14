@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: JetBrains Marketplace Reviews
+    url: https://plugins.jetbrains.com/plugin/26962-codeclocker/reviews
+    about: Leave a review on the JetBrains Marketplace
+  - name: CodeClocker Hub
+    url: https://hub.codeclocker.com/
+    about: Access web dashboards and team analytics
+  - name: Documentation
+    url: https://github.com/codeclocker/codeclocker-intellij-plugin#readme
+    about: Check the README for usage instructions and FAQ
