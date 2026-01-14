@@ -1,0 +1,117 @@
+name: Bug Report
+description: Report a bug or unexpected behavior in CodeClocker
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the form below to help us investigate.
+
+  - type: checkboxes
+    id: existing-issue
+    attributes:
+      label: Prerequisites
+      description: Please confirm the following before submitting
+      options:
+        - label: I have searched the [existing issues](https://github.com/codeclocker/codeclocker-intellij-plugin/issues) and this bug has not been reported yet
+          required: true
+        - label: I am using the latest version of CodeClocker
+          required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is
+      placeholder: Describe what happened...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: Describe what you expected...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Open IDE...
+        2. Click on...
+        3. See error...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Operating Mode
+      description: Which mode are you using?
+      options:
+        - Local Mode (default, no API key)
+        - Hub Mode (with API key)
+        - Both
+        - Not sure
+    validations:
+      required: true
+
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin Version
+      description: "CodeClocker plugin version (found in Settings > Plugins > Installed)"
+      placeholder: "e.g., 1.7.0"
+    validations:
+      required: true
+
+  - type: input
+    id: ide-version
+    attributes:
+      label: IDE & Version
+      description: "JetBrains IDE name and version (Help > About)"
+      placeholder: "e.g., IntelliJ IDEA 2024.3.1 Ultimate"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      options:
+        - Windows
+        - macOS
+        - Linux
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs
+      description: |
+        Please provide any relevant error logs from the IDE log file.
+        Location: Help > Show Log in Explorer/Finder
+        Look for entries containing "codeclocker" or the error message.
+      placeholder: Paste logs here...
+      render: text
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: If applicable, add screenshots to help explain the problem
+      placeholder: Drag and drop images here...
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context about the problem
+      placeholder: Add any other context here...
