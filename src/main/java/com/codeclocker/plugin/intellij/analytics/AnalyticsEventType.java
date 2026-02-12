@@ -12,6 +12,7 @@ public final class AnalyticsEventType {
   public static final String POPUP_SAVE_HISTORY_CLICK = "popup_save_history_click";
   public static final String POPUP_RENEW_SUBSCRIPTION_CLICK = "popup_renew_subscription_click";
   public static final String POPUP_SET_GOALS_CLICK = "popup_set_goals_click";
+  public static final String POPUP_SET_PROJECT_GOALS_CLICK = "popup_set_project_goals_click";
   public static final String POPUP_AUTO_PAUSE_CLICK = "popup_auto_pause_click";
   public static final String POPUP_ACTIVITY_REPORT_CLICK = "popup_activity_report_click";
 

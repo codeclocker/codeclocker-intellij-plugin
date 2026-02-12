@@ -93,6 +93,25 @@ public final class LocalActivityDataProvider {
   }
 
   /**
+   * Get total coded seconds for the current week (Monday to Sunday) for a specific project.
+   *
+   * @param projectName the project name
+   * @return total seconds coded this week for the project in local timezone
+   */
+  public long getWeekProjectSeconds(String projectName) {
+    LocalDate today = LocalDate.now();
+    LocalDate weekStart = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+    Map<String, Map<String, ProjectActivitySnapshot>> localData = getAllDataInLocalTimezone();
+
+    return localData.entrySet().stream()
+        .filter(entry -> isInWeek(entry.getKey(), weekStart, today))
+        .map(entry -> entry.getValue().get(projectName))
+        .filter(snapshot -> snapshot != null)
+        .mapToLong(ProjectActivitySnapshot::getCodedTimeSeconds)
+        .sum();
+  }
+
+  /**
    * Get total coded seconds for yesterday across all projects.
    *
    * @return total seconds coded yesterday in local timezone

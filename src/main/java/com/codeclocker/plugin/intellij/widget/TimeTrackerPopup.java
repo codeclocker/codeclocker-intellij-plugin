@@ -13,6 +13,8 @@ import com.codeclocker.plugin.intellij.apikey.EnterApiKeyAction;
 import com.codeclocker.plugin.intellij.goal.GoalProgress;
 import com.codeclocker.plugin.intellij.goal.GoalService;
 import com.codeclocker.plugin.intellij.goal.GoalSettingsDialog;
+import com.codeclocker.plugin.intellij.goal.ProjectGoalPersistence;
+import com.codeclocker.plugin.intellij.goal.ProjectGoalSettingsDialog;
 import com.codeclocker.plugin.intellij.local.LocalActivityDataProvider;
 import com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker;
 import com.codeclocker.plugin.intellij.services.vcs.ProjectChangesCounters;
@@ -37,6 +39,7 @@ public class TimeTrackerPopup {
   private static final String SAVE_HISTORY = "Save my data →";
   private static final String RENEW_SUBSCRIPTION = "Renew subscription to keep data forever →";
   private static final String SET_GOALS = "Set Goals...";
+  private static final String SET_PROJECT_GOALS = "Set Project Goals...";
   private static final String AUTO_PAUSE = "Auto-Pause...";
   private static final String ACTIVITY_REPORT = "Activity Report...";
 
@@ -57,6 +60,18 @@ public class TimeTrackerPopup {
       items.add(formatGoalProgress("Weekly", goalService.getWeeklyProgress()));
     }
 
+    // Project-specific goals (only shown when custom goals are enabled)
+    String projectName = project.getName();
+    boolean hasCustomProjectGoals = ProjectGoalPersistence.hasCustomGoals(projectName);
+    if (hasCustomProjectGoals && goalService != null) {
+      items.add(
+          formatProjectGoalProgress(
+              "Daily", projectName, goalService.getProjectDailyProgress(projectName)));
+      items.add(
+          formatProjectGoalProgress(
+              "Weekly", projectName, goalService.getProjectWeeklyProgress(projectName)));
+    }
+
     // Coding time
     items.add("Total: " + totalTime);
     items.add(project.getName() + ": " + projectTime);
@@ -71,6 +86,7 @@ public class TimeTrackerPopup {
 
     // Add settings actions
     items.add(SET_GOALS);
+    items.add(SET_PROJECT_GOALS);
     items.add(AUTO_PAUSE);
     items.add(ACTIVITY_REPORT);
 
@@ -91,6 +107,7 @@ public class TimeTrackerPopup {
                 || SAVE_HISTORY.equals(value)
                 || RENEW_SUBSCRIPTION.equals(value)
                 || SET_GOALS.equals(value)
+                || SET_PROJECT_GOALS.equals(value)
                 || AUTO_PAUSE.equals(value)
                 || ACTIVITY_REPORT.equals(value);
           }
@@ -109,6 +126,9 @@ public class TimeTrackerPopup {
             } else if (SET_GOALS.equals(selectedValue)) {
               Analytics.track(AnalyticsEventType.POPUP_SET_GOALS_CLICK);
               GoalSettingsDialog.showDialog();
+            } else if (SET_PROJECT_GOALS.equals(selectedValue)) {
+              Analytics.track(AnalyticsEventType.POPUP_SET_PROJECT_GOALS_CLICK);
+              ProjectGoalSettingsDialog.showDialog(project);
             } else if (AUTO_PAUSE.equals(selectedValue)) {
               Analytics.track(AnalyticsEventType.POPUP_AUTO_PAUSE_CLICK);
               TrackingSettingsDialog.showDialog();
@@ -144,6 +164,11 @@ public class TimeTrackerPopup {
             // Goals section (first item is Daily goal)
             if (value.startsWith("Daily:") && value.contains("%")) {
               return new ListSeparator("Goals");
+            }
+
+            // Project Goals section (first item starts with project daily marker)
+            if (value.startsWith("P-Daily:") && value.contains("%")) {
+              return new ListSeparator("Project Goals");
             }
 
             // Coding Time section (after goals)
@@ -232,6 +257,18 @@ public class TimeTrackerPopup {
   private static String formatGoalProgress(String label, GoalProgress progress) {
     // Add extra padding for "Daily" to match visual width of "Weekly" in proportional font
     String paddedLabel = label.equals("Daily") ? "Daily:     " : "Weekly: ";
+    return String.format(
+        "%s%s %s (%s)",
+        paddedLabel,
+        progress.renderProgressBar(15),
+        progress.formatPercentage(),
+        progress.formatProgress());
+  }
+
+  private static String formatProjectGoalProgress(
+      String label, String projectName, GoalProgress progress) {
+    // Use "P-" prefix to distinguish project goals in separator logic
+    String paddedLabel = label.equals("Daily") ? "P-Daily:   " : "P-Weekly: ";
     return String.format(
         "%s%s %s (%s)",
         paddedLabel,
