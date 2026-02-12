@@ -108,6 +108,7 @@ public class TimeTrackerWidgetService implements Disposable {
         ApplicationManager.getApplication().getService(GoalNotificationService.class);
     if (notificationService != null) {
       notificationService.checkAndNotify();
+      notificationService.checkAndNotifyForProject(project.getName());
     }
   }
 

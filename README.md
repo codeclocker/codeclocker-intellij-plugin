@@ -14,7 +14,7 @@ Use it **locally (offline)** by default, or optionally sync to **[CodeClocker Hu
 ### Local Mode (Default - No account, no API key)
 
 - **Automatic coding time tracking** - records active time while you work, organized by project.
-- **Daily & weekly goals** - set targets, monitor progress, and get notified when you reach them.
+- **Daily & weekly goals** - set targets per project or globally, monitor progress, and get notified when you reach them.
 - **Activity Report** - detailed tree-view of daily activity with project breakdown and commit details.
 - **CSV export** - export activity data for invoicing with date range selection.
 - **Status bar widget** - see today's tracked time, and goal progress at a glance.
