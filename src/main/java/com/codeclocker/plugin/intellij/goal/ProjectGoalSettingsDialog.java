@@ -26,7 +26,7 @@ public class ProjectGoalSettingsDialog extends DialogWrapper {
   private JBCheckBox notificationsCheckbox;
 
   public ProjectGoalSettingsDialog(@NotNull Project project) {
-    super(true);
+    super(project, true);
     this.projectName = project.getName();
     setTitle("Coding Time Goals: " + projectName);
     init();

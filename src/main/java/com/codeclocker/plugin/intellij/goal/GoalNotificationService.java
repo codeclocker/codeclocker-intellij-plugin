@@ -13,8 +13,8 @@ import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import org.jetbrains.annotations.NotNull;
 
 /** Service for showing notifications when coding goals are reached. */
@@ -28,11 +28,10 @@ public final class GoalNotificationService {
   private int lastNotifiedWeeklyGoalMinutes;
 
   // Per-project notification tracking
-  private final Map<String, LocalDate> projectDailyGoalReachedDates = new ConcurrentHashMap<>();
-  private final Map<String, LocalDate> projectWeeklyGoalReachedWeekStarts =
-      new ConcurrentHashMap<>();
-  private final Map<String, Integer> lastNotifiedProjectDailyGoals = new ConcurrentHashMap<>();
-  private final Map<String, Integer> lastNotifiedProjectWeeklyGoals = new ConcurrentHashMap<>();
+  private final Map<String, LocalDate> projectDailyGoalReachedDates = new HashMap<>();
+  private final Map<String, LocalDate> projectWeeklyGoalReachedWeekStarts = new HashMap<>();
+  private final Map<String, Integer> lastNotifiedProjectDailyGoals = new HashMap<>();
+  private final Map<String, Integer> lastNotifiedProjectWeeklyGoals = new HashMap<>();
 
   /**
    * Check goal progress and show notifications if goals are reached. Should be called periodically
@@ -245,65 +244,69 @@ public final class GoalNotificationService {
   private void showDailyGoalNotification(GoalProgress progress) {
     ApplicationManager.getApplication()
         .invokeLater(
-            () -> NotificationGroupManager.getInstance()
-                .getNotificationGroup("CodeClocker")
-                .createNotification(
-                    "🎯 CodeClocker: Daily goal reached!",
-                    "You've reached your daily coding goal of "
-                        + formatGoalTime(progress.goalSeconds())
-                        + ".",
-                    INFORMATION)
-                .addAction(new SetNewGoalAction())
-                .notify(getCurrentProject()));
+            () ->
+                NotificationGroupManager.getInstance()
+                    .getNotificationGroup("CodeClocker")
+                    .createNotification(
+                        "🎯 CodeClocker: Daily goal reached!",
+                        "You've reached your daily coding goal of "
+                            + formatGoalTime(progress.goalSeconds())
+                            + ".",
+                        INFORMATION)
+                    .addAction(new SetNewGoalAction())
+                    .notify(getCurrentProject()));
   }
 
   private void showWeeklyGoalNotification(GoalProgress progress) {
     ApplicationManager.getApplication()
         .invokeLater(
-            () -> NotificationGroupManager.getInstance()
-                .getNotificationGroup("CodeClocker")
-                .createNotification(
-                    "🏆 CodeClocker: Weekly goal reached!",
-                    "You've reached your weekly coding goal of "
-                        + formatGoalTime(progress.goalSeconds())
-                        + ".",
-                    INFORMATION)
-                .addAction(new SetNewGoalAction())
-                .notify(getCurrentProject()));
+            () ->
+                NotificationGroupManager.getInstance()
+                    .getNotificationGroup("CodeClocker")
+                    .createNotification(
+                        "🏆 CodeClocker: Weekly goal reached!",
+                        "You've reached your weekly coding goal of "
+                            + formatGoalTime(progress.goalSeconds())
+                            + ".",
+                        INFORMATION)
+                    .addAction(new SetNewGoalAction())
+                    .notify(getCurrentProject()));
   }
 
   private void showProjectDailyGoalNotification(String projectName, GoalProgress progress) {
     ApplicationManager.getApplication()
         .invokeLater(
-            () -> NotificationGroupManager.getInstance()
-                .getNotificationGroup("CodeClocker")
-                .createNotification(
-                    "🎯 CodeClocker: project daily goal reached!",
-                    "You've reached your daily coding goal of "
-                        + formatGoalTime(progress.goalSeconds())
-                        + " for "
-                        + projectName
-                        + ".",
-                    INFORMATION)
-                .addAction(new SetProjectGoalAction(projectName))
-                .notify(getCurrentProject()));
+            () ->
+                NotificationGroupManager.getInstance()
+                    .getNotificationGroup("CodeClocker")
+                    .createNotification(
+                        "🎯 CodeClocker: project daily goal reached!",
+                        "You've reached your daily coding goal of "
+                            + formatGoalTime(progress.goalSeconds())
+                            + " for "
+                            + projectName
+                            + ".",
+                        INFORMATION)
+                    .addAction(new SetProjectGoalAction(projectName))
+                    .notify(getCurrentProject()));
   }
 
   private void showProjectWeeklyGoalNotification(String projectName, GoalProgress progress) {
     ApplicationManager.getApplication()
         .invokeLater(
-            () -> NotificationGroupManager.getInstance()
-                .getNotificationGroup("CodeClocker")
-                .createNotification(
-                    "🏆 CodeClocker: project weekly goal reached!",
-                    "You've reached your weekly coding goal of "
-                        + formatGoalTime(progress.goalSeconds())
-                        + " for "
-                        + projectName
-                        + ".",
-                    INFORMATION)
-                .addAction(new SetProjectGoalAction(projectName))
-                .notify(getCurrentProject()));
+            () ->
+                NotificationGroupManager.getInstance()
+                    .getNotificationGroup("CodeClocker")
+                    .createNotification(
+                        "🏆 CodeClocker: project weekly goal reached!",
+                        "You've reached your weekly coding goal of "
+                            + formatGoalTime(progress.goalSeconds())
+                            + " for "
+                            + projectName
+                            + ".",
+                        INFORMATION)
+                    .addAction(new SetProjectGoalAction(projectName))
+                    .notify(getCurrentProject()));
   }
 
   private static class SetNewGoalAction extends com.intellij.notification.NotificationAction {
