@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-02-12
+
 ### Added
 
 - **Per-Project Goal Tracking** - Set custom daily and weekly coding time goals for individual projects:
@@ -180,7 +182,8 @@
 
 - Support IntelliJ Platform 2024.3.5
 
-[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.7.0...HEAD
+[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.8.0...HEAD
+[1.8.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.5.2...v1.6.0
 [1.5.2]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.5.1...v1.5.2
