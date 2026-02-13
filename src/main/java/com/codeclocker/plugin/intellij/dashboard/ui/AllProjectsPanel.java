@@ -27,8 +27,7 @@ public class AllProjectsPanel extends JPanel {
   private static final Color RED = new JBColor(0xDC2626, 0xF87171);
   private static final Color MUTED_TEXT = new JBColor(0x5E6687, 0xA9B1D6);
   private static final Color ALT_ROW_BG =
-      JBColor.namedColor(
-          "Table.alternativeRowBackground", new JBColor(0xF5F5F5, 0x2D2F31));
+      JBColor.namedColor("Table.alternativeRowBackground", new JBColor(0xF5F5F5, 0x2D2F31));
 
   private final JPanel tableContainer;
   private final JComboBox<Integer> rowsPerPageCombo;
@@ -186,7 +185,8 @@ public class AllProjectsPanel extends JPanel {
     JPanel row = new JPanel(new GridBagLayout());
     row.setOpaque(false);
     row.setBorder(JBUI.Borders.emptyBottom(4));
-    row.setMaximumSize(new Dimension(Integer.MAX_VALUE, row.getPreferredSize().height + JBUI.scale(24)));
+    row.setMaximumSize(
+        new Dimension(Integer.MAX_VALUE, row.getPreferredSize().height + JBUI.scale(24)));
     row.setAlignmentX(LEFT_ALIGNMENT);
 
     Font headerFont = JBUI.Fonts.smallFont().asBold();
@@ -212,7 +212,8 @@ public class AllProjectsPanel extends JPanel {
     JLabel timeHeader = new JLabel("Time Spent");
     timeHeader.setFont(headerFont);
     timeHeader.setForeground(MUTED_TEXT);
-    timeHeader.setPreferredSize(new Dimension(JBUI.scale(110), timeHeader.getPreferredSize().height));
+    timeHeader.setPreferredSize(
+        new Dimension(JBUI.scale(110), timeHeader.getPreferredSize().height));
     timeHeader.setHorizontalAlignment(SwingConstants.RIGHT);
     row.add(timeHeader, gbc);
 
@@ -221,7 +222,8 @@ public class AllProjectsPanel extends JPanel {
     JLabel addedHeader = new JLabel("Lines Added");
     addedHeader.setFont(headerFont);
     addedHeader.setForeground(MUTED_TEXT);
-    addedHeader.setPreferredSize(new Dimension(JBUI.scale(90), addedHeader.getPreferredSize().height));
+    addedHeader.setPreferredSize(
+        new Dimension(JBUI.scale(90), addedHeader.getPreferredSize().height));
     addedHeader.setHorizontalAlignment(SwingConstants.RIGHT);
     row.add(addedHeader, gbc);
 
@@ -248,7 +250,8 @@ public class AllProjectsPanel extends JPanel {
       row.setOpaque(false);
     }
     row.setBorder(JBUI.Borders.empty(4, 4));
-    row.setMaximumSize(new Dimension(Integer.MAX_VALUE, row.getPreferredSize().height + JBUI.scale(28)));
+    row.setMaximumSize(
+        new Dimension(Integer.MAX_VALUE, row.getPreferredSize().height + JBUI.scale(28)));
 
     Font dataFont = JBUI.Fonts.label();
     GridBagConstraints gbc = new GridBagConstraints();
@@ -280,7 +283,8 @@ public class AllProjectsPanel extends JPanel {
     JLabel addedLabel = new JLabel("+" + entry.additions());
     addedLabel.setFont(dataFont);
     addedLabel.setForeground(GREEN);
-    addedLabel.setPreferredSize(new Dimension(JBUI.scale(90), addedLabel.getPreferredSize().height));
+    addedLabel.setPreferredSize(
+        new Dimension(JBUI.scale(90), addedLabel.getPreferredSize().height));
     addedLabel.setHorizontalAlignment(SwingConstants.RIGHT);
     row.add(addedLabel, gbc);
 

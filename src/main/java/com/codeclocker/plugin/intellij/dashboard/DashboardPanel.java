@@ -113,8 +113,7 @@ public class DashboardPanel extends JPanel implements Disposable {
 
     // All Projects breakdown table
     allProjectsPanel = new AllProjectsPanel();
-    allProjectsPanel.setMaximumSize(
-        new java.awt.Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+    allProjectsPanel.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
     contentPanel.add(allProjectsPanel);
 
     // Push everything to the top
