@@ -34,6 +34,17 @@ Enable Hub Mode with an API key to sync activity to **[CodeClocker Hub](https://
   - **Time range filtering** (e.g., last 7 days, custom periods)
   - **Data storage** - Activity is synced to CodeClocker Hub only when you enable Hub Mode and provide an API key.
 
+### Dashboard
+
+Click the status bar widget and select **Dashboard...** to open an in-IDE analytics dashboard:
+
+- **Metric cards** - Total time, daily average, lines added/removed, and streak counters
+- **Activity Timeline** - Interactive area chart showing coding activity over time with hover tooltips
+- **Journey Bar** - Lifetime stats including total days, time, projects, and lines changed
+- **All Projects breakdown** - Paginated table of per-project time, additions, and removals
+- **Time period selector** - Switch between 24h, 7d, 30d, this week, or this month
+- **Trend indicator** - Percentage change vs. previous period
+
 ### Activity Report
 
 Click the status bar widget and select **Activity Report...** to open a detailed view of your coding activity:
