@@ -4,6 +4,24 @@
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-02-13
+
+### Added
+
+- **In-IDE Dashboard** - New "Dashboard" tab in the CodeClocker tool window with a full analytics view:
+  - **Metric cards** - Total time, daily average, lines added, lines removed, and current/longest streak
+  - **Activity Timeline** - Interactive area chart with hover tooltips showing coding activity over time
+  - **Journey Bar** - Lifetime stats (days active, total time, projects, lines changed)
+  - **All Projects breakdown** - Paginated table showing per-project time spent, lines added, and lines removed with sorting by time descending
+  - **Time period selector** - Choose from 24h, 7d, 30d, This Week, or This Month
+  - **Trend indicator** - Percentage change compared to the previous period
+- **Dashboard access from popup** - New "Dashboard..." option in the status bar popup to quickly open the Dashboard tab
+
+### Changed
+
+- **Tool window tabs** - Dashboard tab is now the first tab; Activity Report is the second tab
+- **Popup menu separators** - Added visual separator between coding time trends and menu action buttons
+
 ## [1.8.0] - 2026-02-12
 
 ### Added
@@ -182,7 +200,8 @@
 
 - Support IntelliJ Platform 2024.3.5
 
-[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.8.0...HEAD
+[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.5.2...v1.6.0

@@ -29,6 +29,7 @@
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.local.LocalStateRepository"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.analytics.AnalyticsHttpClient"/>
     <applicationService serviceImplementation="com.codeclocker.plugin.intellij.analytics.AnalyticsReportingTask"/>
+    <applicationService serviceImplementation="com.codeclocker.plugin.intellij.dashboard.DashboardDataService"/>
 
     <projectService serviceImplementation="com.codeclocker.plugin.intellij.services.TimeTrackerWidgetService"/>
 

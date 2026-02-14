@@ -29,6 +29,8 @@ import com.intellij.openapi.ui.popup.PopupStep;
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.ui.content.Content;
+import com.intellij.ui.content.ContentManager;
 import java.util.ArrayList;
 import java.util.List;
 import org.jetbrains.annotations.Nullable;
@@ -41,7 +43,8 @@ public class TimeTrackerPopup {
   private static final String SET_GOALS = "Set Goals...";
   private static final String SET_PROJECT_GOALS = "Set Project Goals...";
   private static final String AUTO_PAUSE = "Auto-Pause...";
-  private static final String ACTIVITY_REPORT = "Activity Report...";
+  private static final String DASHBOARD = "Dashboard...";
+  private static final String ACTIVITY_REPORT = "Branch Activity...";
 
   public static ListPopup create(Project project, String totalTime, String projectTime) {
     ChangesActivityTracker tracker =
@@ -88,6 +91,7 @@ public class TimeTrackerPopup {
     items.add(SET_GOALS);
     items.add(SET_PROJECT_GOALS);
     items.add(AUTO_PAUSE);
+    items.add(DASHBOARD);
     items.add(ACTIVITY_REPORT);
 
     boolean hasApiKey = isNotBlank(ApiKeyPersistence.getApiKey());
@@ -109,6 +113,7 @@ public class TimeTrackerPopup {
                 || SET_GOALS.equals(value)
                 || SET_PROJECT_GOALS.equals(value)
                 || AUTO_PAUSE.equals(value)
+                || DASHBOARD.equals(value)
                 || ACTIVITY_REPORT.equals(value);
           }
 
@@ -132,14 +137,12 @@ public class TimeTrackerPopup {
             } else if (AUTO_PAUSE.equals(selectedValue)) {
               Analytics.track(AnalyticsEventType.POPUP_AUTO_PAUSE_CLICK);
               TrackingSettingsDialog.showDialog();
+            } else if (DASHBOARD.equals(selectedValue)) {
+              Analytics.track(AnalyticsEventType.POPUP_DASHBOARD_CLICK);
+              openToolWindowTab(project, "Dashboard");
             } else if (ACTIVITY_REPORT.equals(selectedValue)) {
               Analytics.track(AnalyticsEventType.POPUP_ACTIVITY_REPORT_CLICK);
-              ToolWindow toolWindow =
-                  ToolWindowManager.getInstance(project)
-                      .getToolWindow("CodeClocker Activity Report");
-              if (toolWindow != null) {
-                toolWindow.show();
-              }
+              openToolWindowTab(project, "Activity");
             }
             return FINAL_CHOICE;
           }
@@ -158,6 +161,10 @@ public class TimeTrackerPopup {
             }
 
             if (SET_GOALS.equals(value)) {
+              return new ListSeparator();
+            }
+
+            if (DASHBOARD.equals(value)) {
               return new ListSeparator();
             }
 
@@ -191,6 +198,21 @@ public class TimeTrackerPopup {
         };
 
     return JBPopupFactory.getInstance().createListPopup(step);
+  }
+
+  private static void openToolWindowTab(Project project, String tabName) {
+    ToolWindow toolWindow =
+        ToolWindowManager.getInstance(project).getToolWindow("CodeClocker Activity Report");
+    if (toolWindow != null) {
+      toolWindow.show(
+          () -> {
+            ContentManager cm = toolWindow.getContentManager();
+            Content content = cm.findContent(tabName);
+            if (content != null) {
+              cm.setSelectedContent(content);
+            }
+          });
+    }
   }
 
   public static String getFormattedVcsChanges() {
@@ -268,7 +290,7 @@ public class TimeTrackerPopup {
   private static String formatProjectGoalProgress(
       String label, String projectName, GoalProgress progress) {
     // Use "P-" prefix to distinguish project goals in separator logic
-    String paddedLabel = label.equals("Daily") ? "P-Daily:   " : "P-Weekly: ";
+    String paddedLabel = label.equals("Daily") ? "P-Daily:     " : "P-Weekly: ";
     return String.format(
         "%s%s %s (%s)",
         paddedLabel,
