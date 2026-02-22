@@ -1,6 +1,7 @@
 package com.codeclocker.plugin.intellij.goal;
 
 import com.intellij.ide.util.PropertiesComponent;
+import java.time.Duration;
 
 /**
  * Handles persistent storage of coding time goal settings. Goals are stored in minutes for easy UI
@@ -13,8 +14,8 @@ public class GoalPersistence {
   private static final String GOALS_ENABLED = "com.codeclocker.goal.enabled";
   private static final String NOTIFICATIONS_ENABLED = "com.codeclocker.goal.notifications-enabled";
 
-  private static final int DEFAULT_DAILY_GOAL_MINUTES = 60; // 1 hour
-  private static final int DEFAULT_WEEKLY_GOAL_MINUTES = 300; // 5 hours
+  private static final int DEFAULT_DAILY_GOAL_MINUTES = (int) Duration.ofHours(2).toMinutes();
+  private static final int DEFAULT_WEEKLY_GOAL_MINUTES = (int) Duration.ofHours(10).toMinutes();
 
   public static int getDailyGoalMinutes() {
     return PropertiesComponent.getInstance().getInt(DAILY_GOAL_MINUTES, DEFAULT_DAILY_GOAL_MINUTES);

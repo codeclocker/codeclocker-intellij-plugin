@@ -4,6 +4,19 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Project Timeline Heatmap** - Gantt-style heatmap in the Dashboard showing when each project was worked on over time:
+  - Color-coded intensity based on coding activity
+  - Hover tooltips with detailed time information
+  - Support for hourly (24h) and daily granularity
+- **Disable Goal Notifications** - "Disable Notifications" action button on daily, weekly, and per-project goal achievement notifications
+
+### Changed
+
+- **Default Goal Targets** - Increased default daily goal from 1 hour to 2 hours and weekly goal from 5 hours to 10 hours
+- **All Projects Table** - Added row hover highlight in the All Projects breakdown
+
 ## [1.9.0] - 2026-02-13
 
 ### Added

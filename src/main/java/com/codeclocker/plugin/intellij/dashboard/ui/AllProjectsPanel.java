@@ -28,6 +28,8 @@ public class AllProjectsPanel extends JPanel {
   private static final Color MUTED_TEXT = new JBColor(0x5E6687, 0xA9B1D6);
   private static final Color ALT_ROW_BG =
       JBColor.namedColor("Table.alternativeRowBackground", new JBColor(0xF5F5F5, 0x2D2F31));
+  private static final Color HOVER_BG =
+      JBColor.namedColor("Table.hoverBackground", new JBColor(0xEDF6FF, 0x2E3440));
 
   private final JPanel tableContainer;
   private final JComboBox<Integer> rowsPerPageCombo;
@@ -252,6 +254,23 @@ public class AllProjectsPanel extends JPanel {
     row.setBorder(JBUI.Borders.empty(4, 4));
     row.setMaximumSize(
         new Dimension(Integer.MAX_VALUE, row.getPreferredSize().height + JBUI.scale(28)));
+
+    Color originalBg = row.getBackground();
+    boolean originalOpaque = row.isOpaque();
+    row.addMouseListener(
+        new java.awt.event.MouseAdapter() {
+          @Override
+          public void mouseEntered(java.awt.event.MouseEvent e) {
+            row.setBackground(HOVER_BG);
+            row.setOpaque(true);
+          }
+
+          @Override
+          public void mouseExited(java.awt.event.MouseEvent e) {
+            row.setBackground(originalBg);
+            row.setOpaque(originalOpaque);
+          }
+        });
 
     Font dataFont = JBUI.Fonts.label();
     GridBagConstraints gbc = new GridBagConstraints();
