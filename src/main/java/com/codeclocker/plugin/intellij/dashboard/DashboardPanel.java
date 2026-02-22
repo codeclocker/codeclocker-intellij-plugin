@@ -2,12 +2,14 @@ package com.codeclocker.plugin.intellij.dashboard;
 
 import com.codeclocker.plugin.intellij.dashboard.DashboardDataService.DashboardData;
 import com.codeclocker.plugin.intellij.dashboard.DashboardDataService.ProjectBreakdownEntry;
+import com.codeclocker.plugin.intellij.dashboard.DashboardDataService.ProjectTimelineData;
 import com.codeclocker.plugin.intellij.dashboard.DashboardDataService.TimePeriod;
 import com.codeclocker.plugin.intellij.dashboard.DashboardDataService.TimelineDataPoint;
 import com.codeclocker.plugin.intellij.dashboard.ui.ActivityTimelinePanel;
 import com.codeclocker.plugin.intellij.dashboard.ui.AllProjectsPanel;
 import com.codeclocker.plugin.intellij.dashboard.ui.JourneyBarPanel;
 import com.codeclocker.plugin.intellij.dashboard.ui.MetricCardPanel;
+import com.codeclocker.plugin.intellij.dashboard.ui.ProjectTimelineGanttPanel;
 import com.codeclocker.plugin.intellij.dashboard.ui.StreakCardPanel;
 import com.codeclocker.plugin.intellij.dashboard.ui.TimePeriodSelectorPanel;
 import com.intellij.icons.AllIcons;
@@ -47,6 +49,7 @@ public class DashboardPanel extends JPanel implements Disposable {
   private final StreakCardPanel streakCard;
   private final JourneyBarPanel journeyBar;
   private final ActivityTimelinePanel activityTimeline;
+  private final ProjectTimelineGanttPanel projectTimelinePanel;
   private final AllProjectsPanel allProjectsPanel;
 
   public DashboardPanel() {
@@ -111,6 +114,13 @@ public class DashboardPanel extends JPanel implements Disposable {
     contentPanel.add(activityTimeline);
     contentPanel.add(javax.swing.Box.createVerticalStrut(JBUI.scale(8)));
 
+    // Project Timeline Gantt chart
+    projectTimelinePanel = new ProjectTimelineGanttPanel();
+    projectTimelinePanel.setMaximumSize(
+        new java.awt.Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+    contentPanel.add(projectTimelinePanel);
+    contentPanel.add(javax.swing.Box.createVerticalStrut(JBUI.scale(8)));
+
     // All Projects breakdown table
     allProjectsPanel = new AllProjectsPanel();
     allProjectsPanel.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
@@ -165,6 +175,7 @@ public class DashboardPanel extends JPanel implements Disposable {
               DashboardData data = service.computeForPeriod(period);
               List<TimelineDataPoint> timelineData = service.computeTimelineData(period);
               List<ProjectBreakdownEntry> breakdown = service.computeProjectBreakdown(period);
+              ProjectTimelineData timelineGanttData = service.computeProjectTimeline(period);
 
               ApplicationManager.getApplication()
                   .invokeLater(
@@ -184,6 +195,7 @@ public class DashboardPanel extends JPanel implements Disposable {
                             data.lifetimeLines(),
                             data.firstActivityDate());
                         activityTimeline.update(timelineData, period);
+                        projectTimelinePanel.update(timelineGanttData);
                         allProjectsPanel.update(breakdown);
                       });
             });

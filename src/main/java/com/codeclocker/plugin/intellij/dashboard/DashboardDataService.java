@@ -49,6 +49,12 @@ public final class DashboardDataService {
 
   public record TimelineDataPoint(String label, long seconds) {}
 
+  public record ProjectTimelineEntry(
+      String projectName, long totalTimeSeconds, Map<String, Long> dailySeconds) {}
+
+  public record ProjectTimelineData(
+      List<String> buckets, List<ProjectTimelineEntry> entries, boolean hourly) {}
+
   public record DashboardData(
       long totalTimeSpent,
       long dailyAverage,
@@ -201,6 +207,68 @@ public final class DashboardDataService {
     }
     result.sort((a, b) -> Long.compare(b.timeSpentSeconds(), a.timeSpentSeconds()));
     return result;
+  }
+
+  public ProjectTimelineData computeProjectTimeline(TimePeriod period) {
+    Map<String, Map<String, ProjectActivitySnapshot>> allData = getAllDataWithUnsaved();
+    LocalDate today = LocalDate.now();
+    LocalDate periodStart = getPeriodStart(period, today);
+    LocalDate periodEnd = getPeriodEnd(period, today);
+    boolean hourly = period == TimePeriod.LAST_24_HOURS;
+
+    LocalDateTime cutoff24h = hourly ? LocalDateTime.now().minusHours(24) : null;
+
+    // Build ordered bucket list
+    List<String> buckets = new ArrayList<>();
+    if (hourly) {
+      LocalDateTime now = LocalDateTime.now().truncatedTo(java.time.temporal.ChronoUnit.HOURS);
+      for (int i = 23; i >= 0; i--) {
+        buckets.add(now.minusHours(i).format(HOUR_KEY_FORMATTER));
+      }
+    } else {
+      for (LocalDate d = periodStart; !d.isAfter(periodEnd); d = d.plusDays(1)) {
+        buckets.add(d.toString());
+      }
+    }
+
+    // Group by project -> bucket -> seconds
+    Map<String, Map<String, Long>> perProject = new LinkedHashMap<>();
+    Map<String, Long> projectTotals = new LinkedHashMap<>();
+
+    for (Map.Entry<String, Map<String, ProjectActivitySnapshot>> entry : allData.entrySet()) {
+      String hourKey = entry.getKey();
+      if (!isInPeriod(hourKey, periodStart, periodEnd, cutoff24h)) {
+        continue;
+      }
+      String bucketKey = hourly ? hourKey : extractDate(hourKey);
+
+      for (Map.Entry<String, ProjectActivitySnapshot> projEntry : entry.getValue().entrySet()) {
+        String projectName = projEntry.getKey();
+        long seconds = projEntry.getValue().getCodedTimeSeconds();
+        if (seconds <= 0) {
+          continue;
+        }
+        perProject
+            .computeIfAbsent(projectName, k -> new LinkedHashMap<>())
+            .merge(bucketKey, seconds, Long::sum);
+        projectTotals.merge(projectName, seconds, Long::sum);
+      }
+    }
+
+    // Sort by total time descending, take top 10
+    List<Map.Entry<String, Long>> sorted = new ArrayList<>(projectTotals.entrySet());
+    sorted.sort((a, b) -> Long.compare(b.getValue(), a.getValue()));
+
+    List<ProjectTimelineEntry> entries = new ArrayList<>();
+    int limit = Math.min(10, sorted.size());
+    for (int i = 0; i < limit; i++) {
+      String name = sorted.get(i).getKey();
+      long total = sorted.get(i).getValue();
+      Map<String, Long> daily = perProject.getOrDefault(name, Collections.emptyMap());
+      entries.add(new ProjectTimelineEntry(name, total, daily));
+    }
+
+    return new ProjectTimelineData(buckets, entries, hourly);
   }
 
   private List<TimelineDataPoint> computeHourlyTimeline(

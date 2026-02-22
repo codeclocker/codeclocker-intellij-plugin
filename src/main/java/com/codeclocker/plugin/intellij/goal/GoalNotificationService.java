@@ -5,6 +5,7 @@ import static com.intellij.notification.NotificationType.INFORMATION;
 import com.codeclocker.plugin.intellij.analytics.Analytics;
 import com.codeclocker.plugin.intellij.analytics.AnalyticsEventType;
 import com.intellij.ide.DataManager;
+import com.intellij.notification.NotificationAction;
 import com.intellij.notification.NotificationGroupManager;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
@@ -254,6 +255,10 @@ public final class GoalNotificationService {
                             + ".",
                         INFORMATION)
                     .addAction(new SetNewGoalAction())
+                    .addAction(
+                        NotificationAction.createSimpleExpiring(
+                            "Disable Notifications",
+                            () -> GoalPersistence.setNotificationsEnabled(false)))
                     .notify(getCurrentProject()));
   }
 
@@ -270,6 +275,10 @@ public final class GoalNotificationService {
                             + ".",
                         INFORMATION)
                     .addAction(new SetNewGoalAction())
+                    .addAction(
+                        NotificationAction.createSimpleExpiring(
+                            "Disable Notifications",
+                            () -> GoalPersistence.setNotificationsEnabled(false)))
                     .notify(getCurrentProject()));
   }
 
@@ -288,6 +297,12 @@ public final class GoalNotificationService {
                             + ".",
                         INFORMATION)
                     .addAction(new SetProjectGoalAction(projectName))
+                    .addAction(
+                        NotificationAction.createSimpleExpiring(
+                            "Disable Notifications",
+                            () ->
+                                ProjectGoalPersistence.setProjectNotificationsEnabled(
+                                    projectName, false)))
                     .notify(getCurrentProject()));
   }
 
@@ -306,6 +321,12 @@ public final class GoalNotificationService {
                             + ".",
                         INFORMATION)
                     .addAction(new SetProjectGoalAction(projectName))
+                    .addAction(
+                        NotificationAction.createSimpleExpiring(
+                            "Disable Notifications",
+                            () ->
+                                ProjectGoalPersistence.setProjectNotificationsEnabled(
+                                    projectName, false)))
                     .notify(getCurrentProject()));
   }
 
