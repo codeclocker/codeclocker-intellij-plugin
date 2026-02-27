@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-02-27
+
 ### Added
 
 - **Dashboard Hub Banner** - Non-intrusive top banner in the Dashboard encouraging users to connect to CodeClocker Hub:
@@ -223,7 +225,8 @@
 
 - Support IntelliJ Platform 2024.3.5
 
-[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.10.0...HEAD
+[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.11.0...HEAD
+[1.11.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.7.0...v1.8.0
