@@ -1,5 +1,11 @@
 package com.codeclocker.plugin.intellij.dashboard;
 
+import static com.codeclocker.plugin.intellij.HubHost.HUB_UI_HOST;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
+import com.codeclocker.plugin.intellij.apikey.ApiKeyLifecycle;
+import com.codeclocker.plugin.intellij.apikey.ApiKeyPersistence;
+import com.codeclocker.plugin.intellij.apikey.EnterApiKeyAction;
 import com.codeclocker.plugin.intellij.dashboard.DashboardDataService.DashboardData;
 import com.codeclocker.plugin.intellij.dashboard.DashboardDataService.ProjectBreakdownEntry;
 import com.codeclocker.plugin.intellij.dashboard.DashboardDataService.ProjectTimelineData;
@@ -13,6 +19,7 @@ import com.codeclocker.plugin.intellij.dashboard.ui.ProjectTimelineGanttPanel;
 import com.codeclocker.plugin.intellij.dashboard.ui.StreakCardPanel;
 import com.codeclocker.plugin.intellij.dashboard.ui.TimePeriodSelectorPanel;
 import com.intellij.icons.AllIcons;
+import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -20,14 +27,17 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.util.ui.JBUI;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.util.List;
 import javax.swing.BoxLayout;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
@@ -51,9 +61,17 @@ public class DashboardPanel extends JPanel implements Disposable {
   private final ActivityTimelinePanel activityTimeline;
   private final ProjectTimelineGanttPanel projectTimelinePanel;
   private final AllProjectsPanel allProjectsPanel;
+  private final JPanel infoBanner;
+  private final JLabel bannerMessageLabel;
+  private final HyperlinkLabel bannerLink;
 
   public DashboardPanel() {
     setLayout(new BorderLayout());
+
+    // Hub connection banner
+    this.bannerMessageLabel = new JLabel();
+    this.bannerLink = new HyperlinkLabel();
+    this.infoBanner = createInfoBanner();
 
     // Header: period selector + refresh button
     JPanel headerPanel = new JPanel(new BorderLayout());
@@ -73,7 +91,11 @@ public class DashboardPanel extends JPanel implements Disposable {
     toolbar.setTargetComponent(this);
     headerPanel.add(toolbar.getComponent(), BorderLayout.EAST);
 
-    add(headerPanel, BorderLayout.NORTH);
+    JPanel topPanel = new JPanel();
+    topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
+    topPanel.add(infoBanner);
+    topPanel.add(headerPanel);
+    add(topPanel, BorderLayout.NORTH);
 
     // Scrollable content
     JPanel contentPanel = new JPanel();
@@ -162,6 +184,8 @@ public class DashboardPanel extends JPanel implements Disposable {
     linesAddedCard.setLoading(true);
     linesRemovedCard.setLoading(true);
 
+    updateInfoBanner();
+
     ApplicationManager.getApplication()
         .executeOnPooledThread(
             () -> {
@@ -237,6 +261,65 @@ public class DashboardPanel extends JPanel implements Disposable {
       return String.format("%.1fk", value / 1_000.0);
     }
     return String.valueOf(value);
+  }
+
+  private JPanel createInfoBanner() {
+    JPanel banner = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+    banner.setBackground(new JBColor(new Color(255, 248, 225), new Color(62, 53, 32)));
+    banner.setBorder(
+        JBUI.Borders.customLine(
+            new JBColor(new Color(255, 183, 77), new Color(139, 105, 20)), 0, 0, 1, 0));
+
+    JLabel infoIcon = new JLabel(AllIcons.General.Information);
+    banner.add(infoIcon);
+    banner.add(bannerMessageLabel);
+    banner.add(bannerLink);
+
+    bannerLink.addHyperlinkListener(
+        e -> {
+          if (javax.swing.event.HyperlinkEvent.EventType.ACTIVATED.equals(e.getEventType())) {
+            boolean hasApiKey = isNotBlank(ApiKeyPersistence.getApiKey());
+            boolean subscriptionExpired = ApiKeyLifecycle.isActivityDataStoppedBeingCollected();
+
+            if (hasApiKey && subscriptionExpired) {
+              BrowserUtil.browse(HUB_UI_HOST + "/payment");
+            } else {
+              EnterApiKeyAction.showAction();
+            }
+          }
+        });
+
+    banner.setVisible(false);
+    return banner;
+  }
+
+  private void updateInfoBanner() {
+    ApplicationManager.getApplication()
+        .invokeLater(
+            () -> {
+              try {
+                boolean hasApiKey = isNotBlank(ApiKeyPersistence.getApiKey());
+                boolean subscriptionExpired = ApiKeyLifecycle.isActivityDataStoppedBeingCollected();
+
+                if (hasApiKey && !subscriptionExpired) {
+                  infoBanner.setVisible(false);
+                  return;
+                }
+
+                if (hasApiKey) {
+                  bannerMessageLabel.setText(
+                      "Your subscription has expired. New activity data is no longer being synced.");
+                  bannerLink.setHyperlinkText("Renew subscription to keep your data safe");
+                } else {
+                  bannerMessageLabel.setText("Your coding data is stored locally.");
+                  bannerLink.setHyperlinkText("Connect to Hub to save your data forever");
+                }
+
+                infoBanner.setVisible(true);
+              } catch (Exception e) {
+                infoBanner.setVisible(false);
+              }
+            });
   }
 
   @Override

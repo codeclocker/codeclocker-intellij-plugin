@@ -4,6 +4,18 @@
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-02-27
+
+### Added
+
+- **Dashboard Hub Banner** - Non-intrusive top banner in the Dashboard encouraging users to connect to CodeClocker Hub:
+  - Shown when no API key is configured
+  - Shown when subscription has expired, encouraging renewal to keep syncing data
+  - Hidden when user has an active Hub subscription
+  - Clickable links to connect or renew directly from the banner
+
+## [1.10.0] - 2026-02-22
+
 ### Added
 
 - **Project Timeline Heatmap** - Gantt-style heatmap in the Dashboard showing when each project was worked on over time:
@@ -213,7 +225,9 @@
 
 - Support IntelliJ Platform 2024.3.5
 
-[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.9.0...HEAD
+[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.11.0...HEAD
+[1.11.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.10.0...v1.11.0
+[1.10.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.6.0...v1.7.0

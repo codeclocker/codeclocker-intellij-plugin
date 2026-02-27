@@ -75,3 +75,8 @@ CodeClocker is an IntelliJ IDEA plugin that tracks coding time and activity. It 
 ## Code Style
 
 - Only add comments for complex logic; avoid commenting obvious code
+
+## Release Process
+
+1. Update `pluginVersion` in `gradle.properties`
+2. Add release note in `CHANGELOG.md`
