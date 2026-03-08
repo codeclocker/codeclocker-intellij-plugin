@@ -9,7 +9,6 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 
 /**
@@ -21,11 +20,13 @@ public class AnalyticsReportingTask implements Disposable {
   private static final Logger LOG = Logger.getInstance(AnalyticsReportingTask.class);
 
   private static final int FLUSH_INTERVAL_MINUTES = 5;
+  private static final int PLUGIN_ACTIVE_INTERVAL_MINUTES = 23 * 60;
 
   private final AnalyticsQueue analyticsQueue;
   private final AnalyticsHttpClient analyticsHttpClient;
 
   private ScheduledFuture<?> task;
+  private ScheduledFuture<?> pluginActiveTask;
   private IdeContext cachedIdeContext;
 
   public AnalyticsReportingTask() {
@@ -40,8 +41,14 @@ public class AnalyticsReportingTask implements Disposable {
       return;
     }
 
-    // Track plugin started event
-    track(AnalyticsEventType.PLUGIN_STARTED);
+    // Track plugin active event immediately and every 23 hours
+    trackPluginActive();
+    pluginActiveTask =
+        EXECUTOR.scheduleWithFixedDelay(
+            this::trackPluginActive,
+            PLUGIN_ACTIVE_INTERVAL_MINUTES,
+            PLUGIN_ACTIVE_INTERVAL_MINUTES,
+            MINUTES);
 
     task =
         EXECUTOR.scheduleWithFixedDelay(
@@ -59,14 +66,8 @@ public class AnalyticsReportingTask implements Disposable {
     analyticsQueue.track(eventType);
   }
 
-  /**
-   * Tracks an analytics event with properties.
-   *
-   * @param eventType The type of event to track
-   * @param properties Additional event properties
-   */
-  public void track(String eventType, Map<String, Object> properties) {
-    analyticsQueue.track(eventType, properties);
+  private void trackPluginActive() {
+    track(AnalyticsEventType.PLUGIN_ACTIVE);
   }
 
   /** Flushes queued analytics events to the backend. */
@@ -111,9 +112,6 @@ public class AnalyticsReportingTask implements Disposable {
   public void dispose() {
     LOG.info("Disposing AnalyticsReportingTask - flushing remaining events");
 
-    // Track plugin stopped event
-    track(AnalyticsEventType.PLUGIN_STOPPED);
-
     try {
       // Perform final flush
       flushAnalytics();
@@ -122,6 +120,9 @@ public class AnalyticsReportingTask implements Disposable {
       LOG.warn("Error during final analytics flush", e);
     }
 
+    if (pluginActiveTask != null) {
+      pluginActiveTask.cancel(false);
+    }
     if (task != null) {
       task.cancel(false);
     }

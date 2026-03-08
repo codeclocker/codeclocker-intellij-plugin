@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **Simplified Analytics** - Replaced granular per-action event tracking with a single periodic `plugin_active` heartbeat every 23 hours
+
+### Removed
+
+- Per-action analytics event types (widget clicks, popup actions, onboarding steps, goal events)
+
 ## [1.11.0] - 2026-02-27
 
 ### Added
