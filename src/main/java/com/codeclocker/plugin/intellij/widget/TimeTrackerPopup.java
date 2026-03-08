@@ -5,8 +5,6 @@ import static com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracke
 import static com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker.GLOBAL_REMOVALS;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import com.codeclocker.plugin.intellij.analytics.Analytics;
-import com.codeclocker.plugin.intellij.analytics.AnalyticsEventType;
 import com.codeclocker.plugin.intellij.apikey.ApiKeyLifecycle;
 import com.codeclocker.plugin.intellij.apikey.ApiKeyPersistence;
 import com.codeclocker.plugin.intellij.apikey.EnterApiKeyAction;
@@ -120,28 +118,20 @@ public class TimeTrackerPopup {
           @Override
           public PopupStep<?> onChosen(String selectedValue, boolean finalChoice) {
             if (WEB_DASHBOARD.equals(selectedValue)) {
-              Analytics.track(AnalyticsEventType.POPUP_WEB_DASHBOARD_CLICK);
               BrowserUtil.browse(HUB_UI_HOST);
             } else if (SAVE_HISTORY.equals(selectedValue)) {
-              Analytics.track(AnalyticsEventType.POPUP_SAVE_HISTORY_CLICK);
               EnterApiKeyAction.showAction();
             } else if (RENEW_SUBSCRIPTION.equals(selectedValue)) {
-              Analytics.track(AnalyticsEventType.POPUP_RENEW_SUBSCRIPTION_CLICK);
               BrowserUtil.browse(HUB_UI_HOST + "/payment");
             } else if (SET_GOALS.equals(selectedValue)) {
-              Analytics.track(AnalyticsEventType.POPUP_SET_GOALS_CLICK);
               GoalSettingsDialog.showDialog();
             } else if (SET_PROJECT_GOALS.equals(selectedValue)) {
-              Analytics.track(AnalyticsEventType.POPUP_SET_PROJECT_GOALS_CLICK);
               ProjectGoalSettingsDialog.showDialog(project);
             } else if (AUTO_PAUSE.equals(selectedValue)) {
-              Analytics.track(AnalyticsEventType.POPUP_AUTO_PAUSE_CLICK);
               TrackingSettingsDialog.showDialog();
             } else if (DASHBOARD.equals(selectedValue)) {
-              Analytics.track(AnalyticsEventType.POPUP_DASHBOARD_CLICK);
               openToolWindowTab(project, "Dashboard");
             } else if (ACTIVITY_REPORT.equals(selectedValue)) {
-              Analytics.track(AnalyticsEventType.POPUP_ACTIVITY_REPORT_CLICK);
               openToolWindowTab(project, "Activity");
             }
             return FINAL_CHOICE;

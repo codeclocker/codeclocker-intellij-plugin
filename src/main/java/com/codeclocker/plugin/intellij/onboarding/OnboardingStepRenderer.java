@@ -2,8 +2,6 @@ package com.codeclocker.plugin.intellij.onboarding;
 
 import static com.intellij.notification.NotificationType.INFORMATION;
 
-import com.codeclocker.plugin.intellij.analytics.Analytics;
-import com.codeclocker.plugin.intellij.analytics.AnalyticsEventType;
 import com.codeclocker.plugin.intellij.apikey.EnterApiKeyAction;
 import com.codeclocker.plugin.intellij.goal.GoalSettingsDialog;
 import com.intellij.notification.Notification;
@@ -40,19 +38,9 @@ public final class OnboardingStepRenderer {
                 INFORMATION);
 
     notification.addAction(
-        NotificationAction.createSimpleExpiring(
-            "Start tour",
-            () -> {
-              Analytics.track(AnalyticsEventType.TOUR_WELCOME_START);
-              service.nextStep();
-            }));
+        NotificationAction.createSimpleExpiring("Start tour", service::nextStep));
     notification.addAction(
-        NotificationAction.createSimpleExpiring(
-            "Skip tour",
-            () -> {
-              Analytics.track(AnalyticsEventType.TOUR_WELCOME_SKIP);
-              service.skipOnboarding();
-            }));
+        NotificationAction.createSimpleExpiring("Skip tour", service::skipOnboarding));
 
     notification.notify(project);
   }
@@ -78,19 +66,9 @@ public final class OnboardingStepRenderer {
                 INFORMATION);
 
     notification.addAction(
-        NotificationAction.createSimpleExpiring(
-            "Got it, Next",
-            () -> {
-              Analytics.track(AnalyticsEventType.TOUR_STATUS_BAR_NEXT);
-              service.nextStep();
-            }));
+        NotificationAction.createSimpleExpiring("Got it, Next", service::nextStep));
     notification.addAction(
-        NotificationAction.createSimpleExpiring(
-            "Skip tour",
-            () -> {
-              Analytics.track(AnalyticsEventType.TOUR_STATUS_BAR_SKIP);
-              service.skipOnboarding();
-            }));
+        NotificationAction.createSimpleExpiring("Skip tour", service::skipOnboarding));
 
     notification.notify(project);
   }
@@ -110,19 +88,9 @@ public final class OnboardingStepRenderer {
                 INFORMATION);
 
     notification.addAction(
-        NotificationAction.createSimpleExpiring(
-            "Got it, Next",
-            () -> {
-              Analytics.track(AnalyticsEventType.TOUR_ACTIVITY_POPUP_NEXT);
-              service.nextStep();
-            }));
+        NotificationAction.createSimpleExpiring("Got it, Next", service::nextStep));
     notification.addAction(
-        NotificationAction.createSimpleExpiring(
-            "Skip tour",
-            () -> {
-              Analytics.track(AnalyticsEventType.TOUR_ACTIVITY_POPUP_SKIP);
-              service.skipOnboarding();
-            }));
+        NotificationAction.createSimpleExpiring("Skip tour", service::skipOnboarding));
 
     notification.notify(project);
   }
@@ -142,7 +110,6 @@ public final class OnboardingStepRenderer {
         NotificationAction.createSimpleExpiring(
             "Set goals now",
             () -> {
-              Analytics.track(AnalyticsEventType.TOUR_GOALS_SET);
               ApplicationManager.getApplication()
                   .invokeLater(
                       () -> {
@@ -151,19 +118,9 @@ public final class OnboardingStepRenderer {
                       });
             }));
     notification.addAction(
-        NotificationAction.createSimpleExpiring(
-            "Maybe later",
-            () -> {
-              Analytics.track(AnalyticsEventType.TOUR_GOALS_LATER);
-              service.nextStep();
-            }));
+        NotificationAction.createSimpleExpiring("Maybe later", service::nextStep));
     notification.addAction(
-        NotificationAction.createSimpleExpiring(
-            "Skip tour",
-            () -> {
-              Analytics.track(AnalyticsEventType.TOUR_GOALS_SKIP);
-              service.skipOnboarding();
-            }));
+        NotificationAction.createSimpleExpiring("Skip tour", service::skipOnboarding));
 
     notification.notify(project);
   }
@@ -186,7 +143,6 @@ public final class OnboardingStepRenderer {
         NotificationAction.createSimpleExpiring(
             "Connect to Hub",
             () -> {
-              Analytics.track(AnalyticsEventType.TOUR_HUB_CONNECT);
               ApplicationManager.getApplication()
                   .invokeLater(
                       () -> {
@@ -195,12 +151,7 @@ public final class OnboardingStepRenderer {
                       });
             }));
     notification.addAction(
-        NotificationAction.createSimpleExpiring(
-            "Skip, finish tour",
-            () -> {
-              Analytics.track(AnalyticsEventType.TOUR_HUB_SKIP);
-              service.completeOnboarding();
-            }));
+        NotificationAction.createSimpleExpiring("Skip, finish tour", service::completeOnboarding));
 
     notification.notify(project);
   }

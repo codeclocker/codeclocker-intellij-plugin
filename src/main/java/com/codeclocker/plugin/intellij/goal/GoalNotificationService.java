@@ -2,8 +2,6 @@ package com.codeclocker.plugin.intellij.goal;
 
 import static com.intellij.notification.NotificationType.INFORMATION;
 
-import com.codeclocker.plugin.intellij.analytics.Analytics;
-import com.codeclocker.plugin.intellij.analytics.AnalyticsEventType;
 import com.intellij.ide.DataManager;
 import com.intellij.notification.NotificationAction;
 import com.intellij.notification.NotificationGroupManager;
@@ -339,7 +337,6 @@ public final class GoalNotificationService {
     public void actionPerformed(
         com.intellij.openapi.actionSystem.AnActionEvent e,
         com.intellij.notification.Notification notification) {
-      Analytics.track(AnalyticsEventType.SET_NEW_GOAL);
       notification.expire();
       GoalSettingsDialog.showDialog();
     }
@@ -357,7 +354,6 @@ public final class GoalNotificationService {
     public void actionPerformed(
         com.intellij.openapi.actionSystem.AnActionEvent e,
         com.intellij.notification.Notification notification) {
-      Analytics.track(AnalyticsEventType.SET_NEW_GOAL);
       notification.expire();
       Project project = e.getProject();
       if (project != null) {

@@ -164,7 +164,7 @@ intellijPlatformTesting {
 
 spotless {
     java {
-        googleJavaFormat()
+        googleJavaFormat("1.25.2")
         importOrder()
         removeUnusedImports()
         targetExclude("build/**/*.java")
