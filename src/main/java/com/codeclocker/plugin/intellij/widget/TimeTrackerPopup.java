@@ -14,6 +14,10 @@ import com.codeclocker.plugin.intellij.goal.GoalSettingsDialog;
 import com.codeclocker.plugin.intellij.goal.ProjectGoalPersistence;
 import com.codeclocker.plugin.intellij.goal.ProjectGoalSettingsDialog;
 import com.codeclocker.plugin.intellij.local.LocalActivityDataProvider;
+import com.codeclocker.plugin.intellij.pomodoro.PomodoroPersistence;
+import com.codeclocker.plugin.intellij.pomodoro.PomodoroSettingsDialog;
+import com.codeclocker.plugin.intellij.pomodoro.PomodoroState;
+import com.codeclocker.plugin.intellij.pomodoro.PomodoroTimerService;
 import com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker;
 import com.codeclocker.plugin.intellij.services.vcs.ProjectChangesCounters;
 import com.codeclocker.plugin.intellij.tracking.TrackingSettingsDialog;
@@ -43,6 +47,10 @@ public class TimeTrackerPopup {
   private static final String AUTO_PAUSE = "Auto-Pause...";
   private static final String DASHBOARD = "Dashboard...";
   private static final String ACTIVITY_REPORT = "Branch Activity...";
+  private static final String POMODORO_START = "Start Pomodoro";
+  private static final String POMODORO_STOP = "Stop Pomodoro";
+  private static final String POMODORO_SKIP_BREAK = "Skip Break";
+  private static final String POMODORO_SETTINGS = "Pomodoro Settings...";
 
   public static ListPopup create(Project project, String totalTime, String projectTime) {
     ChangesActivityTracker tracker =
@@ -85,10 +93,33 @@ public class TimeTrackerPopup {
     items.add(formatTodayVsYesterday(dataProvider));
     items.add(formatThisWeekVsLastWeek(dataProvider));
 
+    // Pomodoro section
+    PomodoroTimerService pomodoroSvc =
+        ApplicationManager.getApplication().getService(PomodoroTimerService.class);
+    PomodoroState pomodoroState = pomodoroSvc != null ? pomodoroSvc.getState() : PomodoroState.IDLE;
+
+    if (pomodoroState == PomodoroState.IDLE) {
+      items.add(POMODORO_START);
+    } else if (pomodoroState == PomodoroState.WORKING) {
+      items.add(
+          String.format(
+              "Pomodoro: %s / %dm (cycle %d/%d)",
+              pomodoroSvc.getFormattedWorkRemaining(),
+              PomodoroPersistence.getWorkMinutes(),
+              pomodoroSvc.getCompletedCycles() + 1,
+              PomodoroPersistence.getCyclesBeforeLongBreak()));
+      items.add(POMODORO_STOP);
+    } else if (pomodoroState == PomodoroState.BREAK) {
+      items.add("Break: " + pomodoroSvc.getFormattedBreakRemaining() + " left");
+      items.add(POMODORO_SKIP_BREAK);
+      items.add(POMODORO_STOP);
+    }
+
     // Add settings actions
     items.add(SET_GOALS);
     items.add(SET_PROJECT_GOALS);
     items.add(AUTO_PAUSE);
+    items.add(POMODORO_SETTINGS);
     items.add(DASHBOARD);
     items.add(ACTIVITY_REPORT);
 
@@ -111,8 +142,12 @@ public class TimeTrackerPopup {
                 || SET_GOALS.equals(value)
                 || SET_PROJECT_GOALS.equals(value)
                 || AUTO_PAUSE.equals(value)
+                || POMODORO_SETTINGS.equals(value)
                 || DASHBOARD.equals(value)
-                || ACTIVITY_REPORT.equals(value);
+                || ACTIVITY_REPORT.equals(value)
+                || POMODORO_START.equals(value)
+                || POMODORO_STOP.equals(value)
+                || POMODORO_SKIP_BREAK.equals(value);
           }
 
           @Override
@@ -133,6 +168,26 @@ public class TimeTrackerPopup {
               openToolWindowTab(project, "Dashboard");
             } else if (ACTIVITY_REPORT.equals(selectedValue)) {
               openToolWindowTab(project, "Activity");
+            } else if (POMODORO_START.equals(selectedValue)) {
+              PomodoroTimerService svc =
+                  ApplicationManager.getApplication().getService(PomodoroTimerService.class);
+              if (svc != null) {
+                svc.start();
+              }
+            } else if (POMODORO_STOP.equals(selectedValue)) {
+              PomodoroTimerService svc =
+                  ApplicationManager.getApplication().getService(PomodoroTimerService.class);
+              if (svc != null) {
+                svc.stop();
+              }
+            } else if (POMODORO_SKIP_BREAK.equals(selectedValue)) {
+              PomodoroTimerService svc =
+                  ApplicationManager.getApplication().getService(PomodoroTimerService.class);
+              if (svc != null) {
+                svc.skipBreak();
+              }
+            } else if (POMODORO_SETTINGS.equals(selectedValue)) {
+              PomodoroSettingsDialog.showDialog();
             }
             return FINAL_CHOICE;
           }
@@ -148,6 +203,12 @@ public class TimeTrackerPopup {
                 || SAVE_HISTORY.equals(value)
                 || RENEW_SUBSCRIPTION.equals(value)) {
               return new ListSeparator();
+            }
+
+            if (POMODORO_START.equals(value)
+                || (value.startsWith("Pomodoro: ") && value.contains("cycle"))
+                || (value.startsWith("Break: ") && value.contains("left"))) {
+              return new ListSeparator("Pomodoro");
             }
 
             if (SET_GOALS.equals(value)) {

@@ -2,6 +2,8 @@ package com.codeclocker.plugin.intellij.widget;
 
 import com.codeclocker.plugin.intellij.goal.GoalPersistence;
 import com.codeclocker.plugin.intellij.goal.GoalService;
+import com.codeclocker.plugin.intellij.pomodoro.PomodoroState;
+import com.codeclocker.plugin.intellij.pomodoro.PomodoroTimerService;
 import com.codeclocker.plugin.intellij.services.TimeTrackerWidgetService;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -72,13 +74,34 @@ public class TimeTrackerWidget
     String totalTime = service.getFormattedTotalTime();
     String projectTime = service.getFormattedProjectTime();
 
+    String base;
     if (GoalPersistence.isGoalsEnabled()) {
       GoalService goalService = ApplicationManager.getApplication().getService(GoalService.class);
       String goalPercentage =
           goalService != null ? goalService.getDailyProgress().formatPercentage() : "0%";
-      return "Total: " + totalTime + " (" + goalPercentage + ") | Project: " + projectTime + " ↗";
+      base = "Total: " + totalTime + " (" + goalPercentage + ") | Project: " + projectTime;
+    } else {
+      base = "Total: " + totalTime + " | Project: " + projectTime;
     }
-    return "Total: " + totalTime + " | Project: " + projectTime + " ↗";
+
+    String pomodoroSuffix = getPomodoroSuffix();
+    return pomodoroSuffix.isEmpty() ? base : base + pomodoroSuffix;
+  }
+
+  private String getPomodoroSuffix() {
+    PomodoroTimerService svc =
+        ApplicationManager.getApplication().getService(PomodoroTimerService.class);
+    if (svc == null) {
+      return "";
+    }
+
+    PomodoroState pomodoroState = svc.getState();
+    if (pomodoroState == PomodoroState.WORKING) {
+      return " | Pomodoro: " + svc.getFormattedWorkRemaining() + " left";
+    } else if (pomodoroState == PomodoroState.BREAK) {
+      return " | Break: " + svc.getFormattedBreakRemaining() + " left";
+    }
+    return "";
   }
 
   @Override
@@ -91,13 +114,30 @@ public class TimeTrackerWidget
     String totalTime = service.getFormattedTotalTime();
     String projectTime = service.getFormattedProjectTime();
 
-    return "Total today: "
-        + totalTime
-        + ". Time on "
-        + project.getName()
-        + ": "
-        + projectTime
-        + ". Click to see more info.";
+    String tooltip =
+        "Total today: " + totalTime + ". Time on " + project.getName() + ": " + projectTime + ".";
+
+    PomodoroTimerService svc =
+        ApplicationManager.getApplication().getService(PomodoroTimerService.class);
+    if (svc != null) {
+      PomodoroState pomodoroState = svc.getState();
+      if (pomodoroState == PomodoroState.WORKING) {
+        tooltip +=
+            " Pomodoro: "
+                + svc.getFormattedWorkRemaining()
+                + " left (cycle "
+                + (svc.getCompletedCycles() + 1)
+                + "/"
+                + com.codeclocker.plugin.intellij.pomodoro.PomodoroPersistence
+                    .getCyclesBeforeLongBreak()
+                + ").";
+      } else if (pomodoroState == PomodoroState.BREAK) {
+        tooltip += " Break: " + svc.getFormattedBreakRemaining() + " left.";
+      }
+    }
+
+    tooltip += " Click to see more info.";
+    return tooltip;
   }
 
   @Nullable

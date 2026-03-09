@@ -6,6 +6,8 @@ import static java.awt.AWTEvent.FOCUS_EVENT_MASK;
 import com.codeclocker.plugin.intellij.analytics.AnalyticsReportingTask;
 import com.codeclocker.plugin.intellij.apikey.ApiKeyPromptStartupActivity;
 import com.codeclocker.plugin.intellij.listeners.FocusListener;
+import com.codeclocker.plugin.intellij.pomodoro.PomodoroPersistence;
+import com.codeclocker.plugin.intellij.pomodoro.PomodoroTimerService;
 import com.codeclocker.plugin.intellij.reporting.DataReportingTask;
 import com.codeclocker.plugin.intellij.services.BranchActivityTracker;
 import com.codeclocker.plugin.intellij.subscription.SubscriptionStateCheckerTask;
@@ -39,6 +41,7 @@ public class ListenerRegistrator implements ProjectActivity {
           startAnalyticsReportingTask();
           ApiKeyPromptStartupActivity.showApiKeyDialog();
           initializeTimerWidgets();
+          resumePomodoroIfWasActive();
 
           return true;
         });
@@ -71,5 +74,17 @@ public class ListenerRegistrator implements ProjectActivity {
 
   private static void startAnalyticsReportingTask() {
     ApplicationManager.getApplication().getService(AnalyticsReportingTask.class).schedule();
+  }
+
+  private static void resumePomodoroIfWasActive() {
+    if (!PomodoroPersistence.isEnabled() || !PomodoroPersistence.wasActiveOnShutdown()) {
+      return;
+    }
+    PomodoroPersistence.setWasActiveOnShutdown(false);
+    PomodoroTimerService svc =
+        ApplicationManager.getApplication().getService(PomodoroTimerService.class);
+    if (svc != null) {
+      svc.start();
+    }
   }
 }
