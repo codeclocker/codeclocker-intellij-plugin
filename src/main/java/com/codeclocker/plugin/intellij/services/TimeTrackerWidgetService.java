@@ -4,6 +4,7 @@ import static com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracke
 import static com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker.GLOBAL_REMOVALS;
 
 import com.codeclocker.plugin.intellij.goal.GoalNotificationService;
+import com.codeclocker.plugin.intellij.pomodoro.PomodoroTimerService;
 import com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker;
 import com.codeclocker.plugin.intellij.widget.TimeTrackerWidget;
 import com.intellij.openapi.Disposable;
@@ -100,6 +101,7 @@ public class TimeTrackerWidgetService implements Disposable {
   private void tick() {
     checkMidnightReset();
     checkGoalNotifications();
+    checkPomodoroTimer();
     repaintWidget();
   }
 
@@ -109,6 +111,14 @@ public class TimeTrackerWidgetService implements Disposable {
     if (notificationService != null) {
       notificationService.checkAndNotify();
       notificationService.checkAndNotifyForProject(project.getName());
+    }
+  }
+
+  private void checkPomodoroTimer() {
+    PomodoroTimerService svc =
+        ApplicationManager.getApplication().getService(PomodoroTimerService.class);
+    if (svc != null) {
+      svc.tick();
     }
   }
 
@@ -125,6 +135,13 @@ public class TimeTrackerWidgetService implements Disposable {
           ApplicationManager.getApplication().getService(ChangesActivityTracker.class);
       if (changesTracker != null) {
         changesTracker.clearAllProjectChanges();
+      }
+
+      // Reset Pomodoro activity baseline since getGlobalAccumulatedToday() resets at midnight
+      PomodoroTimerService pomodoroSvc =
+          ApplicationManager.getApplication().getService(PomodoroTimerService.class);
+      if (pomodoroSvc != null) {
+        pomodoroSvc.resetActivityBaseline();
       }
 
       // Trigger the logger to reset (it checks internally)

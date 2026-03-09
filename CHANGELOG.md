@@ -4,6 +4,18 @@
 
 ## [Unreleased]
 
+## [1.13.0] - 2026-03-09
+
+### Added
+
+- **Pomodoro Timer** - Built-in Pomodoro technique timer integrated into the status bar:
+  - Configurable work intervals, short breaks, and long breaks
+  - Automatic cycle tracking with long break after configurable number of cycles
+  - Break notifications with option to auto-start break timer
+  - Start, stop, and skip break controls from the status bar popup
+  - Settings dialog for customizing all Pomodoro parameters
+  - Real-time countdown display in status bar widget
+
 ## [1.12.0] - 2026-03-08
 
 ### Changed
@@ -235,7 +247,8 @@
 
 - Support IntelliJ Platform 2024.3.5
 
-[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.12.0...HEAD
+[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.13.0...HEAD
+[1.13.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.9.0...v1.10.0
