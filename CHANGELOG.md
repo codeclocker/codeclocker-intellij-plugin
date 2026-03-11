@@ -4,6 +4,18 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Top Projects & Top Branches Bar Charts** - New horizontal bar chart panels in the Dashboard displayed side-by-side:
+  - Top Projects chart showing where you've spent the most time
+  - Top Branches chart showing most active branches by time spent
+  - Color-coded bars with time axis labels
+  - Responsive layout that adapts to panel width
+
+### Fixed
+
+- Pomodoro skip break now works correctly from idle state
+
 ## [1.13.0] - 2026-03-09
 
 ### Added

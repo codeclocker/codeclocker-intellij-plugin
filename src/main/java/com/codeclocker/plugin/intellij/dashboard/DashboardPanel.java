@@ -6,6 +6,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import com.codeclocker.plugin.intellij.apikey.ApiKeyLifecycle;
 import com.codeclocker.plugin.intellij.apikey.ApiKeyPersistence;
 import com.codeclocker.plugin.intellij.apikey.EnterApiKeyAction;
+import com.codeclocker.plugin.intellij.dashboard.DashboardDataService.BranchBreakdownEntry;
 import com.codeclocker.plugin.intellij.dashboard.DashboardDataService.DashboardData;
 import com.codeclocker.plugin.intellij.dashboard.DashboardDataService.ProjectBreakdownEntry;
 import com.codeclocker.plugin.intellij.dashboard.DashboardDataService.ProjectTimelineData;
@@ -13,6 +14,7 @@ import com.codeclocker.plugin.intellij.dashboard.DashboardDataService.TimePeriod
 import com.codeclocker.plugin.intellij.dashboard.DashboardDataService.TimelineDataPoint;
 import com.codeclocker.plugin.intellij.dashboard.ui.ActivityTimelinePanel;
 import com.codeclocker.plugin.intellij.dashboard.ui.AllProjectsPanel;
+import com.codeclocker.plugin.intellij.dashboard.ui.HorizontalBarChartPanel;
 import com.codeclocker.plugin.intellij.dashboard.ui.JourneyBarPanel;
 import com.codeclocker.plugin.intellij.dashboard.ui.MetricCardPanel;
 import com.codeclocker.plugin.intellij.dashboard.ui.ProjectTimelineGanttPanel;
@@ -61,6 +63,8 @@ public class DashboardPanel extends JPanel implements Disposable {
   private final ActivityTimelinePanel activityTimeline;
   private final ProjectTimelineGanttPanel projectTimelinePanel;
   private final AllProjectsPanel allProjectsPanel;
+  private final HorizontalBarChartPanel topProjectsBar;
+  private final HorizontalBarChartPanel topBranchesBar;
   private final JPanel infoBanner;
   private final JLabel bannerMessageLabel;
   private final HyperlinkLabel bannerLink;
@@ -143,6 +147,29 @@ public class DashboardPanel extends JPanel implements Disposable {
     contentPanel.add(projectTimelinePanel);
     contentPanel.add(javax.swing.Box.createVerticalStrut(JBUI.scale(8)));
 
+    // Top Projects + Top Branches side-by-side
+    topProjectsBar =
+        new HorizontalBarChartPanel("Top Projects", "Where you've spent the most time", 5);
+    topBranchesBar =
+        new HorizontalBarChartPanel("Top Branches", "Most active branches by time spent", 7);
+    JPanel barChartsRow = new JPanel(new java.awt.GridBagLayout());
+    barChartsRow.setOpaque(false);
+    java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
+    gbc.fill = java.awt.GridBagConstraints.BOTH;
+    gbc.weighty = 1.0;
+    gbc.gridy = 0;
+    gbc.gridx = 0;
+    gbc.weightx = 1.0;
+    gbc.insets = new java.awt.Insets(0, 0, 0, JBUI.scale(4));
+    barChartsRow.add(topProjectsBar, gbc);
+    gbc.gridx = 1;
+    gbc.insets = new java.awt.Insets(0, JBUI.scale(4), 0, 0);
+    barChartsRow.add(topBranchesBar, gbc);
+    barChartsRow.setMaximumSize(
+        new java.awt.Dimension(Integer.MAX_VALUE, barChartsRow.getPreferredSize().height));
+    contentPanel.add(barChartsRow);
+    contentPanel.add(javax.swing.Box.createVerticalStrut(JBUI.scale(8)));
+
     // All Projects breakdown table
     allProjectsPanel = new AllProjectsPanel();
     allProjectsPanel.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
@@ -199,6 +226,7 @@ public class DashboardPanel extends JPanel implements Disposable {
               DashboardData data = service.computeForPeriod(period);
               List<TimelineDataPoint> timelineData = service.computeTimelineData(period);
               List<ProjectBreakdownEntry> breakdown = service.computeProjectBreakdown(period);
+              List<BranchBreakdownEntry> branchBreakdown = service.computeBranchBreakdown(period);
               ProjectTimelineData timelineGanttData = service.computeProjectTimeline(period);
 
               ApplicationManager.getApplication()
@@ -220,6 +248,20 @@ public class DashboardPanel extends JPanel implements Disposable {
                             data.firstActivityDate());
                         activityTimeline.update(timelineData, period);
                         projectTimelinePanel.update(timelineGanttData);
+                        topProjectsBar.update(
+                            breakdown.stream()
+                                .map(
+                                    e ->
+                                        new HorizontalBarChartPanel.BarEntry(
+                                            e.projectName(), e.timeSpentSeconds()))
+                                .toList());
+                        topBranchesBar.update(
+                            branchBreakdown.stream()
+                                .map(
+                                    e ->
+                                        new HorizontalBarChartPanel.BarEntry(
+                                            e.branchName(), e.timeSpentSeconds()))
+                                .toList());
                         allProjectsPanel.update(breakdown);
                       });
             });
