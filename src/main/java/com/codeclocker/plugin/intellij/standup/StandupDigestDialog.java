@@ -24,8 +24,7 @@ import org.jetbrains.annotations.Nullable;
 public class StandupDigestDialog extends DialogWrapper {
 
   private JTextArea textArea;
-  private StandupPeriod currentPeriod = StandupPeriod.YESTERDAY;
-  private Action copyAction;
+  private StandupPeriod currentPeriod = StandupPeriod.TODAY_AND_YESTERDAY;
 
   public StandupDigestDialog() {
     super(true);
@@ -75,7 +74,7 @@ public class StandupDigestDialog extends DialogWrapper {
 
   @Override
   protected Action @NotNull [] createActions() {
-    copyAction = new CopyToClipboardAction();
+    Action copyAction = new CopyToClipboardAction();
     return new Action[] {copyAction, getOKAction()};
   }
 

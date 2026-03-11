@@ -10,6 +10,7 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -355,11 +356,23 @@ public final class GoalNotificationService {
         com.intellij.openapi.actionSystem.AnActionEvent e,
         com.intellij.notification.Notification notification) {
       notification.expire();
-      Project project = e.getProject();
+      Project project = findProjectByName(projectName);
+      if (project == null) {
+        project = e.getProject();
+      }
       if (project != null) {
         ProjectGoalSettingsDialog.showDialog(project);
       }
     }
+  }
+
+  private static Project findProjectByName(String name) {
+    for (Project p : ProjectManager.getInstance().getOpenProjects()) {
+      if (p.getName().equals(name)) {
+        return p;
+      }
+    }
+    return null;
   }
 
   private String formatGoalTime(long seconds) {

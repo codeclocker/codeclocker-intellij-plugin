@@ -4,6 +4,17 @@
 
 ## [Unreleased]
 
+### Added
+
+- **What I Was Doing (Standup Digest)** - Generate a summary of recent coding activity for standups:
+  - Accessible from the status bar popup via "What I Was Doing..."
+  - Configurable time periods: Yesterday, Today + Yesterday, Last 2-7 Days
+  - Shows total coding time, lines added/removed, active days
+  - Per-project and per-branch time breakdowns
+  - Recent commits grouped by project and branch (up to 50)
+  - Daily breakdown for multi-day periods
+  - One-click copy to clipboard
+
 ## [1.14.0] - 2026-03-11
 
 ### Added
