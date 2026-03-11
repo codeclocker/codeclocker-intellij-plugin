@@ -55,6 +55,8 @@ public final class DashboardDataService {
   public record ProjectTimelineData(
       List<String> buckets, List<ProjectTimelineEntry> entries, boolean hourly) {}
 
+  public record BranchBreakdownEntry(String branchName, long timeSpentSeconds) {}
+
   public record DashboardData(
       long totalTimeSpent,
       long dailyAverage,
@@ -204,6 +206,41 @@ public final class DashboardDataService {
       if (acc[0] > 0 || acc[1] > 0 || acc[2] > 0) {
         result.add(new ProjectBreakdownEntry(entry.getKey(), acc[0], acc[1], acc[2]));
       }
+    }
+    result.sort((a, b) -> Long.compare(b.timeSpentSeconds(), a.timeSpentSeconds()));
+    return result;
+  }
+
+  public List<BranchBreakdownEntry> computeBranchBreakdown(TimePeriod period) {
+    Map<String, Map<String, ProjectActivitySnapshot>> allData = getAllDataWithUnsaved();
+    LocalDate today = LocalDate.now();
+    LocalDate periodStart = getPeriodStart(period, today);
+    LocalDate periodEnd = getPeriodEnd(period, today);
+
+    LocalDateTime cutoff24h =
+        period == TimePeriod.LAST_24_HOURS ? LocalDateTime.now().minusHours(24) : null;
+
+    Map<String, Long> perBranch = new LinkedHashMap<>();
+
+    for (Map.Entry<String, Map<String, ProjectActivitySnapshot>> entry : allData.entrySet()) {
+      String hourKey = entry.getKey();
+      if (!isInPeriod(hourKey, periodStart, periodEnd, cutoff24h)) {
+        continue;
+      }
+      for (ProjectActivitySnapshot snapshot : entry.getValue().values()) {
+        for (var branchRecord : snapshot.getBranchActivity()) {
+          String name = branchRecord.getBranchName();
+          long seconds = branchRecord.getActiveSeconds();
+          if (name != null && !name.isEmpty() && seconds > 0) {
+            perBranch.merge(name, seconds, Long::sum);
+          }
+        }
+      }
+    }
+
+    List<BranchBreakdownEntry> result = new ArrayList<>();
+    for (Map.Entry<String, Long> entry : perBranch.entrySet()) {
+      result.add(new BranchBreakdownEntry(entry.getKey(), entry.getValue()));
     }
     result.sort((a, b) -> Long.compare(b.timeSpentSeconds(), a.timeSpentSeconds()));
     return result;

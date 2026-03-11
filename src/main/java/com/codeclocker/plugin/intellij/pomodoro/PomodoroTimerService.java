@@ -48,7 +48,7 @@ public final class PomodoroTimerService {
   }
 
   public synchronized void skipBreak() {
-    if (state != PomodoroState.BREAK) {
+    if (state != PomodoroState.BREAK && state != PomodoroState.IDLE) {
       return;
     }
     startNextWorkInterval();
