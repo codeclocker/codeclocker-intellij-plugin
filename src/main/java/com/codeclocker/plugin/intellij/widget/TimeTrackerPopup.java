@@ -20,6 +20,7 @@ import com.codeclocker.plugin.intellij.pomodoro.PomodoroState;
 import com.codeclocker.plugin.intellij.pomodoro.PomodoroTimerService;
 import com.codeclocker.plugin.intellij.services.vcs.ChangesActivityTracker;
 import com.codeclocker.plugin.intellij.services.vcs.ProjectChangesCounters;
+import com.codeclocker.plugin.intellij.standup.StandupDigestDialog;
 import com.codeclocker.plugin.intellij.tracking.TrackingSettingsDialog;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.application.ApplicationManager;
@@ -51,6 +52,7 @@ public class TimeTrackerPopup {
   private static final String POMODORO_STOP = "Stop Pomodoro";
   private static final String POMODORO_SKIP_BREAK = "Skip Break";
   private static final String POMODORO_SETTINGS = "Pomodoro Settings...";
+  private static final String STANDUP_DIGEST = "What I Was Doing...";
 
   public static ListPopup create(Project project, String totalTime, String projectTime) {
     ChangesActivityTracker tracker =
@@ -122,6 +124,7 @@ public class TimeTrackerPopup {
     items.add(POMODORO_SETTINGS);
     items.add(DASHBOARD);
     items.add(ACTIVITY_REPORT);
+    items.add(STANDUP_DIGEST);
 
     boolean hasApiKey = isNotBlank(ApiKeyPersistence.getApiKey());
     if (ApiKeyLifecycle.isActivityDataStoppedBeingCollected()) {
@@ -145,6 +148,7 @@ public class TimeTrackerPopup {
                 || POMODORO_SETTINGS.equals(value)
                 || DASHBOARD.equals(value)
                 || ACTIVITY_REPORT.equals(value)
+                || STANDUP_DIGEST.equals(value)
                 || POMODORO_START.equals(value)
                 || POMODORO_STOP.equals(value)
                 || POMODORO_SKIP_BREAK.equals(value);
@@ -168,6 +172,8 @@ public class TimeTrackerPopup {
               openToolWindowTab(project, "Dashboard");
             } else if (ACTIVITY_REPORT.equals(selectedValue)) {
               openToolWindowTab(project, "Activity");
+            } else if (STANDUP_DIGEST.equals(selectedValue)) {
+              StandupDigestDialog.showDialog();
             } else if (POMODORO_START.equals(selectedValue)) {
               PomodoroTimerService svc =
                   ApplicationManager.getApplication().getService(PomodoroTimerService.class);

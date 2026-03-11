@@ -4,6 +4,19 @@
 
 ## [Unreleased]
 
+## [1.15.0] - 2026-03-11
+
+### Added
+
+- **What I Was Doing (Standup Digest)** - Generate a summary of recent coding activity for standups:
+  - Accessible from the status bar popup via "What I Was Doing..."
+  - Configurable time periods: Yesterday, Today + Yesterday, Last 2-7 Days
+  - Shows total coding time, lines added/removed, active days
+  - Per-project and per-branch time breakdowns
+  - Recent commits grouped by project and branch (up to 50)
+  - Daily breakdown for multi-day periods
+  - One-click copy to clipboard
+
 ## [1.14.0] - 2026-03-11
 
 ### Added
@@ -261,7 +274,8 @@
 
 - Support IntelliJ Platform 2024.3.5
 
-[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.14.0...HEAD
+[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.15.0...HEAD
+[1.15.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.13.0...v1.14.0
 [1.13.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.11.0...v1.12.0
