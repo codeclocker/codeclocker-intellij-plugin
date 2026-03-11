@@ -99,10 +99,18 @@ public class TimeTrackerWidgetService implements Disposable {
   }
 
   private void tick() {
-    checkMidnightReset();
-    checkGoalNotifications();
-    checkPomodoroTimer();
-    repaintWidget();
+    safeRun("checkMidnightReset", this::checkMidnightReset);
+    safeRun("checkGoalNotifications", this::checkGoalNotifications);
+    safeRun("checkPomodoroTimer", this::checkPomodoroTimer);
+    safeRun("repaintWidget", this::repaintWidget);
+  }
+
+  private void safeRun(String taskName, Runnable task) {
+    try {
+      task.run();
+    } catch (Exception e) {
+      LOG.error("Error in tick task '" + taskName + "'", e);
+    }
   }
 
   private void checkGoalNotifications() {
