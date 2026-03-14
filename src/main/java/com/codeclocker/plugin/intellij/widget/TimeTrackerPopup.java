@@ -40,13 +40,13 @@ import org.jetbrains.annotations.Nullable;
 
 public class TimeTrackerPopup {
 
-  private static final String WEB_DASHBOARD = "My Dashboard →";
+  private static final String WEB_DASHBOARD = "Web Dashboard →";
   private static final String SAVE_HISTORY = "Save my data →";
   private static final String RENEW_SUBSCRIPTION = "Renew subscription to keep data forever →";
   private static final String SET_GOALS = "Set Goals...";
   private static final String SET_PROJECT_GOALS = "Set Project Goals...";
   private static final String AUTO_PAUSE = "Auto-Pause...";
-  private static final String DASHBOARD = "Dashboard...";
+  private static final String DASHBOARD = "In-IDE Dashboard...";
   private static final String ACTIVITY_REPORT = "Branch Activity...";
   private static final String POMODORO_START = "Start Pomodoro";
   private static final String POMODORO_STOP = "Stop Pomodoro";
