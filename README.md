@@ -14,7 +14,9 @@ Use it **locally (offline)** by default, or optionally sync to **[CodeClocker Hu
 ### Local Mode (Default - No account, no API key)
 
 - **Automatic coding time tracking** - records active time while you work, organized by project.
-- **Daily & weekly goals** - set targets per project or globally, monitor progress, and get notified when you reach them.
+- **Daily & weekly goals** - set targets globally or per project, monitor progress, and get notified when you reach them.
+- **Pomodoro Timer** - built-in timer with configurable work/break intervals, cycle tracking, and status bar countdown.
+- **What I Was Doing** - generate standup-ready summaries of recent activity with time breakdowns, per-project/branch details, and commits.
 - **Activity Report** - detailed tree-view of daily activity with project breakdown and commit details.
 - **CSV export** - export activity data for invoicing with date range selection.
 - **Status bar widget** - see today's tracked time, and goal progress at a glance.
@@ -33,14 +35,17 @@ Enable Hub Mode with an API key to sync activity to **[CodeClocker Hub](https://
   - **Project activity charts** (who contributed and when)
   - **Time range filtering** (e.g., last 7 days, custom periods)
   - **Data storage** - Activity is synced to CodeClocker Hub only when you enable Hub Mode and provide an API key.
+- **Invoice generation** - create invoices from tracked time with PDF and KSeF (Polish e-invoice) XML export.
 
 ### Dashboard
 
-Click the status bar widget and select **Dashboard...** to open an in-IDE analytics dashboard:
+Click the status bar widget and select **IDE Dashboard...** to open an in-IDE analytics dashboard:
 
 - **Metric cards** - Total time, daily average, lines added/removed, and streak counters
 - **Activity Timeline** - Interactive area chart showing coding activity over time with hover tooltips
 - **Journey Bar** - Lifetime stats including total days, time, projects, and lines changed
+- **Top Projects & Top Branches** - Bar charts showing where you spent the most time
+- **Project Timeline Heatmap** - Gantt-style heatmap showing when each project was active
 - **All Projects breakdown** - Paginated table of per-project time, additions, and removals
 - **Time period selector** - Switch between 24h, 7d, 30d, this week, or this month
 - **Trend indicator** - Percentage change vs. previous period

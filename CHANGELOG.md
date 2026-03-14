@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Rename "My Dashboard" to "Web Dashboard" and "Dashboard..." to "IDE Dashboard..." in status bar popup for clarity
+- Update README with Pomodoro, What I Was Doing, KSeF, Top Projects/Branches, Heatmap, and invoice generation docs
+
 ## [1.15.0] - 2026-03-11
 
 ### Added
