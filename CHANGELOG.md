@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.15.1] - 2026-03-14
+
 ### Changed
 
 - Rename "My Dashboard" to "Web Dashboard" and "Dashboard..." to "IDE Dashboard..." in status bar popup for clarity
@@ -279,7 +281,8 @@
 
 - Support IntelliJ Platform 2024.3.5
 
-[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.15.0...HEAD
+[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.15.1...HEAD
+[1.15.1]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.15.0...v1.15.1
 [1.15.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.13.0...v1.14.0
 [1.13.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.12.0...v1.13.0
