@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.15.2] - 2026-03-17
+
 ### Fixed
 
 - Merged local storage entries now correctly marked as unreported so updated data gets synced to Hub
@@ -290,7 +292,8 @@
 
 - Support IntelliJ Platform 2024.3.5
 
-[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.15.1...HEAD
+[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.15.2...HEAD
+[1.15.2]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.15.1...v1.15.2
 [1.15.1]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.15.0...v1.15.1
 [1.15.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.13.0...v1.14.0
