@@ -3,7 +3,6 @@ package com.codeclocker.plugin.intellij.reporting;
 import static com.codeclocker.plugin.intellij.JsonMapper.OBJECT_MAPPER;
 import static com.codeclocker.plugin.intellij.ScheduledExecutor.EXECUTOR;
 import static com.codeclocker.plugin.intellij.reporting.SentStatus.ERROR;
-import static com.codeclocker.plugin.intellij.reporting.SentStatus.OK;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -29,14 +28,12 @@ import com.intellij.openapi.diagnostic.Logger;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Queue;
 import java.util.concurrent.ScheduledFuture;
 
 @Service
@@ -47,34 +44,36 @@ public final class DataReportingTask implements Disposable {
   private static final DateTimeFormatter DATETIME_HOUR_FORMATTER =
       DateTimeFormatter.ofPattern("yyyy-MM-dd-HH");
 
-  private final int flushToServerFrequencySeconds;
-  private final TimeSpentPerProjectLogger timeSpentPerProjectLogger;
-  private final ChangesActivityTracker changesActivityTracker;
-  private final BranchActivityTracker branchActivityTracker;
-  private final CommitActivityTracker commitActivityTracker;
-  private final ActivitySampleHttpClient activitySampleHttpClient;
-  private final LocalStateRepository localStateRepository;
-  private final Queue<String> unpublishedTimeSpentSamples = new ArrayDeque<>();
-  private final Queue<String> unpublishedChangesSamples = new ArrayDeque<>();
-
   private ScheduledFuture<?> task;
 
-  public DataReportingTask() {
-    this.changesActivityTracker =
-        ApplicationManager.getApplication().getService(ChangesActivityTracker.class);
-    this.timeSpentPerProjectLogger =
-        ApplicationManager.getApplication().getService(TimeSpentPerProjectLogger.class);
-    this.branchActivityTracker =
-        ApplicationManager.getApplication().getService(BranchActivityTracker.class);
-    this.commitActivityTracker =
-        ApplicationManager.getApplication().getService(CommitActivityTracker.class);
-    this.activitySampleHttpClient =
-        ApplicationManager.getApplication().getService(ActivitySampleHttpClient.class);
-    ConfigProvider configProvider =
-        ApplicationManager.getApplication().getService(ConfigProvider.class);
-    this.flushToServerFrequencySeconds = configProvider.getActivityDataFlushFrequencySeconds();
-    this.localStateRepository =
-        ApplicationManager.getApplication().getService(LocalStateRepository.class);
+  private ChangesActivityTracker getChangesActivityTracker() {
+    return ApplicationManager.getApplication().getService(ChangesActivityTracker.class);
+  }
+
+  private TimeSpentPerProjectLogger getTimeSpentPerProjectLogger() {
+    return ApplicationManager.getApplication().getService(TimeSpentPerProjectLogger.class);
+  }
+
+  private BranchActivityTracker getBranchActivityTracker() {
+    return ApplicationManager.getApplication().getService(BranchActivityTracker.class);
+  }
+
+  private CommitActivityTracker getCommitActivityTracker() {
+    return ApplicationManager.getApplication().getService(CommitActivityTracker.class);
+  }
+
+  private ActivitySampleHttpClient getActivitySampleHttpClient() {
+    return ApplicationManager.getApplication().getService(ActivitySampleHttpClient.class);
+  }
+
+  private LocalStateRepository getLocalStateRepository() {
+    return ApplicationManager.getApplication().getService(LocalStateRepository.class);
+  }
+
+  private int getFlushToServerFrequencySeconds() {
+    return ApplicationManager.getApplication()
+        .getService(ConfigProvider.class)
+        .getActivityDataFlushFrequencySeconds();
   }
 
   public void schedule() {
@@ -82,22 +81,18 @@ public final class DataReportingTask implements Disposable {
       return;
     }
 
+    int frequencySeconds = getFlushToServerFrequencySeconds();
     task =
         EXECUTOR.scheduleWithFixedDelay(
-            this::flushActivityData,
-            flushToServerFrequencySeconds,
-            flushToServerFrequencySeconds,
-            SECONDS);
+            this::flushActivityData, frequencySeconds, frequencySeconds, SECONDS);
   }
 
   public void flushActivityData() {
     try {
-      // Cleanup old local data periodically
-      localStateRepository.rotate();
+      getLocalStateRepository().rotate();
 
-      // Get deltas - data stays in accumulators, just marks as reported
-      Map<String, ProjectTimeDelta> timeDeltas = timeSpentPerProjectLogger.getProjectDeltas();
-      Map<String, Map<String, ChangesSample>> changesSamples = changesActivityTracker.drain();
+      Map<String, ProjectTimeDelta> timeDeltas = getTimeSpentPerProjectLogger().getProjectDeltas();
+      Map<String, Map<String, ChangesSample>> changesSamples = getChangesActivityTracker().drain();
 
       if (timeDeltas.isEmpty() && changesSamples.isEmpty()) {
         LOG.debug("No activity data to save locally");
@@ -106,10 +101,9 @@ public final class DataReportingTask implements Disposable {
 
       saveToLocalStorage(timeDeltas, changesSamples);
 
-      // If API key is available, try to sync to server
       String apiKey = ApiKeyLifecycle.getActiveApiKey();
       if (!isBlank(apiKey)) {
-        sendActivitySampleToServer(apiKey, timeDeltas, changesSamples);
+        syncLocalDataToServer(apiKey);
       }
     } catch (Exception ex) {
       LOG.debug("Error flushing activity data: {}", ex.getMessage());
@@ -119,8 +113,8 @@ public final class DataReportingTask implements Disposable {
   public void saveToLocalStorageIfApiKeyIsEmpty() {
     String apiKey = ApiKeyLifecycle.getActiveApiKey();
     if (isBlank(apiKey)) {
-      Map<String, ProjectTimeDelta> timeDeltas = timeSpentPerProjectLogger.getProjectDeltas();
-      Map<String, Map<String, ChangesSample>> changesSamples = changesActivityTracker.drain();
+      Map<String, ProjectTimeDelta> timeDeltas = getTimeSpentPerProjectLogger().getProjectDeltas();
+      Map<String, Map<String, ChangesSample>> changesSamples = getChangesActivityTracker().drain();
       if (timeDeltas.isEmpty() && changesSamples.isEmpty()) {
         LOG.debug("No activity data to save locally");
         return;
@@ -134,7 +128,6 @@ public final class DataReportingTask implements Disposable {
       Map<String, ProjectTimeDelta> timeDeltas,
       Map<String, Map<String, ChangesSample>> changesSamples) {
 
-    // Aggregate VCS changes per project
     Map<String, Long> projectAdditions = new HashMap<>();
     Map<String, Long> projectRemovals = new HashMap<>();
 
@@ -155,7 +148,6 @@ public final class DataReportingTask implements Disposable {
     String currentHourKey =
         LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH"));
 
-    // Save time spent per project (using delta seconds)
     for (Entry<String, ProjectTimeDelta> entry : timeDeltas.entrySet()) {
       String projectName = entry.getKey();
       long deltaSeconds = entry.getValue().deltaSeconds();
@@ -165,10 +157,10 @@ public final class DataReportingTask implements Disposable {
       ProjectActivitySnapshot snapshot =
           new ProjectActivitySnapshot(deltaSeconds, additions, removals, false);
 
-      // Add branch activity
-      if (branchActivityTracker != null) {
+      BranchActivityTracker branchTracker = getBranchActivityTracker();
+      if (branchTracker != null) {
         Map<String, Long> branchActivity =
-            branchActivityTracker.drainBranchActivity(projectName, currentHourKey);
+            branchTracker.drainBranchActivity(projectName, currentHourKey);
         List<BranchActivityRecord> branchRecords = new ArrayList<>();
         for (Entry<String, Long> branchEntry : branchActivity.entrySet()) {
           branchRecords.add(new BranchActivityRecord(branchEntry.getKey(), branchEntry.getValue()));
@@ -176,17 +168,15 @@ public final class DataReportingTask implements Disposable {
         snapshot.setBranchActivity(branchRecords);
       }
 
-      // Add commits
-      if (commitActivityTracker != null) {
-        List<CommitRecord> commits =
-            commitActivityTracker.drainCommits(projectName, currentHourKey);
+      CommitActivityTracker commitTracker = getCommitActivityTracker();
+      if (commitTracker != null) {
+        List<CommitRecord> commits = commitTracker.drainCommits(projectName, currentHourKey);
         snapshot.setCommits(commits);
       }
 
-      localStateRepository.mergeProjectCurrentHour(projectName, snapshot);
+      getLocalStateRepository().mergeProjectCurrentHour(projectName, snapshot);
     }
 
-    // Save VCS changes for projects without time entries
     for (String projectName : projectAdditions.keySet()) {
       if (!timeDeltas.containsKey(projectName)) {
         long additions = projectAdditions.get(projectName);
@@ -194,49 +184,27 @@ public final class DataReportingTask implements Disposable {
 
         ProjectActivitySnapshot snapshot =
             new ProjectActivitySnapshot(0, additions, removals, false);
-        localStateRepository.mergeProjectCurrentHour(projectName, snapshot);
+        getLocalStateRepository().mergeProjectCurrentHour(projectName, snapshot);
       }
     }
 
     LOG.debug("Saved activity data to local storage for " + timeDeltas.size() + " projects");
   }
 
-  private void sendActivitySampleToServer(
-      String apiKey,
-      Map<String, ProjectTimeDelta> timeDeltas,
-      Map<String, Map<String, ChangesSample>> changesSamples) {
-
-    // First, sync any locally stored data to the server
-    syncLocalDataToServer(apiKey);
-
-    SentStatus unpublishedSamplesPublishStatus = publishUnpublishedSamples(apiKey);
-    if (unpublishedSamplesPublishStatus == ERROR) {
-      LOG.debug("Failed to publish unpublished samples");
-      return;
-    }
-
-    publishTimeSpentSample(apiKey, timeDeltas);
-    publishChangesSample(apiKey, changesSamples);
-  }
-
   public void syncLocalDataToServer(String apiKey) {
-    if (!localStateRepository.hasUnreportedData()) {
+    LocalStateRepository localRepo = getLocalStateRepository();
+    if (!localRepo.hasUnreportedData()) {
       return;
     }
 
     LOG.info("Found locally stored data, syncing to server...");
 
-    // Get data without clearing - only clear after successful send
-    Map<String, Map<String, ProjectActivitySnapshot>> localData =
-        localStateRepository.getAllUnreportedData();
+    Map<String, Map<String, ProjectActivitySnapshot>> localData = localRepo.getAllUnreportedData();
     if (localData.isEmpty()) {
       return;
     }
 
-    // Send data hour by hour to preserve time distribution
-    // Map: hourKey -> (projectName -> TimeSpentSampleDto)
     Map<String, Map<String, TimeSpentSampleDto>> timeSpentByHour = new HashMap<>();
-    // For changes, we send per-project with hour info in filename
     Map<String, Map<String, ChangesSampleDto>> changesByProject = new HashMap<>();
 
     for (Entry<String, Map<String, ProjectActivitySnapshot>> hourEntry : localData.entrySet()) {
@@ -247,7 +215,6 @@ public final class DataReportingTask implements Disposable {
         String projectName = projectEntry.getKey();
         ProjectActivitySnapshot snapshot = projectEntry.getValue();
 
-        // Convert branch activity to DTOs
         List<BranchActivityDto> branchActivityDtos = null;
         if (snapshot.getBranchActivity() != null && !snapshot.getBranchActivity().isEmpty()) {
           branchActivityDtos =
@@ -256,7 +223,6 @@ public final class DataReportingTask implements Disposable {
                   .toList();
         }
 
-        // Convert commits to DTOs
         List<CommitDto> commitDtos = null;
         if (snapshot.getCommits() != null && !snapshot.getCommits().isEmpty()) {
           commitDtos =
@@ -273,7 +239,6 @@ public final class DataReportingTask implements Disposable {
                   .toList();
         }
 
-        // Include all data in the time spent DTO (unified sync)
         if (snapshot.getCodedTimeSeconds() > 0
             || snapshot.getAdditions() > 0
             || snapshot.getRemovals() > 0
@@ -294,7 +259,6 @@ public final class DataReportingTask implements Disposable {
                       commitDtos));
         }
 
-        // Also send VCS changes via legacy endpoint for backward compatibility
         if (snapshot.getAdditions() > 0 || snapshot.getRemovals() > 0) {
           String syntheticFileName = "local-sync-" + hourKey;
           ChangesSampleDto changesDto =
@@ -311,13 +275,14 @@ public final class DataReportingTask implements Disposable {
       }
     }
 
-    // Send time spent data hour by hour
+    ActivitySampleHttpClient httpClient = getActivitySampleHttpClient();
+
     boolean timeSyncSuccess = true;
     int totalProjectsSynced = 0;
     for (Entry<String, Map<String, TimeSpentSampleDto>> hourEntry : timeSpentByHour.entrySet()) {
       Map<String, TimeSpentSampleDto> projectsForHour = hourEntry.getValue();
       String timeJson = toJson(projectsForHour);
-      SentStatus status = activitySampleHttpClient.sendTimeSpentSample(apiKey, timeJson);
+      SentStatus status = httpClient.sendTimeSpentSample(apiKey, timeJson);
       if (status == ERROR) {
         LOG.warn("Failed to sync local time spent data for hour " + hourEntry.getKey());
         timeSyncSuccess = false;
@@ -334,11 +299,10 @@ public final class DataReportingTask implements Disposable {
               + " project entries");
     }
 
-    // Send changes data
     boolean changesSyncSuccess = true;
     if (!changesByProject.isEmpty()) {
       String changesJson = toJson(changesByProject);
-      SentStatus status = activitySampleHttpClient.sendChangesSample(apiKey, changesJson);
+      SentStatus status = httpClient.sendChangesSample(apiKey, changesJson);
       if (status == ERROR) {
         LOG.warn("Failed to sync local VCS changes data to server, will retry later");
         changesSyncSuccess = false;
@@ -347,9 +311,8 @@ public final class DataReportingTask implements Disposable {
       }
     }
 
-    // Only clear local data if both syncs succeeded
     if (timeSyncSuccess && changesSyncSuccess) {
-      localStateRepository.markAllDataAsReported();
+      localRepo.markAllDataAsReported();
       LOG.info("Cleared local data after successful sync");
     }
   }
@@ -359,109 +322,8 @@ public final class DataReportingTask implements Disposable {
       LocalDateTime dateTime = LocalDateTime.parse(datetimeHourStr, DATETIME_HOUR_FORMATTER);
       return dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     } catch (Exception e) {
-      // Fallback to current time if parsing fails
       return System.currentTimeMillis();
     }
-  }
-
-  private void publishTimeSpentSample(String apiKey, Map<String, ProjectTimeDelta> deltas) {
-    if (deltas.isEmpty()) {
-      return;
-    }
-
-    Map<String, TimeSpentSampleDto> dto = toTimeSpentDto(deltas);
-    String json = toJson(dto);
-
-    SentStatus status = activitySampleHttpClient.sendTimeSpentSample(apiKey, json);
-    if (status == ERROR) {
-      LOG.debug("Error sending time spent sample. Caching it for future retries");
-      unpublishedTimeSpentSamples.add(json);
-    }
-  }
-
-  private void publishChangesSample(String apiKey, Map<String, Map<String, ChangesSample>> sample) {
-    if (sample.isEmpty()) {
-      return;
-    }
-
-    Map<String, Map<String, ChangesSampleDto>> dto = toChangesDto(sample);
-    String json = toJson(dto);
-
-    SentStatus status = activitySampleHttpClient.sendChangesSample(apiKey, json);
-    if (status == ERROR) {
-      LOG.debug("Error sending changes sample. Caching it for future retries");
-      unpublishedChangesSamples.add(json);
-    }
-  }
-
-  private SentStatus publishUnpublishedSamples(String apiKey) {
-    if (unpublishedTimeSpentSamples.isEmpty() && unpublishedChangesSamples.isEmpty()) {
-      return OK;
-    }
-
-    for (int i = 0; i < unpublishedTimeSpentSamples.size(); i++) {
-      String sample = unpublishedTimeSpentSamples.peek();
-      SentStatus status = activitySampleHttpClient.sendTimeSpentSample(apiKey, sample);
-      if (status == ERROR) {
-        return ERROR;
-      }
-      unpublishedTimeSpentSamples.remove();
-    }
-
-    for (int i = 0; i < unpublishedChangesSamples.size(); i++) {
-      String sample = unpublishedChangesSamples.peek();
-      SentStatus status = activitySampleHttpClient.sendChangesSample(apiKey, sample);
-      if (status == ERROR) {
-        return ERROR;
-      }
-      unpublishedChangesSamples.remove();
-    }
-
-    return OK;
-  }
-
-  private static Map<String, Map<String, ChangesSampleDto>> toChangesDto(
-      Map<String, Map<String, ChangesSample>> activity) {
-    Map<String, Map<String, ChangesSampleDto>> sampleByProjectDto = new HashMap<>();
-
-    for (Entry<String, Map<String, ChangesSample>> sampleByProject : activity.entrySet()) {
-      Map<String, ChangesSampleDto> sampleByFileDto = new HashMap<>();
-
-      for (Entry<String, ChangesSample> sampleByFile : sampleByProject.getValue().entrySet()) {
-        ChangesSample sample = sampleByFile.getValue();
-        ChangesSampleDto dto =
-            new ChangesSampleDto(
-                sample.samplingStartedAt(),
-                sample.additions().get(),
-                sample.removals().get(),
-                sample.metadata());
-
-        sampleByFileDto.put(sampleByFile.getKey(), dto);
-      }
-
-      sampleByProjectDto.put(sampleByProject.getKey(), sampleByFileDto);
-    }
-
-    return sampleByProjectDto;
-  }
-
-  private static Map<String, TimeSpentSampleDto> toTimeSpentDto(
-      Map<String, ProjectTimeDelta> deltas) {
-    Map<String, TimeSpentSampleDto> sampleByProjectName = new HashMap<>();
-
-    for (Entry<String, ProjectTimeDelta> entry : deltas.entrySet()) {
-      ProjectTimeDelta delta = entry.getValue();
-      // hourKey is already in UTC (from ProjectTimeAccumulator)
-      // recordId is null here - live deltas use traditional ADD behavior on Hub
-      // Local storage sync uses recordId for idempotent REPLACE behavior
-      TimeSpentSampleDto dto =
-          new TimeSpentSampleDto(
-              null, delta.hourKey(), delta.deltaSeconds(), delta.totalHourSeconds());
-
-      sampleByProjectName.put(entry.getKey(), dto);
-    }
-
-    return sampleByProjectName;
   }
 
   private <T> String toJson(T report) {
@@ -477,14 +339,12 @@ public final class DataReportingTask implements Disposable {
     LOG.info("Disposing DataReportingTask - flushing accumulated data before shutdown");
 
     try {
-      // Perform final flush to prevent data loss
       flushActivityData();
       LOG.info("Final flush completed successfully");
     } catch (Exception e) {
       LOG.warn("Error during final flush before shutdown", e);
     }
 
-    // Cancel the scheduled task
     if (task != null) {
       task.cancel(false);
     }

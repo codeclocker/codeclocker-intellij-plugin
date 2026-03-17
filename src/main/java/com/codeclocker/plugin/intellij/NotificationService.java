@@ -43,7 +43,7 @@ public class NotificationService {
             .getNotificationGroup("CodeClocker")
             .createNotification(
                 "CodeClocker subscription will expire soon",
-                "Your CodeClocker subscription will expire soon. Renew it now to keep tracking activity.",
+                "Your CodeClocker subscription will expire soon. Renew it to keep syncing activity data with CodeClocker Hub.",
                 WARNING)
             .addAction(
                 NotificationAction.createSimpleExpiring(
@@ -62,7 +62,7 @@ public class NotificationService {
             .getNotificationGroup("CodeClocker")
             .createNotification(
                 "CodeClocker subscription expired",
-                "Your CodeClocker subscription expired. Renew it now to keep tracking activity.",
+                "Your CodeClocker subscription has expired. Renew it to keep syncing activity data with CodeClocker Hub.",
                 WARNING)
             .addAction(
                 NotificationAction.createSimpleExpiring(

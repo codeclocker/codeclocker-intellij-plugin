@@ -71,7 +71,7 @@ public class LocalTrackerState {
                         existing.getCodedTimeSeconds() + incoming.getCodedTimeSeconds(),
                         existing.getAdditions() + incoming.getAdditions(),
                         existing.getRemovals() + incoming.getRemovals(),
-                        existing.isReported());
+                        false);
 
                 // Preserve recordId from existing entry (or use incoming's if existing has none)
                 String recordId = existing.getRecordId();
