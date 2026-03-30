@@ -1,5 +1,6 @@
 package com.codeclocker.plugin.intellij.services;
 
+import com.codeclocker.plugin.intellij.tracking.TrackingPersistence;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -46,6 +47,8 @@ public class ProjectTimeAccumulator {
     }
 
     long elapsedMillis = now - lastActivityTimestampMillis;
+    long maxElapsedMillis = TrackingPersistence.getInactivityTimeoutSeconds() * MILLIS_PER_SECOND;
+    elapsedMillis = Math.min(elapsedMillis, maxElapsedMillis);
     long elapsedSeconds = Math.round((float) elapsedMillis / MILLIS_PER_SECOND);
     if (elapsedSeconds > 0) {
       this.accumulatedSeconds += elapsedSeconds;
