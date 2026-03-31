@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Extended IDE compatibility to support IntelliJ IDEA 2024.2 and newer (previously required 2025.2+)
+
 ## [1.15.3] - 2026-03-30
 
 ### Fixed
