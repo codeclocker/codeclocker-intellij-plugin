@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.16.0] - 2026-03-31
+
 ### Changed
 
 - Extended IDE compatibility to support IntelliJ IDEA 2024.2 and newer (previously required 2025.2+)
@@ -302,7 +304,8 @@
 
 - Support IntelliJ Platform 2024.3.5
 
-[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.15.3...HEAD
+[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.16.0...HEAD
+[1.16.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.15.3...v1.16.0
 [1.15.3]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.15.2...v1.15.3
 [1.15.2]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.15.1...v1.15.2
 [1.15.1]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.15.0...v1.15.1
