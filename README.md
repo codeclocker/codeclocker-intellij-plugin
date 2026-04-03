@@ -84,7 +84,7 @@ Weekly timesheets are filled automatically from IDE activity. Developers review,
 
 See aggregated overall team activity. Filter by time range to spot trends.
 
-<img src="https://site.codeclocker.com/screenshots/team-activity.png" alt="CodeClocker real-time team activity tracking dashboard" width="100%" />
+<img src="https://site.codeclocker.com/screenshots/team-activity.jpg" alt="CodeClocker real-time team activity tracking dashboard" width="100%" />
 
 ### Reports & Exports
 
