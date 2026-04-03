@@ -39,7 +39,7 @@ CodeClocker is a JetBrains IDE plugin that automatically tracks coding time and 
 - **Team activity dashboard** — see weekly hours, submission status, and project activity across the team.
 - **Slack integrations** — post team activity summaries to Slack channels on a schedule.
 - **Role-based access** — owners, managers, and members with appropriate permissions.
-- **Anonymous mode** — teams can enable anonymous activity tracking so managers see aggregated team stats without individual breakdowns. Non-anonymous mode shows per-member contributions for teams that prefer full transparency.
+- **Anonymous mode** — teams can enable anonymous activity tracking so managers see aggregated team stats without individual breakdowns. Non-anonymous mode shows per-member contributions for teams that prefer full transparency. To prevent spying, once a team is created with anonymous mode enabled, the setting cannot be changed.
 
 Built for software teams that need weekly timesheets, manager approvals, and invoice-ready exports without asking developers to run timers.
 Start a free team trial at [hub.codeclocker.com](https://hub.codeclocker.com/).
