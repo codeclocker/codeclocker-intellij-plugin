@@ -50,10 +50,15 @@ public class ChangesTrackingCheckinHandler extends CheckinHandler {
           continue;
         }
 
+        String beforeContent = beforeRevision == null ? null : beforeRevision.getContent();
+        String afterContent = afterRevision == null ? null : afterRevision.getContent();
+
+        if (isBinaryContent(beforeContent) || isBinaryContent(afterContent)) {
+          continue;
+        }
+
         LineDifferenceResult diff =
-            LineDifferenceCalculator.calculateLineDifferences(
-                beforeRevision == null ? null : beforeRevision.getContent(),
-                afterRevision == null ? null : afterRevision.getContent());
+            LineDifferenceCalculator.calculateLineDifferences(beforeContent, afterContent);
 
         String extension = getExtension(relativePath);
 
@@ -151,6 +156,10 @@ public class ChangesTrackingCheckinHandler extends CheckinHandler {
       LOG.debug("Failed to get git author", e);
     }
     return null;
+  }
+
+  private static boolean isBinaryContent(String content) {
+    return content != null && content.indexOf('\0') >= 0;
   }
 
   private String getExtension(String relativePath) {

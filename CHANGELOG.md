@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+### Added
+
+- File-level VCS change tracking — additions and removals are now recorded per file (with extension) instead of only as project-level aggregates, enabling richer activity reports in Hub
+
+### Fixed
+
+- Binary files are now skipped during commit diff calculations to avoid corrupted line counts
+
 ## [1.16.0] - 2026-03-31
 
 ### Changed

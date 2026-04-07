@@ -17,6 +17,7 @@ public class ProjectActivitySnapshot {
   private boolean reported;
   private List<BranchActivityRecord> branchActivity = new ArrayList<>();
   private List<CommitRecord> commits = new ArrayList<>();
+  private List<FileChangeRecord> fileChanges = new ArrayList<>();
 
   public ProjectActivitySnapshot() {
     // Required for XML serialization
@@ -76,6 +77,14 @@ public class ProjectActivitySnapshot {
 
   public void setCommits(List<CommitRecord> commits) {
     this.commits = commits != null ? commits : new ArrayList<>();
+  }
+
+  public List<FileChangeRecord> getFileChanges() {
+    return fileChanges;
+  }
+
+  public void setFileChanges(List<FileChangeRecord> fileChanges) {
+    this.fileChanges = fileChanges != null ? fileChanges : new ArrayList<>();
   }
 
   public String getRecordId() {

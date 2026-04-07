@@ -10,6 +10,7 @@ import com.codeclocker.plugin.intellij.apikey.ApiKeyLifecycle;
 import com.codeclocker.plugin.intellij.config.ConfigProvider;
 import com.codeclocker.plugin.intellij.local.BranchActivityRecord;
 import com.codeclocker.plugin.intellij.local.CommitRecord;
+import com.codeclocker.plugin.intellij.local.FileChangeRecord;
 import com.codeclocker.plugin.intellij.local.LocalStateRepository;
 import com.codeclocker.plugin.intellij.local.ProjectActivitySnapshot;
 import com.codeclocker.plugin.intellij.reporting.TimeSpentSampleDto.BranchActivityDto;
@@ -130,19 +131,28 @@ public final class DataReportingTask implements Disposable {
 
     Map<String, Long> projectAdditions = new HashMap<>();
     Map<String, Long> projectRemovals = new HashMap<>();
+    Map<String, List<FileChangeRecord>> projectFileChanges = new HashMap<>();
 
     for (Entry<String, Map<String, ChangesSample>> projectEntry : changesSamples.entrySet()) {
       String projectName = projectEntry.getKey();
       long totalAdditions = 0;
       long totalRemovals = 0;
+      List<FileChangeRecord> fileRecords = new ArrayList<>();
 
-      for (ChangesSample fileSample : projectEntry.getValue().values()) {
-        totalAdditions += fileSample.additions().get();
-        totalRemovals += fileSample.removals().get();
+      for (Entry<String, ChangesSample> fileEntry : projectEntry.getValue().entrySet()) {
+        ChangesSample sample = fileEntry.getValue();
+        long add = sample.additions().get();
+        long rem = sample.removals().get();
+        totalAdditions += add;
+        totalRemovals += rem;
+
+        String ext = sample.metadata().getOrDefault("extension", "");
+        fileRecords.add(new FileChangeRecord(fileEntry.getKey(), add, rem, ext));
       }
 
       projectAdditions.put(projectName, totalAdditions);
       projectRemovals.put(projectName, totalRemovals);
+      projectFileChanges.put(projectName, fileRecords);
     }
 
     String currentHourKey =
@@ -156,6 +166,7 @@ public final class DataReportingTask implements Disposable {
 
       ProjectActivitySnapshot snapshot =
           new ProjectActivitySnapshot(deltaSeconds, additions, removals, false);
+      snapshot.setFileChanges(projectFileChanges.getOrDefault(projectName, List.of()));
 
       BranchActivityTracker branchTracker = getBranchActivityTracker();
       if (branchTracker != null) {
@@ -184,6 +195,7 @@ public final class DataReportingTask implements Disposable {
 
         ProjectActivitySnapshot snapshot =
             new ProjectActivitySnapshot(0, additions, removals, false);
+        snapshot.setFileChanges(projectFileChanges.getOrDefault(projectName, List.of()));
         getLocalStateRepository().mergeProjectCurrentHour(projectName, snapshot);
       }
     }
@@ -259,7 +271,23 @@ public final class DataReportingTask implements Disposable {
                       commitDtos));
         }
 
-        if (snapshot.getAdditions() > 0 || snapshot.getRemovals() > 0) {
+        if (snapshot.getFileChanges() != null && !snapshot.getFileChanges().isEmpty()) {
+          for (FileChangeRecord fc : snapshot.getFileChanges()) {
+            if (fc.getAdditions() > 0 || fc.getRemovals() > 0) {
+              Map<String, String> meta =
+                  (fc.getExtension() != null && !fc.getExtension().isEmpty())
+                      ? Map.of("extension", fc.getExtension())
+                      : Collections.emptyMap();
+              ChangesSampleDto changesDto =
+                  new ChangesSampleDto(
+                      samplingStartedAt, fc.getAdditions(), fc.getRemovals(), meta);
+              changesByProject
+                  .computeIfAbsent(projectName, k -> new HashMap<>())
+                  .put(fc.getFileName(), changesDto);
+            }
+          }
+        } else if (snapshot.getAdditions() > 0 || snapshot.getRemovals() > 0) {
+          // Backward compat: old data without file-level detail
           String syntheticFileName = "local-sync-" + hourKey;
           ChangesSampleDto changesDto =
               new ChangesSampleDto(
@@ -267,7 +295,6 @@ public final class DataReportingTask implements Disposable {
                   snapshot.getAdditions(),
                   snapshot.getRemovals(),
                   Collections.emptyMap());
-
           changesByProject
               .computeIfAbsent(projectName, k -> new HashMap<>())
               .put(syntheticFileName, changesDto);
