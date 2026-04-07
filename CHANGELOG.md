@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+## [1.17.0] - 2026-04-07
+
+### Added
+
+- File-level VCS change tracking — additions and removals are now recorded per file (with extension) instead of only as project-level aggregates, enabling richer activity reports in Hub
+
+### Fixed
+
+- Binary files are now skipped during commit diff calculations to avoid corrupted line counts
+
 ## [1.16.0] - 2026-03-31
 
 ### Changed
@@ -304,7 +314,8 @@
 
 - Support IntelliJ Platform 2024.3.5
 
-[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.16.0...HEAD
+[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.17.0...HEAD
+[1.17.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.16.0...v1.17.0
 [1.16.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.15.3...v1.16.0
 [1.15.3]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.15.2...v1.15.3
 [1.15.2]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.15.1...v1.15.2

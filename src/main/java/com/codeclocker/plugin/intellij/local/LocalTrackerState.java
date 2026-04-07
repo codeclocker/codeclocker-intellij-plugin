@@ -107,6 +107,32 @@ public class LocalTrackerState {
                 }
                 merged.setCommits(mergedCommits);
 
+                // Merge file changes (sum additions/removals per file)
+                Map<String, FileChangeRecord> fileMap = new HashMap<>();
+                for (FileChangeRecord fc : existing.getFileChanges()) {
+                  fileMap.merge(
+                      fc.getFileName(),
+                      fc,
+                      (a, b) ->
+                          new FileChangeRecord(
+                              a.getFileName(),
+                              a.getAdditions() + b.getAdditions(),
+                              a.getRemovals() + b.getRemovals(),
+                              a.getExtension()));
+                }
+                for (FileChangeRecord fc : incoming.getFileChanges()) {
+                  fileMap.merge(
+                      fc.getFileName(),
+                      fc,
+                      (a, b) ->
+                          new FileChangeRecord(
+                              a.getFileName(),
+                              a.getAdditions() + b.getAdditions(),
+                              a.getRemovals() + b.getRemovals(),
+                              a.getExtension()));
+                }
+                merged.setFileChanges(new ArrayList<>(fileMap.values()));
+
                 return merged;
               });
           return projects;

@@ -27,7 +27,9 @@ Managers approve with one click, finance exports to CSV or PDF.
 
 ## Auto-Generated Timesheets & Team Activity Tracking for JetBrains IDEs
 
-CodeClocker is a JetBrains IDE plugin that automatically tracks coding time and generates weekly timesheets from real IDE activity. Every line item is backed by commits and branches — no guesswork, no manual entry. Use it locally for personal productivity, or connect to [CodeClocker Hub](https://hub.codeclocker.com/) to unlock team timesheets, approval workflows, and billing exports.
+CodeClocker automatically tracks coding time and generates weekly timesheets from real IDE activity.  
+It gives developers a pre-filled draft they can review and adjust instead of reconstructing the whole week from scratch.  
+Use it locally for personal productivity, or connect to [CodeClocker Hub](https://hub.codeclocker.com/) to unlock team timesheets, approval workflows, team awareness updates, and billing exports.
 
 ### For Teams & Managers
 
@@ -35,26 +37,28 @@ CodeClocker is a JetBrains IDE plugin that automatically tracks coding time and 
 - **Evidence-linked worklogs** — connect timesheet entries to branches and commits for easier review and client reporting.
 - **One-click approvals** — managers review and approve team timesheets from a single dashboard.
 - **CSV & PDF exports** — export approved timesheets for payroll, accounting, or client billing.
-- **Automated email reminders** — nudge developers to submit and managers to approve on time.
+- **Automated reminders** — nudge developers to submit and managers to approve on time.
 - **Team activity dashboard** — see weekly hours, submission status, and project activity across the team.
+- **Team awareness updates** — daily pulse emails and Slack summaries help teammates stay aware of what the team is working on, what moved forward, and what may need coordination.
 - **Slack integrations** — post team activity summaries to Slack channels on a schedule.
 - **Role-based access** — owners, managers, and members with appropriate permissions.
-- **Anonymous mode** — teams can enable anonymous activity tracking so managers see aggregated team stats without individual breakdowns. Non-anonymous mode shows per-member contributions for teams that prefer full transparency. **To prevent spying**, once a team is created with anonymous mode enabled, **the setting cannot be changed**.
+- **Anonymous mode** — teams can enable anonymous activity tracking so managers see aggregated team stats without individual breakdowns. Non-anonymous mode shows per-member contributions for teams that prefer full transparency. **To prevent spying, once a team is created with anonymous mode enabled, the setting cannot be changed.**
 
-Built for software teams that need weekly timesheets, manager approvals, and invoice-ready exports without asking developers to run timers.
+Built for software teams that need weekly timesheets, manager approvals, team awareness, and invoice-ready exports without asking developers to run timers.  
 Start a free team trial at [hub.codeclocker.com](https://hub.codeclocker.com/).
 
 ### For Developers
 
-- **Automatic time tracking** — records active coding time per project silently in the background.
-- **Daily & weekly goals** — set targets globally or per project, get notified when you hit them.
+- **Automatic time tracking** — records active coding time per project automatically in the background.
+- **Daily & weekly goals** — set targets globally or per project, and get notified when you hit them.
 - **Pomodoro Timer** — built-in timer with configurable work/break intervals and status bar countdown.
 - **What I Was Doing** — generate standup-ready summaries with time breakdowns, branch details, and commits.
 - **Activity Report** — tree-view of daily activity with project breakdown, commit history, and CSV export.
-- **VCS / Git insights** — tracks added & removed lines from version control activity.
-- **Auto-pause** — pauses tracking when IDE loses focus or on inactivity timeout.
+- **Teammate awareness** — daily pulse updates help you stay aware of what your teammates are working on and what moved forward across the team.
+- **VCS / Git insights** — tracks added and removed lines from version control activity.
+- **Auto-pause** — pauses tracking when the IDE loses focus or on inactivity timeout.
 - **Privacy first** — all data stays on your machine in Local Mode. Hub sync is opt-in.
-- **Team privacy controls** — your team can run in anonymous mode where managers only see team-level totals, not individual activity. You stay in control of what's visible.
+- **Team privacy controls** — your team can run in anonymous mode where managers only see team-level totals, not individual activity.
 
 ### Supported IDEs
 
