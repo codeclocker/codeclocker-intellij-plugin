@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [1.17.1] - 2026-04-13
+
+### Changed
+
+- Update README with focus on AI-generated timesheets and team awareness
+
 ## [1.17.0] - 2026-04-07
 
 ### Added
