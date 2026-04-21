@@ -8,9 +8,10 @@
 
 ## Automatic Time Tracking for JetBrains + AI Timesheets in Hub
 
-CodeClocker tracks active coding time per project in your JetBrains IDE and works locally by default — no account required. It helps you understand where your time went, prepare standup updates, and export activity data without leaving the IDE.
+CodeClocker tracks active coding time per project in your JetBrains IDE and works locally by default — no account required. 
+It helps you understand where your time went, prepare standup updates, and export activity data without leaving the IDE.
 
-Optionally connect to [CodeClocker Hub](https://hub.codeclocker.com/) to turn IDE activity, commits, and branches into AI-generated weekly timesheet drafts, Team Pulse summaries, approvals, Jira worklog exports, and billing-ready reports for your team.
+Optionally connect to [CodeClocker Hub](https://hub.codeclocker.com/) to turn IDE activity, commits, and branches into AI-generated weekly timesheet drafts, My Brief summaries, Jira exports, invoices, Team Pulse summaries, approvals, and billing-ready reports.
 
 ### Use it locally (default)
 
@@ -23,14 +24,17 @@ Optionally connect to [CodeClocker Hub](https://hub.codeclocker.com/) to turn ID
 - **Privacy first** — all data stays on your machine in Local Mode.
 - **Auto-pause** — pauses tracking when the IDE loses focus or on inactivity timeout.
 
-### Connect to Hub for teams
+### Connect to Hub for AI timesheets, exports, and team workflows
 
 - **AI-generated weekly timesheets** — turn IDE activity, commits, and branches into editable weekly timesheet drafts.
-- **Team Pulse summaries** — see AI-generated summaries of what moved across projects.
-- **Approvals workflow** — managers review submitted timesheets and request changes when needed.
+- **My Brief** — get an AI-generated summary of your recent work across projects before standup or weekly review.
+- **AI standup summaries** — generate concise standup-ready updates from your actual work.
 - **Jira worklog export** — export approved timesheets to Jira and attach logged time to matching tickets using issue keys parsed from IDE activity.
+- **CSV & PDF exports** — export timesheets for payroll, accounting, client billing, or personal reporting.
+- **Invoices** — generate invoice-ready outputs for freelance and consulting work.
+- **Team Pulse summaries** — see AI-generated summaries of what moved across projects and across the team.
+- **Approvals workflow** — managers review submitted timesheets and request changes when needed.
 - **Evidence-linked worklogs** — connect timesheet entries to branches and commits.
-- **CSV & PDF exports** — export approved timesheets for payroll, accounting, or client billing.
 - **Automated reminders** — remind developers to submit and managers to review on time.
 
 ### Supported IDEs
