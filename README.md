@@ -69,17 +69,17 @@ Learn more at [site.codeclocker.com](https://site.codeclocker.com/).
 
 ## Screenshots
 
-### Team Timesheet Approvals
-
-Review submission status and weekly worklogs for every team member. Approve timesheets and export the week — all from one screen.
-
-<img src="https://site.codeclocker.com/screenshots/team-dashboard.webp" alt="CodeClocker auto-generated weekly timesheet with commit evidence" width="100%" />
-
 ### AI-Generated Timesheets
 
 AI turns IDE activity, commits, and branches into an editable weekly calendar timesheet draft. Developers review, adjust, and submit.
 
 <img src="https://site.codeclocker.com/screenshots/timesheet-calendar.webp" alt="CodeClocker team timesheet approval dashboard" width="100%" />
+
+### Team Timesheet Approvals
+
+Review submission status and weekly worklogs for every team member. Approve timesheets and export the week — all from one screen.
+
+<img src="https://site.codeclocker.com/screenshots/team-dashboard.webp" alt="CodeClocker auto-generated weekly timesheet with commit evidence" width="100%" />
 
 ### Team Pulse
 
