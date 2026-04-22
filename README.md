@@ -1,8 +1,28 @@
-# CodeClocker – Time Tracking, AI Timesheets & Team Pulse for JetBrains IDEs
+# CodeClocker — Automatic Time Tracking + AI Timesheets from Git Commits in Hub
 
 ![Build](https://github.com/codeclocker/codeclocker-intellij-plugin/actions/workflows/gradle.yml/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/26962.svg)](https://plugins.jetbrains.com/plugin/26962)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/26962.svg)](https://plugins.jetbrains.com/plugin/26962)
+
+**AI-generated timesheets from Git commits. AI-powered team awareness. Zero manual entry.**
+
+CodeClocker tracks coding activity in the background and turns real IDE work into AI-generated weekly timesheet drafts. 
+Instead of rebuilding the week from scratch, developers review and adjust a pre-filled calendar based on commits, branches, and project activity.
+
+Connect to [CodeClocker Hub](https://hub.codeclocker.com/) to unlock AI timesheets, Team Pulse summaries, approval workflows, and billing exports for your team.
+
+<a href="https://hub.codeclocker.com/">
+  <img src="https://site.codeclocker.com/screenshots/timesheet-calendar.webp" alt="CodeClocker Team Dashboard — timesheet approvals, submission status, and tracked hours" width="100%" />
+</a>
+
+<p>
+  <a href="https://site.codeclocker.com/">Website</a> &bull;
+  <a href="https://hub.codeclocker.com/">CodeClocker Hub</a> &bull;
+  <a href="https://plugins.jetbrains.com/plugin/26962">JetBrains Marketplace</a> &bull;
+  <a href="https://github.com/codeclocker/codeclocker-intellij-plugin/issues">Report Issue</a>
+</p>
+
+---
 
 <!-- Plugin description -->
 
