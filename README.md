@@ -6,7 +6,7 @@
 
 <!-- Plugin description -->
 
-## Automatic Time Tracking for JetBrains + AI Timesheets in Hub
+## Automatic Time Tracking + AI Timesheets from Git Commits in Hub
 
 CodeClocker tracks active coding time per project in your JetBrains IDE and works locally by default — no account required. 
 It helps you understand where your time went, prepare standup updates, and export activity data without leaving the IDE.
