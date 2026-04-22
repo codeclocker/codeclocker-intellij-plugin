@@ -1,17 +1,18 @@
-# CodeClocker — AI-Powered Timesheets & Team Awareness for Dev Teams | JetBrains Plugin
+# CodeClocker — Automatic Time Tracking + AI Timesheets from Git Commits in Hub
 
 ![Build](https://github.com/codeclocker/codeclocker-intellij-plugin/actions/workflows/gradle.yml/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/26962.svg)](https://plugins.jetbrains.com/plugin/26962)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/26962.svg)](https://plugins.jetbrains.com/plugin/26962)
 
-**AI-generated timesheets. AI-powered team awareness. Zero manual entry.**
+**AI-generated timesheets from Git commits. AI-powered team awareness. Zero manual entry.**
 
-CodeClocker tracks coding activity in the background and turns real IDE work into AI-generated weekly timesheet drafts. Instead of rebuilding the week from scratch, developers review and adjust a pre-filled calendar based on commits, branches, and project activity.
+CodeClocker tracks coding activity in the background and turns real IDE work into AI-generated weekly timesheet drafts. 
+Instead of rebuilding the week from scratch, developers review and adjust a pre-filled calendar based on commits, branches, and project activity.
 
 Connect to [CodeClocker Hub](https://hub.codeclocker.com/) to unlock AI timesheets, Team Pulse summaries, approval workflows, and billing exports for your team.
 
 <a href="https://hub.codeclocker.com/">
-  <img src="https://site.codeclocker.com/screenshots/team-dashboard.jpg" alt="CodeClocker Team Dashboard — timesheet approvals, submission status, and tracked hours" width="100%" />
+  <img src="https://site.codeclocker.com/screenshots/timesheet-calendar.webp" alt="CodeClocker Team Dashboard — timesheet approvals, submission status, and tracked hours" width="100%" />
 </a>
 
 <p>
@@ -25,37 +26,36 @@ Connect to [CodeClocker Hub](https://hub.codeclocker.com/) to unlock AI timeshee
 
 <!-- Plugin description -->
 
-## AI-Generated Timesheets & AI-Powered Team Awareness
+## Automatic Time Tracking + AI Timesheets from Git Commits in Hub
 
-CodeClocker tracks coding activity in the background and turns real IDE work into AI-generated weekly timesheet drafts. 
-Instead of rebuilding the week from scratch, developers review and adjust a pre-filled calendar based on commits, branches, and project activity.
+CodeClocker tracks active coding time per project in your JetBrains IDE and works locally by default — no account required. 
+It helps you understand where your time went, prepare standup updates, and export activity data without leaving the IDE.
 
-Connect to [CodeClocker Hub](https://hub.codeclocker.com/) to unlock AI timesheets, Team Pulse summaries, approval workflows, and billing exports for your team.
+Optionally connect to [CodeClocker Hub](https://hub.codeclocker.com/) to turn IDE activity, commits, and branches into AI-generated weekly timesheet drafts, My Brief summaries, Jira exports, invoices, Team Pulse summaries, approvals, and billing-ready reports.
 
-### For Teams & Managers
+### Use it locally (default)
 
-- **AI-generated weekly timesheets** — turn IDE activity, commits, and branches into editable weekly timesheet drafts that developers can review and submit.
-- **AI team awareness (Team Pulse)** — AI analyzes project activity and commit data to generate concise summaries of what moved across the team.
-- **AI project summaries** — each active project gets a short AI-generated brief so managers and teammates can understand meaningful changes without reading every commit.
-- **Evidence-linked worklogs** — connect submitted timesheet entries to branches and commits for easier review and client reporting.
-- **Approvals workflow** — managers review submitted timesheets, approve them, or request changes from a single dashboard.
-- **CSV & PDF exports** — export approved timesheets for payroll, accounting, or client billing.
-- **Automated reminders** — remind developers to submit and managers to review on time.
-- **Role-based access** — separate owner, manager, and member workflows inside CodeClocker Hub.
-
-Built for software teams that need AI-generated timesheets, better team awareness, manager approvals, and invoice-ready exports — without asking developers to run timers.
-Start a free team trial at [hub.codeclocker.com](https://hub.codeclocker.com/).
-
-### For Developers
-
-- **AI timesheet** — get a pre-filled weekly calendar draft based on your real IDE activity, commits, and branches.
-- **My Brief** — see an AI-generated summary of your recent work across projects before standup or weekly review.
 - **Automatic time tracking** — records active coding time per project in the background.
 - **What I Was Doing** — generate standup-ready summaries with time breakdowns, branch details, and commits.
+- **Activity Report** — review recent activity by project and commit history inside the IDE.
 - **Daily & weekly goals** — set coding targets globally or per project, and get notified when you hit them.
 - **Pomodoro Timer** — built-in timer with configurable work and break intervals.
-- **Teammate awareness** — see AI-powered Team Pulse updates that help you understand what moved across the product.
-- **Privacy first** — all data stays on your machine in Local Mode. Hub sync is opt-in.
+- **CSV export** — export activity data for invoicing or reporting.
+- **Privacy first** — all data stays on your machine in Local Mode.
+- **Auto-pause** — pauses tracking when the IDE loses focus or on inactivity timeout.
+
+### Connect to Hub for AI timesheets, exports, and team workflows
+
+- **AI-generated weekly timesheets** — turn IDE activity, commits, and branches into editable weekly timesheet drafts.
+- **My Brief** — get an AI-generated summary of your recent work across projects before standup or weekly review.
+- **AI standup summaries** — generate concise standup-ready updates from your actual work.
+- **Jira worklog export** — export approved timesheets to Jira and attach logged time to matching tickets using issue keys parsed from IDE activity.
+- **CSV & PDF exports** — export timesheets for payroll, accounting, client billing, or personal reporting.
+- **Invoices** — generate invoice-ready outputs for freelance and consulting work.
+- **Team Pulse summaries** — see AI-generated summaries of what moved across projects and across the team.
+- **Approvals workflow** — managers review submitted timesheets and request changes when needed.
+- **Evidence-linked worklogs** — connect timesheet entries to branches and commits.
+- **Automated reminders** — remind developers to submit and managers to review on time.
 
 ### Supported IDEs
 
@@ -69,42 +69,36 @@ Learn more at [site.codeclocker.com](https://site.codeclocker.com/).
 
 ## Screenshots
 
+### AI-Generated Timesheets
+
+AI turns IDE activity, commits, and branches into an editable weekly calendar timesheet draft. Developers review, adjust, and submit.
+
+<img src="https://site.codeclocker.com/screenshots/timesheet-calendar.webp" alt="CodeClocker team timesheet approval dashboard" width="100%" />
+
 ### Team Timesheet Approvals
 
 Review submission status and weekly worklogs for every team member. Approve timesheets and export the week — all from one screen.
 
-<img src="https://site.codeclocker.com/screenshots/team-dashboard.jpg" alt="CodeClocker auto-generated weekly timesheet with commit evidence" width="100%" />
-
-### AI-Generated Timesheets
-
-AI turns IDE activity, commits, and branches into an editable weekly timesheet draft. Developers review, adjust, and submit. Every entry links back to real commits and branches.
-
-<img src="https://site.codeclocker.com/screenshots/timesheet.png" alt="CodeClocker team timesheet approval dashboard" width="100%" />
+<img src="https://site.codeclocker.com/screenshots/team-dashboard.webp" alt="CodeClocker auto-generated weekly timesheet with commit evidence" width="100%" />
 
 ### Team Pulse
 
 Stay aligned on what changed across the team. 
-Team Pulse turns commit and project activity into AI-generated summaries, meaningful change highlights, and coordination signals — giving your team shared awareness without extra status meetings.
+Team Pulse turns Git commits into AI-generated summaries, meaningful change highlights, and coordination signals — giving your team shared awareness without extra status meetings.
 
-<img src="https://site.codeclocker.com/screenshots/team-pulse.jpg" alt="CodeClocker Team Pulse dashboard with AI-powered team awareness and project summaries" width="100%" />
+<img src="https://site.codeclocker.com/screenshots/team-pulse.webp" alt="CodeClocker Team Pulse dashboard with AI-powered team awareness and project summaries" width="100%" />
 
 ### Reports & Exports
 
 Export approved timesheets as CSV for payroll or PDF for clients. Close the week once everything is approved.
 
-<img src="https://site.codeclocker.com/screenshots/export-everywhere.png" alt="CodeClocker reports and exports — CSV, PDF, close week" width="100%" />
+<img src="https://site.codeclocker.com/screenshots/export-everywhere.webp" alt="CodeClocker reports and exports — CSV, PDF, close week" width="100%" />
 
 ### In-IDE Activity Dashboard
 
 The status bar widget shows today's tracked time, goal progress, coding trends, and per-project breakdown — without leaving your IDE.
 
-<img src="https://site.codeclocker.com/screenshots/status-bar-popup.png" alt="CodeClocker IDE status bar widget with goals and coding trends" width="400" />
-
-### Activity Report
-
-Detailed tree-view of daily coding activity organized by project. Expand any day to see commits with hashes and messages. Filter by project and export to CSV.
-
-<img src="https://site.codeclocker.com/screenshots/activity-report.png" alt="CodeClocker activity report tool window with commit details" width="100%" />
+<img src="https://site.codeclocker.com/screenshots/status-bar-popup.webp" alt="CodeClocker IDE status bar widget with goals and coding trends" width="400" />
 
 ---
 
