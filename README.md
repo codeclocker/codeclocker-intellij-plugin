@@ -26,7 +26,7 @@ Connect to [CodeClocker Hub](https://hub.codeclocker.com/) to unlock AI timeshee
 
 <!-- Plugin description -->
 
-## Automatic Time Tracking + AI Timesheets & Jira Worklog Sync
+## Automatic Time Tracking + AI Timesheets from Git Commits & Jira Worklog Sync
 
 CodeClocker tracks active coding time per project in your JetBrains IDE and works locally by default — no account required. 
 It helps you understand where your time went, prepare standup updates, and export activity data without leaving the IDE.
