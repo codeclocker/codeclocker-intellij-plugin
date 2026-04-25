@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [1.17.3] - 2026-04-25
+
+### Changed
+
+- Update README
+
 ## [1.17.2] - 2026-04-21
 
 ### Changed
@@ -326,7 +332,8 @@
 
 - Support IntelliJ Platform 2024.3.5
 
-[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.17.2...HEAD
+[Unreleased]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.17.3...HEAD
+[1.17.3]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.17.2...v1.17.3
 [1.17.2]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.17.1...v1.17.2
 [1.17.1]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.17.0...v1.17.1
 [1.17.0]: https://github.com/codeclocker/codeclocker-intellij-plugin/compare/v1.16.0...v1.17.0

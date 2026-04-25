@@ -1,4 +1,4 @@
-# CodeClocker — Automatic Time Tracking + AI Timesheets from Git Commits in Hub
+# CodeClocker — AI Timesheets from Git Commits + Jira Worklog Sync
 
 ![Build](https://github.com/codeclocker/codeclocker-intellij-plugin/actions/workflows/gradle.yml/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/26962.svg)](https://plugins.jetbrains.com/plugin/26962)
@@ -26,7 +26,7 @@ Connect to [CodeClocker Hub](https://hub.codeclocker.com/) to unlock AI timeshee
 
 <!-- Plugin description -->
 
-## Automatic Time Tracking + AI Timesheets from Git Commits in Hub
+## Automatic Time Tracking + AI Timesheets from Git Commits & Jira Worklog Sync
 
 CodeClocker tracks active coding time per project in your JetBrains IDE and works locally by default — no account required. 
 It helps you understand where your time went, prepare standup updates, and export activity data without leaving the IDE.
