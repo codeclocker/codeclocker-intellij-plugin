@@ -1,4 +1,4 @@
-# CodeClocker — Automatic Time Tracking + AI Timesheets from Git Commits in Hub
+# CodeClocker — AI Timesheets from Git Commits + Jira Worklog Sync
 
 ![Build](https://github.com/codeclocker/codeclocker-intellij-plugin/actions/workflows/gradle.yml/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/26962.svg)](https://plugins.jetbrains.com/plugin/26962)
